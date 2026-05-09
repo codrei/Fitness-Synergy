@@ -53,6 +53,7 @@ function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(
     localStorage.getItem("capuno_auth") === "true",
   );
+
   const [loginUser, setLoginUser] = useState("");
   const [loginPass, setLoginPass] = useState("");
   const [loginError, setLoginError] = useState("");
