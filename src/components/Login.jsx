@@ -6,7 +6,7 @@ function Login({
   setLoginUser,
   loginPass,
   setLoginPass,
-  loginerror,
+  loginError,
   handleLogin,
 }) {
   return (
