@@ -80,16 +80,16 @@ function App() {
 
   // --- DATA FETCHING ---
   const fetchData = () => {
-    fetch("http://capunofitnessgym.page.gd/get_members.php")
+    fetch("https://capunofitnessgym.infinityfreeapp.com/get_members.php")
       .then((res) => res.json())
       .then((data) => setMembers(data));
-    fetch("http://capunofitnessgym.page.gd/get_attendance.php")
+    fetch("https://capunofitnessgym.infinityfreeapp.com/get_attendance.php")
       .then((res) => res.json())
       .then((data) => setAttendanceLogs(data));
-    fetch("http://capunofitnessgym.page.gd/get_plans.php")
+    fetch("https://capunofitnessgym.infinityfreeapp.com/get_plans.php")
       .then((res) => res.json())
       .then((data) => setPlans(data));
-    fetch("http://capunofitnessgym.page.gd/get_stats.php")
+    fetch("https://capunofitnessgym.infinityfreeapp.com/get_stats.php")
       .then((res) => res.json())
       .then((data) => setStats(data));
   };
@@ -101,7 +101,7 @@ function App() {
   // --- AUTHENTICATION ---
   const handleLogin = (e) => {
     e.preventDefault();
-    fetch("http://capunofitnessgym.page.gd/login.php", {
+    fetch("https://capunofitnessgym.infinityfreeapp.com/login.php", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username: loginUser, password: loginPass }),
@@ -127,7 +127,7 @@ function App() {
 
   // --- CRUD ACTIONS ---
   const handleTimeIn = (memberId) => {
-    fetch("http://capunofitnessgym.page.gd/time_in.php", {
+    fetch("https://capunofitnessgym.infinityfreeapp.com/time_in.php", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ member_id: memberId }),
@@ -151,7 +151,7 @@ function App() {
       ...(editingId && { member_id: editingId }),
     };
 
-    fetch(`http://capunofitnessgym.page.gd/${targetApi}`, {
+    fetch(`https://capunofitnessgym.infinityfreeapp.com/${targetApi}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
@@ -184,7 +184,7 @@ function App() {
 
   const handleDelete = (memberId, memberName) => {
     if (window.confirm(`Delete ${memberName} permanently?`)) {
-      fetch("http://capunofitnessgym.page.gd/delete_member.php", {
+      fetch("https://capunofitnessgym.infinityfreeapp.com/delete_member.php", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ member_id: memberId }),
@@ -201,7 +201,7 @@ function App() {
   const viewProfile = (member) => {
     setSelectedMember(member);
     fetch(
-      `http://capunofitnessgym.page.gd/get_member_attendance.php?id=${member.member_id}`,
+      `https://capunofitnessgym.infinityfreeapp.com/get_member_attendance.php?id=${member.member_id}`,
     )
       .then((res) => res.json())
       .then((data) => {
@@ -211,7 +211,7 @@ function App() {
         }
       });
     fetch(
-      `http://capunofitnessgym.page.gd/get_member_payments.php?id=${member.member_id}`,
+      `https://capunofitnessgym.infinityfreeapp.com/get_member_payments.php?id=${member.member_id}`,
     )
       .then((res) => res.json())
       .then((data) => {
