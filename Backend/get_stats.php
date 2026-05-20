@@ -1,12 +1,19 @@
 <?php
 header("Access-Control-Allow-Origin: *");
+
+// Handle preflight OPTIONS request
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit();
+}
+
 header("Content-Type: application/json");
 
 // 1. Force PHP into Philippine Time
 date_default_timezone_set('Asia/Manila');
 
 try {
-    $conn = new PDO("mysql:host=sql303.infinityfree.com;dbname=if0_41873855_ironforgegym;charset=utf8", "if0_41873855", "NK92T3vwsKKoXp");
+    $conn = new PDO("mysql:host=sql303.infinityfree.com;dbname=if0_41975335_fitnesssynergy;charset=utf8mb4", "if0_41975335", "l0s6Y0PVPO");
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     
     // 2. Force the MySQL Database session into Philippine Time (UTC+8)

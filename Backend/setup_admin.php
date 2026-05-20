@@ -1,7 +1,7 @@
 <?php
 // Run this file ONCE in your browser to create the admin account!
 try {
-    $conn = new PDO("mysql:host=sql303.infinityfree.com;dbname=if0_41873855_ironforgegym;charset=utf8mb4", "if0_41873855", "NK92T3vwsKKoXp");
+    $conn = new PDO("mysql:host=sql303.infinityfree.com;dbname=if0_41975335_fitnesssynergy;charset=utf8mb4", "if0_41975335", "l0s6Y0PVPO");
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
     // 1. Create the table
@@ -16,7 +16,7 @@ try {
 
     // 3. Hash the password securely (NEVER STORE PLAIN TEXT!)
     $username = "admin";
-    $password = "capunofitness2026"; // Feel free to change this!
+    $password = "admin"; // Feel free to change this!
     $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
     // 4. Save it to the database

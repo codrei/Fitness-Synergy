@@ -14,7 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
 date_default_timezone_set('Asia/Manila');
 
 try {
-    $conn = new PDO("mysql:host=sql303.infinityfree.com;dbname=if0_41873855_ironforgegym;charset=utf8mb4", "if0_41873855", "NK92T3vwsKKoXp");
+    $conn = new PDO("mysql:host=sql303.infinityfree.com;dbname=if0_41975335_fitnesssynergy;charset=utf8mb4", "if0_41975335", "l0s6Y0PVPO");
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     
     // 2. Force Database into Philippine Time

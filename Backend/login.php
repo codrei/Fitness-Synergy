@@ -25,7 +25,7 @@ $data = json_decode($json);
 if (!empty($data->username) && !empty($data->password)) {
     try {
         // DATABASE CONNECTION
-        $conn = new PDO("mysql:host=sql303.infinityfree.com;dbname=if0_41873855_ironforgegym;charset=utf8mb4", "if0_41873855", "NK92T3vwsKKoXp");
+        $conn = new PDO("mysql:host=sql303.infinityfree.com;dbname=if0_41975335_fitnesssynergy;charset=utf8mb4", "if0_41975335", "l0s6Y0PVPO");
         // Ensure PDO throws errors so we can catch them
         $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         

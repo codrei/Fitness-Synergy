@@ -36,7 +36,7 @@ function Sidebar({
             letterSpacing: "1px",
           }}
         >
-          CAPUNO
+          GYM
         </h2>
         <span style={{ fontSize: "12px", letterSpacing: "2px", color: "#888" }}>
           FITNESS SYSTEM

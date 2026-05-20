@@ -41,7 +41,7 @@ function Login({
             textTransform: "uppercase",
           }}
         >
-          Capuno OS
+          GYM OS
         </h1>
         <p
           style={{
