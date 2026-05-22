@@ -32,6 +32,9 @@ function StatsCards({ stats, theme }) {
             borderRadius: "12px",
             border: `1px solid ${theme.border}`,
             boxShadow: "0 4px 6px rgba(0,0,0,0.05)",
+            backdropFilter: "blur(12px)",
+            background: "rgba(255,255,255,0.05)",
+            border: "1px solid rgba(255,255,255,0.08)",
           }}
         >
           <div
@@ -44,8 +47,6 @@ function StatsCards({ stats, theme }) {
           >
             {s.label}
           </div>
-          backdropFilter: "blur(12px)", background: "rgba(255,255,255,0.05)",
-          border: "1px solid rgba(255,255,255,0.08)",
           <div
             style={{
               fontSize: "28px",
