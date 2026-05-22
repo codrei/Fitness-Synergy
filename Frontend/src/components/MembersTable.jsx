@@ -25,8 +25,6 @@ function MembersTable({
         overflow: "hidden",
       }}
     >
-      background: "rgba(255,255,255,0.04)", backdropFilter: "blur(10px)",
-      borderRadius: "20px",
       <div
         style={{
           padding: "20px",
@@ -34,6 +32,9 @@ function MembersTable({
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
+          background: "rgba(255,255,255,0.04)",
+          backdropFilter: "blur(10px)",
+          borderRadius: "20px",
         }}
       >
         <h2 style={{ margin: 0, fontSize: "18px" }}>Member Roster</h2>
