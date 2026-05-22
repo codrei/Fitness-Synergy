@@ -15,7 +15,7 @@ $data = json_decode(file_get_contents("php://input"));
 
 if (!empty($data->member_id) && !empty($data->full_name)) {
     try {
-        $conn = new PDO("mysql:host=sql303.infinityfree.com;dbname=if0_41873855_ironforgegym;charset=utf8mb4", "if0_41873855", "NK92T3vwsKKoXp");
+        $conn = new PDO("mysql:host=sql303.infinityfree.com;dbname=if0_41975335_fitnesssynergy;charset=utf8mb4", "if0_41975335", "l0s6Y0PVPO");
         $plan_id = !empty($data->plan_id) ? (int)$data->plan_id : 1;
 
         // Added start_date to the UPDATE query

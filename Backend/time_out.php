@@ -13,12 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 
 // TODO: Replace YOUR_DB_PASSWORD with your actual InfinityFree vPanel password
-$host = "sql303.infinityfree.com";
-$db_name = "if0_41873855_ironforgegym";
-$username = "if0_41873855";
-$password = "YOUR_DB_PASSWORD"; 
-
-$conn = new mysqli($host, $username, $password, $db_name);
+$conn = new PDO("mysql:host=sql303.infinityfree.com;dbname=if0_41975335_fitnesssynergy;charset=utf8mb4", "if0_41975335", "l0s6Y0PVPO");
 
 if ($conn->connect_error) {
     die(json_encode(["success" => false, "error" => "Database Connection failed."]));
