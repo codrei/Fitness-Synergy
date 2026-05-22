@@ -20,10 +20,11 @@ function Login({
         backgroundColor: theme.bg,
         color: theme.text,
         fontFamily: "sans-serif",
+        backgroundImage: `url(${bg})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
       }}
     >
-      backgroundImage: `url(${bg})`, backgroundSize: "cover",
-      backgroundPosition: "center",
       <div
         style={{
           backgroundColor: theme.surface,
