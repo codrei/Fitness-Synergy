@@ -57,7 +57,16 @@ function MembersTable({
       <table
         style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}
       >
-        {/* ... (Keep your thead the same) ... */}
+        <thead>
+          <tr>
+            <th style={{ padding: "15px 20px" }}>Member Name</th>
+            <th style={{ padding: "15px 20px" }}>Plan</th>
+            <th style={{ padding: "15px 20px" }}>Status</th>
+            <th style={{ padding: "15px 20px", textAlign: "right" }}>
+              Actions
+            </th>
+          </tr>
+        </thead>
         <tbody>
           {filteredMembers.map((member) => {
             const daysLeft = getDaysRemaining(member.expiration_date);
@@ -102,7 +111,33 @@ function MembersTable({
                 key={member.member_id}
                 style={{ borderBottom: `1px solid ${theme.border}` }}
               >
-                {/* ... (Keep Name and Status columns the same) ... */}
+                {/* MEMBER NAME */}
+                <td style={{ padding: "15px 20px", fontWeight: "bold" }}>
+                  {member.full_name}
+                </td>
+
+                {/* PLAN */}
+                <td style={{ padding: "15px 20px" }}>
+                  {member.plan_name || "No Plan"}
+                </td>
+
+                {/* STATUS */}
+                <td style={{ padding: "15px 20px" }}>
+                  <span
+                    style={{
+                      backgroundColor: statusBg,
+                      color: statusColor,
+                      padding: "6px 12px",
+                      borderRadius: "20px",
+                      fontWeight: "bold",
+                      fontSize: "12px",
+                    }}
+                  >
+                    {statusLabel}
+                  </span>
+                </td>
+
+                {/* ACTION BUTTONS */}
                 <td style={{ padding: "15px 20px", textAlign: "right" }}>
                   {/* --- UPDATED BUTTON LOGIC --- */}
                   <button
