@@ -14,30 +14,39 @@ function MembersTable({
   startEditing,
   handleDelete,
 }) {
+  const isDarkMode = theme.bg === "#081018";
+
   return (
     <div
       style={{
         flex: 3,
-        backgroundColor: theme.surface,
-        borderRadius: "12px",
-        border: `1px solid ${theme.border}`,
-        boxShadow: "0 4px 6px rgba(0,0,0,0.05)",
+        background: isDarkMode
+          ? "rgba(15, 23, 42, 0.72)"
+          : "rgba(255,255,255,0.78)",
+        backdropFilter: "blur(14px)",
+        border: isDarkMode
+          ? "1px solid rgba(255,255,255,0.08)"
+          : "1px solid rgba(0,0,0,0.08)",
+        borderRadius: "20px",
+        boxShadow: isDarkMode
+          ? "0 10px 30px rgba(0,0,0,0.35)"
+          : "0 10px 30px rgba(0,0,0,0.08)",
         overflow: "hidden",
       }}
     >
       <div
         style={{
           padding: "20px",
-          borderBottom: `1px solid ${theme.border}`,
+          borderBottom: isDarkMode
+            ? "1px solid rgba(255,255,255,0.08)"
+            : "1px solid rgba(0,0,0,0.08)",
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          background: "rgba(255,255,255,0.04)",
-          backdropFilter: "blur(10px)",
-          borderRadius: "20px",
         }}
       >
         <h2 style={{ margin: 0, fontSize: "18px" }}>Member Roster</h2>
+
         <input
           type="text"
           placeholder="🔍 Search members..."
@@ -46,16 +55,26 @@ function MembersTable({
           style={{
             padding: "10px 15px",
             borderRadius: "20px",
-            border: `1px solid ${theme.border}`,
-            backgroundColor: theme.bg,
+            border: isDarkMode
+              ? "1px solid rgba(255,255,255,0.08)"
+              : "1px solid rgba(0,0,0,0.08)",
+            background: isDarkMode
+              ? "rgba(0,0,0,0.25)"
+              : "rgba(255,255,255,0.7)",
             color: theme.text,
             width: "250px",
             outline: "none",
+            backdropFilter: "blur(10px)",
           }}
         />
       </div>
+
       <table
-        style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}
+        style={{
+          width: "100%",
+          borderCollapse: "collapse",
+          textAlign: "left",
+        }}
       >
         <thead>
           <tr>
@@ -67,52 +86,69 @@ function MembersTable({
             </th>
           </tr>
         </thead>
+
         <tbody>
           {filteredMembers.map((member) => {
             const daysLeft = getDaysRemaining(member.expiration_date);
-            const isDark = theme.bg === "#121212";
 
             const isExpired =
               member.status === "Expired" || daysLeft === "Expired";
 
             // --- CHECK IF TIMED IN ---
-            // Checks if there's a log for this member today that doesn't have a time_out yet
             const activeSession = attendanceLogs.find(
               (log) => log.member_id === member.member_id && !log.time_out,
             );
+
             const isTimedIn = !!activeSession;
 
-            const statusBg = isExpired
-              ? isDark
-                ? "#4a0f0f"
-                : "#ffebee"
-              : daysLeft === "Expires Today"
-                ? isDark
-                  ? "#4a3500"
-                  : "#fff8e1"
-                : isDark
-                  ? "#0d3318"
-                  : "#e8f5e9";
-            const statusColor = isExpired
-              ? theme.danger
-              : daysLeft === "Expires Today"
-                ? "#f59e0b"
-                : theme.success;
-            const statusLabel = isExpired
-              ? "❌ EXPIRED"
-              : daysLeft === "Expires Today"
-                ? "⚠️ EXPIRES TODAY"
-                : daysLeft === "No Expiration"
-                  ? "✅ NO EXPIRATION"
-                  : `✅ ${daysLeft}`;
+            // --- STATUS COLORS ---
+            let statusBg = "";
+            let statusColor = "";
+            let statusLabel = "";
+
+            if (isExpired) {
+              statusBg = isDarkMode ? "rgba(239,68,68,0.18)" : "#fee2e2";
+
+              statusColor = isDarkMode ? "#f87171" : "#991b1b";
+
+              statusLabel = "❌ EXPIRED";
+            } else if (daysLeft === "Expires Today") {
+              statusBg = isDarkMode ? "rgba(245,158,11,0.18)" : "#fef3c7";
+
+              statusColor = isDarkMode ? "#fbbf24" : "#92400e";
+
+              statusLabel = "⚠️ EXPIRES TODAY";
+            } else if (daysLeft === "No Expiration") {
+              statusBg = isDarkMode ? "rgba(34,197,94,0.18)" : "#dcfce7";
+
+              statusColor = isDarkMode ? "#4ade80" : "#166534";
+
+              statusLabel = "✅ NO EXPIRATION";
+            } else {
+              statusBg = isDarkMode ? "rgba(34,197,94,0.18)" : "#dcfce7";
+
+              statusColor = isDarkMode ? "#4ade80" : "#166534";
+
+              statusLabel = `✅ ${daysLeft}`;
+            }
 
             return (
               <tr
                 key={member.member_id}
-                style={{ borderBottom: `1px solid ${theme.border}` }}
+                style={{
+                  borderBottom: isDarkMode
+                    ? "1px solid rgba(255,255,255,0.05)"
+                    : "1px solid rgba(0,0,0,0.05)",
+                  transition: "0.2s",
+                }}
               >
                 {/* MEMBER NAME */}
-                <td style={{ padding: "15px 20px", fontWeight: "bold" }}>
+                <td
+                  style={{
+                    padding: "15px 20px",
+                    fontWeight: "bold",
+                  }}
+                >
                   {member.full_name}
                 </td>
 
@@ -127,19 +163,25 @@ function MembersTable({
                     style={{
                       backgroundColor: statusBg,
                       color: statusColor,
-                      padding: "6px 12px",
-                      borderRadius: "20px",
+                      padding: "7px 14px",
+                      borderRadius: "999px",
                       fontWeight: "bold",
                       fontSize: "12px",
+                      letterSpacing: "0.5px",
                     }}
                   >
                     {statusLabel}
                   </span>
                 </td>
 
-                {/* ACTION BUTTONS */}
-                <td style={{ padding: "15px 20px", textAlign: "right" }}>
-                  {/* --- UPDATED BUTTON LOGIC --- */}
+                {/* ACTIONS */}
+                <td
+                  style={{
+                    padding: "15px 20px",
+                    textAlign: "right",
+                  }}
+                >
+                  {/* TIME BUTTON */}
                   <button
                     onClick={() => {
                       if (isExpired) alert("⛔ Please renew plan to time in.");
@@ -147,38 +189,41 @@ function MembersTable({
                       else handleTimeIn(member.member_id);
                     }}
                     style={{
-                      padding: "8px 12px",
-                      // Red if timed in, Green if timed out, Grey if expired
+                      padding: "8px 14px",
                       backgroundColor: isExpired
-                        ? theme.border
+                        ? "#555"
                         : isTimedIn
-                          ? theme.danger
-                          : theme.success,
-                      color: isExpired ? theme.textMuted : "#fff",
+                          ? "#ef4444"
+                          : "#00bfff",
+                      color: "white",
                       border: "none",
-                      borderRadius: "6px",
+                      borderRadius: "8px",
                       cursor: isExpired ? "not-allowed" : "pointer",
                       fontWeight: "bold",
                       marginRight: "8px",
+                      boxShadow: "0 0 12px rgba(0,191,255,0.25)",
                     }}
                   >
                     {isTimedIn ? "TIME OUT" : "TIME IN"}
                   </button>
 
+                  {/* PROFILE */}
                   <button
                     onClick={() => viewProfile(member)}
                     style={{
                       padding: "8px 12px",
-                      backgroundColor: theme.sidebar,
+                      backgroundColor: "#7c3aed",
                       color: "white",
                       border: "none",
-                      borderRadius: "6px",
+                      borderRadius: "8px",
                       cursor: "pointer",
                       marginRight: "8px",
                     }}
                   >
                     👤
                   </button>
+
+                  {/* EDIT */}
                   <button
                     onClick={() => startEditing(member)}
                     style={{
@@ -186,23 +231,25 @@ function MembersTable({
                       backgroundColor: "#f59e0b",
                       color: "white",
                       border: "none",
-                      borderRadius: "6px",
+                      borderRadius: "8px",
                       cursor: "pointer",
                       marginRight: "8px",
                     }}
                   >
                     ✏️
                   </button>
+
+                  {/* DELETE */}
                   <button
                     onClick={() =>
                       handleDelete(member.member_id, member.full_name)
                     }
                     style={{
                       padding: "8px 12px",
-                      backgroundColor: theme.danger,
+                      backgroundColor: "#ef4444",
                       color: "white",
                       border: "none",
-                      borderRadius: "6px",
+                      borderRadius: "8px",
                       cursor: "pointer",
                     }}
                   >

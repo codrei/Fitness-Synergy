@@ -363,9 +363,16 @@ function App() {
       style={{
         display: "flex",
         height: "100vh",
-        backgroundColor: theme.bg,
+        backgroundColor: isDarkMode
+          ? "rgba(5,10,20,0.88)"
+          : "rgba(240,248,255,0.82)",
+
         backgroundImage: `url(${bgTexture})`,
+
+        backgroundBlendMode: "overlay",
+
         backgroundSize: "cover",
+
         backgroundPosition: "center",
         color: theme.text,
         fontFamily: "sans-serif",
@@ -397,7 +404,6 @@ function App() {
           <button
             onClick={openAddModal}
             style={{
-              boxShadow: "0 0 20px rgba(0,191,255,0.35)",
               padding: "12px 24px",
               backgroundColor: theme.primary,
               color: theme.primaryText,
