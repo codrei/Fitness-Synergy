@@ -30,17 +30,18 @@ function StatsCards({ stats, theme }) {
             backgroundColor: theme.surface,
             padding: "20px",
             borderRadius: "12px",
-            border: `1px solid ${theme.border}`,
             boxShadow: "0 4px 6px rgba(0,0,0,0.05)",
-            background: isDarkMode
-              ? "rgba(15, 23, 42, 0.72)"
-              : "rgba(255, 255, 255, 0.78)",
+            background:
+              theme.bg === "#081018"
+                ? "rgba(15, 23, 42, 0.72)"
+                : "rgba(255, 255, 255, 0.78)",
 
             backdropFilter: "blur(14px)",
 
-            border: isDarkMode
-              ? "1px solid rgba(255,255,255,0.08)"
-              : "1px solid rgba(0,0,0,0.08)",
+            border:
+              theme.bg === "#081018"
+                ? "1px solid rgba(255,255,255,0.08)"
+                : "1px solid rgba(0,0,0,0.08)",
           }}
         >
           <div
