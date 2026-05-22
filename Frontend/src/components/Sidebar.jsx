@@ -36,10 +36,10 @@ function Sidebar({
             letterSpacing: "1px",
           }}
         >
-          GYM
+          FITNESS SYNERGY
         </h2>
         <span style={{ fontSize: "12px", letterSpacing: "2px", color: "#888" }}>
-          FITNESS SYSTEM
+          GYM SYSTEM
         </span>
       </div>
 

@@ -41,7 +41,7 @@ function Login({
             textTransform: "uppercase",
           }}
         >
-          GYM OS
+          Fitness Synergy
         </h1>
         <p
           style={{

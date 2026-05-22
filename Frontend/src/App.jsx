@@ -66,7 +66,7 @@ function App() {
 
   // --- AUTH STATES ---
   const [isLoggedIn, setIsLoggedIn] = useState(
-    localStorage.getItem("capuno_auth") === "true",
+    localStorage.getItem("fitness_synergy_auth") === "true",
   );
 
   const [loginUser, setLoginUser] = useState("");
@@ -95,16 +95,16 @@ function App() {
 
   // --- DATA FETCHING ---
   const fetchData = () => {
-    fetch("https://capunofitnessgym.infinityfreeapp.com/get_members.php")
+    fetch("https://fitness-synergy.infinityfreeapp.com/get_members.php")
       .then((res) => res.json())
       .then((data) => setMembers(data));
-    fetch("https://capunofitnessgym.infinityfreeapp.com/get_attendance.php")
+    fetch("https://fitness-synergy.infinityfreeapp.com/get_attendance.php")
       .then((res) => res.json())
       .then((data) => setAttendanceLogs(data));
-    fetch("https://capunofitnessgym.infinityfreeapp.com/get_plans.php")
+    fetch("https://fitness-synergy.infinityfreeapp.com/get_plans.php")
       .then((res) => res.json())
       .then((data) => setPlans(data));
-    fetch("https://capunofitnessgym.infinityfreeapp.com/get_stats.php")
+    fetch("https://fitness-synergy.infinityfreeapp.com/get_stats.php")
       .then((res) => res.json())
       .then((data) => setStats(data));
   };
@@ -116,7 +116,7 @@ function App() {
   // --- AUTHENTICATION ---
   const handleLogin = (e) => {
     e.preventDefault();
-    fetch("https://capunofitnessgym.infinityfreeapp.com/login.php", {
+    fetch("https://fitness-synergy.infinityfreeapp.com/login.php", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username: loginUser, password: loginPass }),
@@ -124,7 +124,7 @@ function App() {
       .then((res) => res.json())
       .then((data) => {
         if (data.success) {
-          localStorage.setItem("capuno_auth", "true");
+          localStorage.setItem("fitness_synergy_auth", "true");
           setIsLoggedIn(true);
           setLoginError("");
         } else {
@@ -134,7 +134,7 @@ function App() {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("capuno_auth");
+    localStorage.removeItem("fitness_synergy_auth");
     setIsLoggedIn(false);
     setLoginUser("");
     setLoginPass("");
@@ -142,7 +142,7 @@ function App() {
 
   // --- CRUD ACTIONS ---
   const handleTimeIn = (memberId) => {
-    fetch("https://capunofitnessgym.infinityfreeapp.com/time_in.php", {
+    fetch("https://fitness-synergy.infinityfreeapp.com/time_in.php", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ member_id: memberId }),
@@ -164,7 +164,7 @@ function App() {
   };
 
   const handleTimeOut = (memberId) => {
-    fetch("https://capunofitnessgym.infinityfreeapp.com/time_out.php", {
+    fetch("https://fitness-synergy.infinityfreeapp.com/time_out.php", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ member_id: memberId }),
@@ -191,7 +191,7 @@ function App() {
       ...(editingId && { member_id: editingId }),
     };
 
-    fetch(`https://capunofitnessgym.infinityfreeapp.com/${targetApi}`, {
+    fetch(`https://fitness-synergy.infinityfreeapp.com/${targetApi}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
@@ -224,7 +224,7 @@ function App() {
 
   const handleDelete = (memberId, memberName) => {
     if (window.confirm(`Delete ${memberName} permanently?`)) {
-      fetch("https://capunofitnessgym.infinityfreeapp.com/delete_member.php", {
+      fetch("https://fitness-synergy.infinityfreeapp.com/delete_member.php", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ member_id: memberId }),
@@ -241,7 +241,7 @@ function App() {
   const viewProfile = (member) => {
     setSelectedMember(member);
     fetch(
-      `https://capunofitnessgym.infinityfreeapp.com/get_member_attendance.php?id=${member.member_id}`,
+      `https://fitness-synergy.infinityfreeapp.com/get_member_attendance.php?id=${member.member_id}`,
     )
       .then((res) => res.json())
       .then((data) => {
@@ -251,7 +251,7 @@ function App() {
         }
       });
     fetch(
-      `https://capunofitnessgym.infinityfreeapp.com/get_member_payments.php?id=${member.member_id}`,
+      `https://fitness-synergy.infinityfreeapp.com/get_member_payments.php?id=${member.member_id}`,
     )
       .then((res) => res.json())
       .then((data) => {
@@ -387,7 +387,9 @@ function App() {
             marginBottom: "30px",
           }}
         >
-          <h1 style={{ margin: 0, fontSize: "28px" }}>Gym Overview</h1>
+          <h1 style={{ margin: 0, fontSize: "28px" }}>
+            Fitness Synergy Dashboard
+          </h1>
           <button
             onClick={openAddModal}
             style={{
