@@ -7,6 +7,7 @@ import LiveFeed from "./components/LiveFeed";
 import AddEditModal from "./components/AddEditModal";
 import ProfileModal from "./components/ProfileModal";
 import TdeeModal from "./components/TdeeModal";
+import bgTexture from "./assets/geomblue.png";
 
 function App() {
   // --- CORE STATES ---
@@ -75,16 +76,16 @@ function App() {
 
   // --- THEME ENGINE ---
   const theme = {
-    bg: isDarkMode ? "#121212" : "#f4f6f8",
+    bg: isDarkMode ? "#081018" : "#f5f5f5",
     surface: isDarkMode ? "#1e1e1e" : "#ffffff",
     border: isDarkMode ? "#333333" : "#e0e0e0",
     text: isDarkMode ? "#ffffff" : "#333333",
-    textMuted: isDarkMode ? "#aaaaaa" : "#888888",
-    primary: isDarkMode ? "#caff04" : "#1565c0", // Neon Yellow/Green in Dark Mode
+    textMuted: isDarkMode ? "#9fb3c8" : "#666666",
+    primary: isDarkMode ? "#00bfff" : "#1565c0",
     primaryText: isDarkMode ? "#000000" : "#ffffff",
     danger: isDarkMode ? "#ff5252" : "#d32f2f",
     success: isDarkMode ? "#00e676" : "#2e7d32",
-    sidebar: isDarkMode ? "#0a0a0a" : "#102a43",
+    sidebar: isDarkMode ? "#07131f" : "#102a43",
   };
 
   const toggleTheme = () => {
@@ -363,6 +364,9 @@ function App() {
         display: "flex",
         height: "100vh",
         backgroundColor: theme.bg,
+        backgroundImage: `url(${bgTexture})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
         color: theme.text,
         fontFamily: "sans-serif",
         overflow: "hidden",
@@ -393,6 +397,7 @@ function App() {
           <button
             onClick={openAddModal}
             style={{
+              boxShadow: "0 0 20px rgba(0,191,255,0.35)",
               padding: "12px 24px",
               backgroundColor: theme.primary,
               color: theme.primaryText,

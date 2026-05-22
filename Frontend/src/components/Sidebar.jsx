@@ -1,4 +1,5 @@
 import React from "react";
+import logo from "../assets/logo.jpg";
 
 function Sidebar({
   theme,
@@ -21,6 +22,17 @@ function Sidebar({
         zIndex: 10,
       }}
     >
+      <div style={{ textAlign: "center", marginBottom: "30px" }}>
+        <img
+          src={logo}
+          alt="Fitness Synergy"
+          style={{
+            width: "120px",
+            borderRadius: "12px",
+            boxShadow: "0 0 20px rgba(0,0,0,0.4)",
+          }}
+        />
+      </div>
       <div
         style={{
           paddingBottom: "20px",

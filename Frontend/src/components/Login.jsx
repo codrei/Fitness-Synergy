@@ -1,4 +1,5 @@
 import react from "react";
+import bg from "../assets/logBG.jpg";
 
 function Login({
   theme,
@@ -21,6 +22,8 @@ function Login({
         fontFamily: "sans-serif",
       }}
     >
+      backgroundImage: `url(${bg})`, backgroundSize: "cover",
+      backgroundPosition: "center",
       <div
         style={{
           backgroundColor: theme.surface,
@@ -100,6 +103,7 @@ function Login({
           <button
             type="submit"
             style={{
+              boxShadow: "0 0 20px rgba(0,191,255,0.35)",
               padding: "14px",
               backgroundColor: theme.primary,
               color: theme.primaryText,

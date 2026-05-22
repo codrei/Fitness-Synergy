@@ -25,8 +25,8 @@ function MembersTable({
         overflow: "hidden",
       }}
     >
-      {/* ... (Keep your search bar and table header exactly the same) ... */}
-
+      background: "rgba(255,255,255,0.04)", backdropFilter: "blur(10px)",
+      borderRadius: "20px",
       <div
         style={{
           padding: "20px",
@@ -53,7 +53,6 @@ function MembersTable({
           }}
         />
       </div>
-
       <table
         style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}
       >
