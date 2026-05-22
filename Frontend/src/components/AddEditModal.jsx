@@ -55,6 +55,7 @@ function AddEditModal({
               cancelEdit();
             }}
             style={{
+              boxShadow: "0 0 20px rgba(0,191,255,0.35)",
               background: "none",
               border: "none",
               color: theme.textMuted,
