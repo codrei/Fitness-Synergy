@@ -1,96 +1,121 @@
+Try AI directly in your favourite apps … Use Gemini to generate drafts and refine content, plus get Gemini Pro with access to Google's next-gen AI
 <?php
 header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Methods: POST");
-header("Access-Control-Allow-Headers: Content-Type");
+header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
+header("Access-Control-Allow-Headers: Content-Type, Authorization");
 
-// Handle preflight OPTIONS request
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
-    exit();
+if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
+    exit;
 }
 
-header("Content-Type: application/json");
-
+require_once 'db.php';
 $data = json_decode(file_get_contents("php://input"));
 
 if (!empty($data->member_id) && !empty($data->full_name)) {
     try {
-    $conn = new PDO(
-        "mysql:host=sql303.infinityfree.com;dbname=if0_41975335_fitnesssynergy;charset=utf8mb4",
-        "if0_41975335",
-        "l0s6Y0PVPO"
-    );
+        $plan_id = !empty($data->plan_id) ? (int)$data->plan_id : 1;
+        
+        // PROMO FLEXIBILITY: Read manual changes from the form edit submission
+        $bonus_days   = !empty($data->bonus_days) ? (int)$data->bonus_days : 0;
+        $custom_price = !empty($data->custom_price) ? (float)$data->custom_price : null;
 
-    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        // Pull current expiration benchmarks
+        $mStmt = $conn->prepare("SELECT plan_id, start_date, expiration_date FROM members WHERE member_id = :id");
+        $mStmt->execute([':id' => $data->member_id]);
+        $currentMember = $mStmt->fetch(PDO::FETCH_ASSOC);
 
-    $plan_id = !empty($data->plan_id) ? (int)$data->plan_id : 1;
+        if (!$currentMember) {
+            echo json_encode(["success" => false, "error" => "Member record not found."]);
+            exit;
+        }
 
-    // GET PLAN DURATION
-    $planQuery = $conn->prepare("
-        SELECT duration_days 
-        FROM plans 
-        WHERE plan_id = :plan
-    ");
+        $startDate      = $currentMember['start_date'];
+        $expirationDate = $currentMember['expiration_date'];
 
-    $planQuery->execute([':plan' => $plan_id]);
+        // TIMELINE MANIPULATION 
+        if ((int)$currentMember['plan_id'] !== $plan_id) {
+            // Case A: Admin switched their core plan tier entirely
+            $pStmt = $conn->prepare("SELECT duration_days FROM plans WHERE plan_id = :p");
+            $pStmt->execute([':p' => $plan_id]);
+            $base_duration = (int)$pStmt->fetchColumn();
 
-    $duration = (int)$planQuery->fetchColumn();
+            $startDate = date('Y-m-d');
+            $baseDate = (strtotime($currentMember['expiration_date']) >= strtotime($startDate)) 
+                ? new DateTime($currentMember['expiration_date']) 
+                : new DateTime($startDate);
 
-    // GET CURRENT MEMBER EXPIRATION
-    $memberQuery = $conn->prepare("
-        SELECT expiration_date 
-        FROM members 
-        WHERE member_id = :id
-    ");
+            $total_days = $base_duration + $bonus_days;
+            $baseDate->modify("+$total_days days");
+            $expirationDate = $baseDate->format('Y-m-d');
 
-    $memberQuery->execute([':id' => $data->member_id]);
+        } else if ($bonus_days > 0) {
+            // Case B: Keeping the same tier, but the admin is manually granting extra promotional days
+            $baseDate = (strtotime($currentMember['expiration_date']) >= strtotime(date('Y-m-d'))) 
+                ? new DateTime($currentMember['expiration_date']) 
+                : new DateTime(); // If currently expired, start tracking from today
+            
+            $baseDate->modify("+$bonus_days days");
+            $expirationDate = $baseDate->format('Y-m-d');
+        }
 
-    $currentExpiration = $memberQuery->fetchColumn();
+        // Sanitize incoming fields mapping missing parameters to NULL
+        $address                  = !empty($data->address) ? $data->address : null;
+        $contact_number           = !empty($data->contact_number) ? $data->contact_number : null;
+        $dob                      = !empty($data->dob) ? $data->dob : null;
+        $gender                   = !empty($data->gender) ? $data->gender : null;
+        $occupation               = !empty($data->occupation) ? $data->occupation : null;
+        $emergency_contact_name   = !empty($data->emergency_contact_name) ? $data->emergency_contact_name : null;
+        $emergency_contact_number = !empty($data->emergency_contact_number) ? $data->emergency_contact_number : null;
+        $contract_id              = !empty($data->contract_id) ? $data->contract_id : null;
+        $discount_type            = !empty($data->discount_type) ? $data->discount_type : 'None';
+        $discount_id              = !empty($data->discount_id) ? $data->discount_id : null;
 
-    $today = new DateTime();
-    $baseDate = new DateTime();
+        $query = $conn->prepare("
+            UPDATE members SET 
+                full_name = :name, 
+                address = :address,
+                contact_number = :contact_number,
+                dob = :dob,
+                gender = :gender,
+                occupation = :occupation,
+                emergency_contact_name = :emergency_name,
+                emergency_contact_number = :emergency_number,
+                contract_id = :contract_id,
+                discount_type = :discount_type,
+                discount_id = :discount_id,
+                plan_id = :plan, 
+                start_date = :start, 
+                expiration_date = :exp 
+            WHERE member_id = :id
+        ");
+        
+        $query->execute([
+            ':name'             => $data->full_name, 
+            ':address'          => $address,
+            ':contact_number'   => $contact_number,
+            ':dob'              => $dob,
+            ':gender'           => $gender,
+            ':occupation'       => $occupation,
+            ':emergency_name'   => $emergency_contact_name,
+            ':emergency_number' => $emergency_contact_number,
+            ':contract_id'      => $contract_id,
+            ':discount_type'    => $discount_type,
+            ':discount_id'      => $discount_id,
+            ':plan'             => $plan_id, 
+            ':start'            => $startDate,
+            ':exp'              => $expirationDate, 
+            ':id'               => $data->member_id
+        ]);
 
-    // IF CURRENT MEMBERSHIP IS STILL ACTIVE
-    if ($currentExpiration && strtotime($currentExpiration) >= strtotime(date('Y-m-d'))) {
-        $baseDate = new DateTime($currentExpiration);
+        echo json_encode(["success" => true, "message" => "Member status and customized duration updated!"]);
+    } catch(PDOException $e) {
+        if (isset($e->errorInfo[1]) && $e->errorInfo[1] == 1062) {
+            echo json_encode(["success" => false, "error" => "Contract ID matches a pre-existing record."]);
+        } else {
+            echo json_encode(["success" => false, "error" => $e->getMessage()]);
+        }
     }
-
-    // DAILY PLAN SPECIAL CASE
-    if ($duration <= 1) {
-        $expirationDate = date('Y-m-d');
-    } else {
-        $baseDate->modify("+$duration days");
-        $expirationDate = $baseDate->format('Y-m-d');
-    }
-
-    // UPDATE MEMBER
-    $query = $conn->prepare("
-        UPDATE members 
-        SET 
-            full_name = :name,
-            plan_id = :plan,
-            start_date = CURRENT_DATE(),
-            expiration_date = :expiration
-        WHERE member_id = :id
-    ");
-
-    $query->execute([
-        ':name' => $data->full_name,
-        ':plan' => $plan_id,
-        ':expiration' => $expirationDate,
-        ':id' => $data->member_id
-    ]);
-
-    echo json_encode([
-        "success" => true,
-        "message" => "Member renewed successfully!"
-    ]);
-
-} catch(PDOException $e) {
-    echo json_encode([
-        "success" => false,
-        "error" => $e->getMessage()
-    ]);
-}
+} else {
+    echo json_encode(["success" => false, "error" => "Incomplete request identification parameters."]);
 }
 ?>

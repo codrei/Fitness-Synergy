@@ -1,9 +1,16 @@
+Try AI directly in your favourite apps … Use Gemini to generate drafts and refine content, plus get Gemini Pro with access to Google's next-gen AI
 <?php
-// Run this file ONCE in your browser to create the admin account!
-try {
-    $conn = new PDO("mysql:host=sql303.infinityfree.com;dbname=if0_41975335_fitnesssynergy;charset=utf8mb4", "if0_41975335", "l0s6Y0PVPO");
-    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
+header("Access-Control-Allow-Headers: Content-Type, Authorization");
 
+// Handle preflight "OPTIONS" requests
+if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
+    exit;
+}
+require_once 'db.php';
+
+try {
     // 1. Create the table
     $conn->query("CREATE TABLE IF NOT EXISTS admins (
         admin_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -23,10 +30,11 @@ try {
     $stmt = $conn->prepare("INSERT INTO admins (username, password) VALUES (:user, :pass)");
     $stmt->execute([':user' => $username, ':pass' => $hashed_password]);
 
+    // Outputting as HTML for browser viewing
     echo "<h1>✅ Security Setup Complete!</h1>";
     echo "Your admins table is created and your secure account is ready.<br>";
-    echo "<b>Username:</b> " . $username . "<br>";
-    echo "<b>Password:</b> " . $password . "<br><br>";
+    echo "<b>Username:</b> " . htmlspecialchars($username) . "<br>";
+    echo "<b>Password:</b> " . htmlspecialchars($password) . "<br><br>";
     echo "<i>(You can safely delete this setup_admin.php file now)</i>";
 
 } catch(PDOException $e) {

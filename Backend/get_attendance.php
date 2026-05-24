@@ -1,26 +1,17 @@
+Try AI directly in your favourite apps … Use Gemini to generate drafts and refine content, plus get Gemini Pro with access to Google's next-gen AI
 <?php
 header("Access-Control-Allow-Origin: *");
-header("Content-Type: application/json; charset=UTF-8");
-header("Access-Control-Allow-Methods: GET, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With");
+header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
+header("Access-Control-Allow-Headers: Content-Type, Authorization");
 
-// Handle CORS Preflight for React
+// Handle preflight "OPTIONS" requests
 if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
-    http_response_code(200);
-    exit();
+    exit;
 }
 
-// 1. Force PHP into Philippine Time
-date_default_timezone_set('Asia/Manila');
+require_once 'db.php';
 
 try {
-    $conn = new PDO("mysql:host=sql303.infinityfree.com;dbname=if0_41975335_fitnesssynergy;charset=utf8mb4", "if0_41975335", "l0s6Y0PVPO");
-    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    
-    // 2. Force Database into Philippine Time
-    $conn->exec("SET time_zone = '+08:00';");
-    
-    // 3. We join the tables AND filter so it strictly ONLY shows today's visits
     $query = $conn->query("
         SELECT members.full_name, attendance.time_in 
         FROM attendance 
@@ -29,11 +20,8 @@ try {
         ORDER BY attendance.time_in DESC 
     ");
     
-    $logs = $query->fetchAll(PDO::FETCH_ASSOC);
-    echo json_encode($logs);
-
+    echo json_encode($query->fetchAll(PDO::FETCH_ASSOC));
 } catch (PDOException $e) {
     http_response_code(500);
     echo json_encode(["error" => $e->getMessage()]);
 }
-?>

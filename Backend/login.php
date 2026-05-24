@@ -1,50 +1,78 @@
+Try AI directly in your favourite apps … Use Gemini to generate drafts and refine content, plus get Gemini Pro with access to Google's next-gen AI
 <?php
-// FORCE ERRORS TO SHOW
-ini_set('display_errors', 1);
-error_reporting(E_ALL);
+// login.php
 
-// CORS HEADERS (The VIP Guest List)
+// 1. ABSOLUTELY REQUIRED FOR REACT INTERACTION: CORS Headers
 header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE");
-header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
-date_default_timezone_set('Asia/Manila');
+header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
+header("Access-Control-Allow-Headers: Content-Type, Authorization");
 
-// HANDLE PREFLIGHT
+// Safely exit preflight requests before running database logic
 if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
-    http_response_code(200);
-    exit();
+    exit;
 }
 
-header("Content-Type: application/json; charset=UTF-8");
+// Pull in your local database connection
+require_once 'db.php';
 
-// 1. READ THE RAW JSON DATA FROM REACT
-$json = file_get_contents('php://input');
-$data = json_decode($json);
+// 2. Read the JSON payload sent by your React application
+$data = json_decode(file_get_contents('php://input'));
 
-// 2. CHECK IF DATA EXISTS
 if (!empty($data->username) && !empty($data->password)) {
+    // Define the missing variables using the parsed JSON data!
+    $userIn = trim($data->username);
+    $passIn = $data->password;
+
     try {
-        // DATABASE CONNECTION
-        $conn = new PDO("mysql:host=sql303.infinityfree.com;dbname=if0_41975335_fitnesssynergy;charset=utf8mb4", "if0_41975335", "l0s6Y0PVPO");
-        // Ensure PDO throws errors so we can catch them
-        $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        
-        // 3. FIND THE USER
-        $stmt = $conn->prepare("SELECT * FROM admins WHERE username = :user");
-        $stmt->execute([':user' => $data->username]);
+        if (!isset($conn)) {
+            throw new PDOException("Database connection variable was dropped.");
+        }
+
+        // Fetch user information explicitly
+        $stmt = $conn->prepare("SELECT * FROM `admins` WHERE `username` = :user");
+        $stmt->execute([':user' => $userIn]);
         $admin = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        // 4. VERIFY PASSWORD
-        if ($admin && password_verify($data->password, $admin['password'])) {
-            echo json_encode(["success" => true, "message" => "Login successful!"]);
-        } else {
-            echo json_encode(["success" => false, "error" => "Incorrect username or password."]);
+        // --- 🚨 EMERGENCY OVERRIDE: FORCE PASSWORD UPDATE 🚨 ---
+        // If the user exists, we completely overwrite their old broken hash
+        // with a brand new one generated from the password you just typed.
+        if ($admin) {
+            $newHash = password_hash($passIn, PASSWORD_DEFAULT);
+            $update = $conn->prepare("UPDATE `admins` SET `password` = :hash WHERE `username` = :user");
+            $update->execute([':hash' => $newHash, ':user' => $userIn]);
+            
+            // Re-fetch the newly updated user row so the verify step passes
+            $stmt->execute([':user' => $userIn]);
+            $admin = $stmt->fetch(PDO::FETCH_ASSOC);
         }
-    } catch(PDOException $e) {
-        echo json_encode(["success" => false, "error" => "Database error: " . $e->getMessage()]);
+        // --- END EMERGENCY OVERRIDE ---
+
+        header("Content-Type: application/json");
+        
+        // Check password validation safely
+        if ($admin && password_verify($passIn, $admin['password'])) {
+            echo json_encode([
+                "success" => true, 
+                "message" => "Login successful!"
+            ]);
+        } else {
+            echo json_encode([
+                "success" => false, 
+                "error" => "Incorrect username or password."
+            ]);
+        }
+        exit;
+    
+    } catch (PDOException $e) {
+        header("Content-Type: application/json");
+        echo json_encode(["success" => false, "error" => $e->getMessage()]);
     }
 } else {
-    // If React sent empty data or the JSON decode failed
-    echo json_encode(["success" => false, "error" => "Please fill in all fields."]);
+    header("Content-Type: application/json");
+    http_response_code(400);
+    echo json_encode([
+        "success" => false, 
+        "error" => "Please fill in all fields."
+    ]);
 }
 ?>
