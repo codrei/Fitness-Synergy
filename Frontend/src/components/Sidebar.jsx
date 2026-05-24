@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import logo from "../assets/logo.jpg";
 
 function Sidebar({
@@ -7,7 +7,44 @@ function Sidebar({
   handleLogout,
   openAddModal,
   setShowTdeeModal,
+  currentView,
+  setCurrentView,
 }) {
+  const [revenueOpen, setRevenueOpen] = useState(
+    currentView.startsWith("revenue"),
+  );
+
+  const navBtn = (view) => ({
+    textAlign: "left",
+    padding: "12px",
+    backgroundColor:
+      currentView === view ? "rgba(255,255,255,0.1)" : "transparent",
+    color: "white",
+    border: "none",
+    borderRadius: "8px",
+    cursor: "pointer",
+    fontWeight: currentView === view ? "bold" : "normal",
+    width: "100%",
+  });
+
+  const subBtn = (view) => ({
+    textAlign: "left",
+    padding: "9px 12px 9px 28px",
+    backgroundColor:
+      currentView === view ? "rgba(0,191,255,0.15)" : "transparent",
+    color: currentView === view ? theme.primary : "#aaa",
+    border: "none",
+    borderLeft:
+      currentView === view
+        ? `2px solid ${theme.primary}`
+        : "2px solid transparent",
+    borderRadius: "0 8px 8px 0",
+    cursor: "pointer",
+    fontWeight: currentView === view ? "bold" : "normal",
+    width: "100%",
+    fontSize: "13px",
+  });
+
   return (
     <div
       style={{
@@ -32,6 +69,7 @@ function Sidebar({
           }}
         />
       </div>
+
       <div
         style={{
           paddingBottom: "20px",
@@ -59,41 +97,95 @@ function Sidebar({
           flex: 1,
           display: "flex",
           flexDirection: "column",
-          gap: "10px",
+          gap: "4px",
+          overflowY: "auto",
         }}
       >
-        {/* Register Member moved to the top */}
-        <button
-          onClick={openAddModal}
-          style={{
-            textAlign: "left",
-            padding: "12px",
-            backgroundColor: "transparent",
-            color: "white",
-            border: "none",
-            borderRadius: "8px",
-            cursor: "pointer",
-          }}
-        >
+        <button onClick={openAddModal} style={navBtn("none")}>
           ➕ Register Member
         </button>
 
-        {/* Dashboard moved to the middle */}
         <button
-          style={{
-            textAlign: "left",
-            padding: "12px",
-            backgroundColor: "rgba(255,255,255,0.1)",
-            color: "white",
-            border: "none",
-            borderRadius: "8px",
-            cursor: "pointer",
-            fontWeight: "bold",
-          }}
+          onClick={() => setCurrentView("dashboard")}
+          style={navBtn("dashboard")}
         >
           📊 Dashboard
         </button>
 
+        {/* Revenue Report expandable */}
+        <button
+          onClick={() => {
+            setRevenueOpen(!revenueOpen);
+            if (!revenueOpen) setCurrentView("revenue-overview");
+          }}
+          style={{
+            ...navBtn("revenue"),
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            backgroundColor: currentView.startsWith("revenue")
+              ? "rgba(255,255,255,0.1)"
+              : "transparent",
+            fontWeight: currentView.startsWith("revenue") ? "bold" : "normal",
+          }}
+        >
+          <span>💰 Revenue Report</span>
+          <span style={{ fontSize: 11 }}>{revenueOpen ? "▲" : "▼"}</span>
+        </button>
+
+        {revenueOpen && (
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "2px",
+              marginBottom: "4px",
+            }}
+          >
+            <button
+              onClick={() => setCurrentView("revenue-overview")}
+              style={subBtn("revenue-overview")}
+            >
+              📈 Overview
+            </button>
+            <button
+              onClick={() => setCurrentView("revenue-daily")}
+              style={subBtn("revenue-daily")}
+            >
+              📅 Daily Earnings
+            </button>
+            <button
+              onClick={() => setCurrentView("revenue-monthly")}
+              style={subBtn("revenue-monthly")}
+            >
+              🗓️ Monthly Earnings
+            </button>
+            <button
+              onClick={() => setCurrentView("revenue-yearly")}
+              style={subBtn("revenue-yearly")}
+            >
+              📆 Yearly Earnings
+            </button>
+            <button
+              onClick={() => setCurrentView("revenue-logs")}
+              style={subBtn("revenue-logs")}
+            >
+              🧾 Payment Logs
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* TDEE always at bottom before logout */}
+      <div
+        style={{
+          borderTop: "1px solid rgba(255,255,255,0.1)",
+          paddingTop: "16px",
+          display: "flex",
+          flexDirection: "column",
+          gap: "10px",
+        }}
+      >
         <button
           onClick={() => setShowTdeeModal(true)}
           style={{
@@ -108,17 +200,6 @@ function Sidebar({
         >
           🧮 TDEE Tools
         </button>
-      </div>
-
-      <div
-        style={{
-          borderTop: "1px solid rgba(255,255,255,0.1)",
-          paddingTop: "20px",
-          display: "flex",
-          flexDirection: "column",
-          gap: "10px",
-        }}
-      >
         <button
           onClick={toggleTheme}
           style={{
