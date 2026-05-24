@@ -21,6 +21,13 @@ if (!empty($data->full_name)) {
         $bonus_days   = !empty($data->bonus_days) ? (int)$data->bonus_days : 0;
         $custom_price = !empty($data->custom_price) ? (float)$data->custom_price : null; 
 
+        // PAYMENT METHOD BREAKDOWN 
+        $cash_amount   = !empty($data->cash_amount)   ? (float)$data->cash_amount   : 0;
+        $gcash_amount  = !empty($data->gcash_amount)  ? (float)$data->gcash_amount  : 0;
+        $maya_amount   = !empty($data->maya_amount)   ? (float)$data->maya_amount   : 0;
+        $debit_amount  = !empty($data->debit_amount)  ? (float)$data->debit_amount  : 0;
+        $credit_amount = !empty($data->credit_amount) ? (float)$data->credit_amount : 0;
+
         // Fetch base duration days from the chosen plan tier
         $planQuery = $conn->prepare("SELECT duration_days FROM plans WHERE plan_id = :plan");
         $planQuery->execute([':plan' => $plan_id]);
@@ -87,15 +94,22 @@ if (!empty($data->full_name)) {
                 $custom_price = (float)$priceQuery->fetchColumn();
             }
 
-            $paymentQuery = $conn->prepare("
-                INSERT INTO payments (member_id, amount, payment_date, plan_id) 
-                VALUES (:member_id, :amount, CURRENT_DATE(), :plan_id)
-            ");
-            $paymentQuery->execute([
-                ':member_id' => $new_member_id,
-                ':amount'    => $custom_price,
-                ':plan_id'   => $plan_id
-            ]);
+                    $paymentQuery = $conn->prepare("
+            INSERT INTO payments 
+                (member_id, amount, payment_date, plan_id, cash_amount, gcash_amount, maya_amount, debit_amount, credit_amount)
+            VALUES 
+                (:member_id, :amount, CURRENT_DATE(), :plan_id, :cash, :gcash, :maya, :debit, :credit)
+        ");
+        $paymentQuery->execute([
+            ':member_id' => $new_member_id,
+            ':amount'    => $custom_price,
+            ':plan_id'   => $plan_id,
+            ':cash'      => $cash_amount,
+            ':gcash'     => $gcash_amount,
+            ':maya'      => $maya_amount,
+            ':debit'     => $debit_amount,
+            ':credit'    => $credit_amount,
+]);
         }
 
         echo json_encode(["success" => true, "message" => "Member added successfully with promotional parameters!"]);
