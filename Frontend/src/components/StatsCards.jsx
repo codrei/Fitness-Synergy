@@ -4,6 +4,7 @@ function StatsCards({ stats, theme }) {
   // Add fallback empty object if stats is null
   const safeStats = stats || {};
 
+  // Removed the Revenue card from this array
   const cards = [
     { label: "Total Members", val: safeStats.total || "0", color: "#3b82f6" },
     { label: "Active", val: safeStats.active || "0", color: theme.success },
@@ -12,11 +13,6 @@ function StatsCards({ stats, theme }) {
       label: "Today's Visits",
       val: safeStats.checkins || "0",
       color: "#f59e0b",
-    },
-    {
-      label: "Revenue (Month)",
-      val: `₱${parseFloat(safeStats.revenue || 0).toLocaleString()}`,
-      color: "#8b5cf6",
     },
   ];
 
@@ -35,9 +31,7 @@ function StatsCards({ stats, theme }) {
               theme.bg === "#081018"
                 ? "rgba(15, 23, 42, 0.72)"
                 : "rgba(255, 255, 255, 0.78)",
-
             backdropFilter: "blur(14px)",
-
             border:
               theme.bg === "#081018"
                 ? "1px solid rgba(255,255,255,0.08)"

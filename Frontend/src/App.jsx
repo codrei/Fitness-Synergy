@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Login from "./components/Login";
 import Sidebar from "./components/Sidebar";
 import StatsCards from "./components/StatsCards";
@@ -9,49 +9,76 @@ import ProfileModal from "./components/ProfileModal";
 import TdeeModal from "./components/TdeeModal";
 import bgTexture from "./assets/geomblue.png";
 
+const API_BASE = "http://localhost:8080";
+
+const formatSafeDate = (dateStr, includeTime = false) => {
+  if (!dateStr)
+    return includeTime
+      ? new Date().toLocaleString()
+      : new Date().toLocaleDateString();
+  const d = new Date(dateStr);
+  if (isNaN(d) || d.getFullYear() <= 1970)
+    return includeTime
+      ? new Date().toLocaleString()
+      : new Date().toLocaleDateString();
+  return includeTime ? d.toLocaleString() : d.toLocaleDateString();
+};
+
+const getDaysRemaining = (expDate) => {
+  if (!expDate) return "No Expiration";
+  const today = new Date().setHours(0, 0, 0, 0);
+  const expiration = new Date(expDate + "T00:00:00").setHours(0, 0, 0, 0);
+  const daysLeft = Math.round((expiration - today) / (1000 * 60 * 60 * 24));
+  if (daysLeft < 0) return "Expired";
+  if (daysLeft === 0) return "Expires Today";
+  return `${daysLeft} day(s) left`;
+};
+
 function App() {
-  // --- CORE STATES ---
   const [members, setMembers] = useState([]);
-  const [searchQuery, setSearchQuery] = useState("");
   const [attendanceLogs, setAttendanceLogs] = useState([]);
   const [plans, setPlans] = useState([]);
   const [stats, setStats] = useState(null);
-
-  // --- NOTIFICATION STATE ---
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isLoggedIn, setIsLoggedIn] = useState(
+    localStorage.getItem("fitness_synergy_auth") === "true",
+  );
+  const [isDarkMode, setIsDarkMode] = useState(
+    localStorage.getItem("theme") !== "light",
+  );
   const [toast, setToast] = useState({
     show: false,
     message: "",
     type: "success",
   });
-
-  const showToast = (message, type = "error") => {
-    setToast({ show: true, message, type });
-    // Automatically hide the notification after 3.5 seconds
-    setTimeout(() => {
-      setToast({ show: false, message: "", type: "success" });
-    }, 3500);
-  };
-
-  // --- UI STATES ---
-  // Default to Dark Mode because it's a Gym!
-  const [isDarkMode, setIsDarkMode] = useState(
-    localStorage.getItem("theme") !== "light",
-  );
   const [showMemberModal, setShowMemberModal] = useState(false);
   const [showTdeeModal, setShowTdeeModal] = useState(false);
-
-  // --- FORM STATES ---
-  const [newName, setNewName] = useState("");
-  const [newPlan, setNewPlan] = useState("");
   const [editingId, setEditingId] = useState(null);
 
-  // --- PROFILE STATES ---
-  const [selectedMember, setSelectedMember] = useState(null);
-  const [memberHistory, setMemberHistory] = useState([]);
-  const [totalVisits, setTotalVisits] = useState(0);
-  const [paymentHistory, setPaymentHistory] = useState([]);
+  // Basic Info States
+  const [newName, setNewName] = useState("");
+  const [newPlan, setNewPlan] = useState("");
+  const [bonusDays, setBonusDays] = useState(0);
+  const [customPrice, setCustomPrice] = useState("");
 
-  // --- TDEE STATES ---
+  // NEW STAGES: Profile Data States
+  const [address, setAddress] = useState("");
+  const [contactNumber, setContactNumber] = useState("");
+  const [dob, setDob] = useState("");
+  const [gender, setGender] = useState("");
+  const [occupation, setOccupation] = useState("");
+  const [emergencyContactName, setEmergencyContactName] = useState("");
+  const [emergencyContactNumber, setEmergencyContactNumber] = useState("");
+  const [contractId, setContractId] = useState("");
+  const [discountType, setDiscountType] = useState("None");
+  const [discountId, setDiscountId] = useState("");
+
+  const [selectedMember, setSelectedMember] = useState(null);
+  const [memberHistory, setMemberHistory] = useState({
+    logs: [],
+    visits: 0,
+    payments: [],
+  });
   const [tdeeData, setTdeeData] = useState({
     gender: "male",
     age: 25,
@@ -64,333 +91,280 @@ function App() {
     activity: 1.2,
   });
   const [tdeeResult, setTdeeResult] = useState(0);
+  const [loginForm, setLoginForm] = useState({ user: "", pass: "", error: "" });
+  const [currentTime, setCurrentTime] = useState(new Date());
 
-  // --- AUTH STATES ---
-  const [isLoggedIn, setIsLoggedIn] = useState(
-    localStorage.getItem("fitness_synergy_auth") === "true",
+  const theme = useMemo(
+    () => ({
+      bg: isDarkMode ? "#081018" : "#f5f5f5",
+      surface: isDarkMode ? "#1e1e1e" : "#ffffff",
+      border: isDarkMode ? "#333333" : "#e0e0e0",
+      text: isDarkMode ? "#ffffff" : "#333333",
+      textMuted: isDarkMode ? "#9fb3c8" : "#666666",
+      primary: isDarkMode ? "#00bfff" : "#1565c0",
+      primaryText: isDarkMode ? "#000000" : "#ffffff",
+      danger: isDarkMode ? "#ff5252" : "#d32f2f",
+      success: isDarkMode ? "#00e676" : "#2e7d32",
+      sidebar: isDarkMode ? "#07131f" : "#102a43",
+    }),
+    [isDarkMode],
   );
 
-  const [loginUser, setLoginUser] = useState("");
-  const [loginPass, setLoginPass] = useState("");
-  const [loginError, setLoginError] = useState("");
+  useEffect(() => {
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
 
-  // --- THEME ENGINE ---
-  const theme = {
-    bg: isDarkMode ? "#081018" : "#f5f5f5",
-    surface: isDarkMode ? "#1e1e1e" : "#ffffff",
-    border: isDarkMode ? "#333333" : "#e0e0e0",
-    text: isDarkMode ? "#ffffff" : "#333333",
-    textMuted: isDarkMode ? "#9fb3c8" : "#666666",
-    primary: isDarkMode ? "#00bfff" : "#1565c0",
-    primaryText: isDarkMode ? "#000000" : "#ffffff",
-    danger: isDarkMode ? "#ff5252" : "#d32f2f",
-    success: isDarkMode ? "#00e676" : "#2e7d32",
-    sidebar: isDarkMode ? "#07131f" : "#102a43",
+  const showToast = (message, type = "success") => {
+    setToast({ show: true, message, type });
+    setTimeout(
+      () => setToast({ show: false, message: "", type: "success" }),
+      3500,
+    );
   };
 
-  const toggleTheme = () => {
-    const newMode = !isDarkMode;
-    setIsDarkMode(newMode);
-    localStorage.setItem("theme", newMode ? "dark" : "light");
+  // Helper resetting states when modal closes or saves successfully
+  const clearMemberForm = () => {
+    setEditingId(null);
+    setNewName("");
+    setNewPlan("");
+    setBonusDays(0);
+    setCustomPrice("");
+    setAddress("");
+    setContactNumber("");
+    setDob("");
+    setGender("");
+    setOccupation("");
+    setEmergencyContactName("");
+    setEmergencyContactNumber("");
+    setContractId("");
+    setDiscountType("None");
+    setDiscountId("");
   };
 
-  // --- DATA FETCHING ---
-  const fetchData = () => {
-    fetch("https://fitness-synergy.infinityfreeapp.com/get_members.php")
-      .then((res) => res.json())
-      .then((data) => setMembers(data));
-    fetch("https://fitness-synergy.infinityfreeapp.com/get_attendance.php")
-      .then((res) => res.json())
-      .then((data) => setAttendanceLogs(data));
-    fetch("https://fitness-synergy.infinityfreeapp.com/get_plans.php")
-      .then((res) => res.json())
-      .then((data) => setPlans(data));
-    fetch("https://fitness-synergy.infinityfreeapp.com/get_stats.php")
-      .then((res) => res.json())
-      .then((data) => setStats(data));
+  const fetchData = async () => {
+    try {
+      const endpoints = [
+        "get_members",
+        "get_attendance",
+        "get_plans",
+        "get_stats",
+      ];
+      const results = await Promise.all(
+        endpoints.map((e) =>
+          fetch(`${API_BASE}/${e}.php`).then((res) => {
+            if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+            return res.json();
+          }),
+        ),
+      );
+      setMembers(results[0] || []);
+      setAttendanceLogs(results[1] || []);
+      setPlans(results[2] || []);
+      setStats(results[3] || null);
+    } catch (err) {
+      console.error("Fetch error (Server might be offline):", err);
+    }
   };
 
   useEffect(() => {
     if (isLoggedIn) fetchData();
   }, [isLoggedIn]);
 
-  // --- AUTHENTICATION ---
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    fetch("https://fitness-synergy.infinityfreeapp.com/login.php", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username: loginUser, password: loginPass }),
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.success) {
-          localStorage.setItem("fitness_synergy_auth", "true");
-          setIsLoggedIn(true);
-          setLoginError("");
-        } else {
-          setLoginError(data.error);
-        }
+    setLoginForm((p) => ({ ...p, error: "" }));
+    try {
+      const response = await fetch(`${API_BASE}/login.php`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          username: loginForm.user,
+          password: loginForm.pass,
+        }),
       });
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem("fitness_synergy_auth");
-    setIsLoggedIn(false);
-    setLoginUser("");
-    setLoginPass("");
-  };
-
-  // --- CRUD ACTIONS ---
-  const handleTimeIn = (memberId) => {
-    fetch("https://fitness-synergy.infinityfreeapp.com/time_in.php", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ member_id: memberId }),
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.success) {
-          showToast("Member successfully timed in!", "success");
-          fetchData(); // Refresh the Live Feed and Table
-        } else {
-          // THIS CATCHES THE DUPLICATE CLICK!
-          showToast(`⚠️ ${data.error}`, "error");
-        }
-      })
-      .catch((err) => {
-        console.error("Time In Error:", err);
-        showToast("Network error. Please try again.", "error");
-      });
-  };
-
-  const handleTimeOut = (memberId) => {
-    fetch("https://fitness-synergy.infinityfreeapp.com/time_out.php", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ member_id: memberId }),
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.success)
-          fetchData(); // Refresh the feed and table
-        else alert(`Error: ${data.error}`);
-      })
-      .catch((err) => console.error("Time Out Error:", err));
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!newPlan) {
-      alert("Please select a plan!");
-      return;
+      if (!response.ok) throw new Error("Server offline");
+      const res = await response.json();
+      if (res.success) {
+        localStorage.setItem("fitness_synergy_auth", "true");
+        setIsLoggedIn(true);
+      } else {
+        setLoginForm((prev) => ({
+          ...prev,
+          error: res.error || "Invalid Credentials",
+        }));
+      }
+    } catch (err) {
+      setLoginForm((prev) => ({
+        ...prev,
+        error: "Cannot connect to local server (Port 8080).",
+      }));
     }
-    const targetApi = editingId ? "update_member.php" : "add_member.php";
-    const payload = {
-      full_name: newName,
-      plan_id: newPlan,
-      ...(editingId && { member_id: editingId }),
-    };
-
-    fetch(`https://fitness-synergy.infinityfreeapp.com/${targetApi}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.success) {
-          setShowMemberModal(false);
-          cancelEdit();
-          fetchData();
-        }
-      });
   };
 
-  const startEditing = (member) => {
-    setEditingId(member.member_id);
-    setNewName(member.full_name);
-    setNewPlan(member.plan_id);
-    setShowMemberModal(true);
-  };
-  const cancelEdit = () => {
-    setEditingId(null);
-    setNewName("");
-    setNewPlan("");
-  };
-  const openAddModal = () => {
-    cancelEdit();
-    setShowMemberModal(true);
-  };
-
-  const handleDelete = (memberId, memberName) => {
-    if (window.confirm(`Delete ${memberName} permanently?`)) {
-      fetch("https://fitness-synergy.infinityfreeapp.com/delete_member.php", {
+  const handleAttendance = async (memberId, action) => {
+    try {
+      const res = await fetch(`${API_BASE}/time_${action}.php`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ member_id: memberId }),
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.success) fetchData();
-          else alert(`❌ Deletion Failed: ${data.error}`);
-        });
+      }).then((r) => r.json());
+
+      if (res.success) {
+        showToast(`Member successfully timed ${action}!`);
+        fetchData();
+      } else {
+        showToast(res.error, "error");
+      }
+    } catch (err) {
+      showToast("Attendance Server Error", "error");
     }
   };
 
-  // --- PROFILE & CALCULATIONS ---
-  const viewProfile = (member) => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!newPlan) return alert("Please select a plan!");
+
+    try {
+      const target = editingId ? "update_member" : "add_member";
+      const res = await fetch(`${API_BASE}/${target}.php`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          full_name: newName,
+          plan_id: newPlan,
+          bonus_days: bonusDays,
+          custom_price: customPrice,
+          address: address,
+          contact_number: contactNumber,
+          dob: dob,
+          gender: gender,
+          occupation: occupation,
+          emergency_contact_name: emergencyContactName,
+          emergency_contact_number: emergencyContactNumber,
+          contract_id: contractId,
+          discount_type: discountType,
+          discount_id: discountId,
+          ...(editingId && { member_id: editingId }),
+        }),
+      }).then((r) => r.json());
+
+      if (res.success) {
+        setShowMemberModal(false);
+        clearMemberForm();
+        fetchData();
+        showToast(editingId ? "Member Updated" : "Member Added");
+      } else {
+        showToast(res.error || "Submission Failed", "error");
+      }
+    } catch (err) {
+      showToast("Submission Failed", "error");
+    }
+  };
+
+  const viewProfile = async (member) => {
     setSelectedMember(member);
-    fetch(
-      `https://fitness-synergy.infinityfreeapp.com/get_member_attendance.php?id=${member.member_id}`,
-    )
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.success) {
-          setMemberHistory(data.logs);
-          setTotalVisits(data.total);
-        }
+    try {
+      const [att, pay] = await Promise.all([
+        fetch(
+          `${API_BASE}/get_member_attendance.php?id=${member.member_id}`,
+        ).then((r) => r.json()),
+        fetch(
+          `${API_BASE}/get_member_payments.php?id=${member.member_id}`,
+        ).then((r) => r.json()),
+      ]);
+      setMemberHistory({
+        logs: att.logs || [],
+        visits: att.total || 0,
+        payments: pay.payments || [],
       });
-    fetch(
-      `https://fitness-synergy.infinityfreeapp.com/get_member_payments.php?id=${member.member_id}`,
-    )
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.success) setPaymentHistory(data.payments);
-      });
-  };
-
-  const closeProfile = () => {
-    setSelectedMember(null);
-    setMemberHistory([]);
-    setPaymentHistory([]);
-  };
-
-  const getDaysRemaining = (expDate) => {
-    if (!expDate) return "No Expiration";
-
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    const expiration = new Date(expDate + "T00:00:00");
-    expiration.setHours(0, 0, 0, 0);
-
-    const daysLeft = Math.round(
-      (expiration.getTime() - today.getTime()) / (1000 * 60 * 60 * 24),
-    );
-
-    if (daysLeft < 0) {
-      return "Expired";
-    } else if (daysLeft === 0) {
-      return "Expires Today";
-    } else {
-      return `${daysLeft} day(s) left`;
+    } catch (err) {
+      console.error("Profile Fetch error:", err);
     }
-  };
-
-  const formatSafeDate = (dateStr, includeTime = false) => {
-    if (!dateStr)
-      return includeTime
-        ? new Date().toLocaleString()
-        : new Date().toLocaleDateString();
-    const d = new Date(dateStr);
-    return isNaN(d) || d.getFullYear() <= 1970
-      ? includeTime
-        ? new Date().toLocaleString()
-        : new Date().toLocaleDateString()
-      : includeTime
-        ? d.toLocaleString()
-        : d.toLocaleDateString();
-  };
-
-  const printReceipt = (payment, member) => {
-    const receiptWindow = window.open("", "_blank", "width=400,height=600");
-    const transactionId = `TXN-${new Date().getFullYear()}-${payment.payment_id.toString().padStart(5, "0")}`;
-    receiptWindow.document.write(
-      `<html><head><title>Receipt</title><style>body{font-family:monospace;padding:20px;text-align:center} .divider{border-bottom:1px dashed #333;margin:15px 0} .row{display:flex;justify-content:space-between;text-align:left}</style></head><body><h2>Fitness Synergy</h2><p>Official Receipt</p><div class="divider"></div><div class="row"><span>Receipt #:</span><strong>${transactionId}</strong></div><div class="row"><span>Date:</span><strong>${formatSafeDate(payment.payment_date, true)}</strong></div><div class="row"><span>Member:</span><strong>${member.full_name}</strong></div><div class="divider"></div><div class="row" style="font-size:18px"><span>TOTAL:</span><strong>₱${parseFloat(payment.amount).toFixed(2)}</strong></div><div class="divider"></div><p>Thank you for grinding!</p></body></html>`,
-    );
-    receiptWindow.document.close();
-    receiptWindow.focus();
-    setTimeout(() => {
-      receiptWindow.print();
-    }, 500);
   };
 
   const calculateTDEE = (e) => {
     e.preventDefault();
-    const calcWeight =
+    const w =
       tdeeData.weightUnit === "lbs"
         ? tdeeData.weight * 0.453592
         : parseFloat(tdeeData.weight);
-    const calcHeight =
+    const h =
       tdeeData.heightUnit === "ftin"
-        ? parseFloat(tdeeData.heightFt) * 30.48 +
-          parseFloat(tdeeData.heightIn) * 2.54
+        ? tdeeData.heightFt * 30.48 + tdeeData.heightIn * 2.54
         : parseFloat(tdeeData.heightCm);
     let bmr =
       tdeeData.gender === "male"
-        ? 10 * calcWeight + 6.25 * calcHeight - 5 * tdeeData.age + 5
-        : 10 * calcWeight + 6.25 * calcHeight - 5 * tdeeData.age - 161;
+        ? 10 * w + 6.25 * h - 5 * tdeeData.age + 5
+        : 10 * w + 6.25 * h - 5 * tdeeData.age - 161;
     setTdeeResult(Math.round(bmr * tdeeData.activity));
   };
 
-  const filteredMembers = members.filter((member) =>
-    (member.full_name || "").toLowerCase().includes(searchQuery.toLowerCase()),
+  const filteredMembers = members.filter((m) =>
+    (m.full_name || "").toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
-  // ==========================================
-  // RENDER: LOGIN GATE
-  // ==========================================
-  if (!isLoggedIn) {
+  const formattedDate = currentTime.toLocaleDateString(undefined, {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+  const formattedTime = currentTime.toLocaleTimeString(undefined, {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+  });
+
+  if (!isLoggedIn)
     return (
       <Login
         theme={theme}
-        loginUser={loginUser}
-        setLoginUser={setLoginUser}
-        loginPass={loginPass}
-        setLoginPass={setLoginPass}
-        loginError={loginError}
+        loginUser={loginForm.user}
+        setLoginUser={(val) => setLoginForm((p) => ({ ...p, user: val }))}
+        loginPass={loginForm.pass}
+        setLoginPass={(val) => setLoginForm((p) => ({ ...p, pass: val }))}
+        loginError={loginForm.error}
         handleLogin={handleLogin}
       />
     );
-  }
 
-  // ==========================================
-  // RENDER: MAIN DASHBOARD
-  // ==========================================
   return (
     <div
       style={{
         display: "flex",
         height: "100vh",
-        backgroundColor: isDarkMode
-          ? "rgba(5,10,20,0.88)"
-          : "rgba(240,248,255,0.82)",
-
-        backgroundImage: `url(${bgTexture})`,
-
-        backgroundBlendMode: "overlay",
-
-        backgroundSize: "cover",
-
-        backgroundPosition: "center",
         color: theme.text,
         fontFamily: "sans-serif",
         overflow: "hidden",
+        backgroundColor: isDarkMode
+          ? "rgba(5,10,20,0.88)"
+          : "rgba(240,248,255,0.82)",
+        backgroundImage: `url(${bgTexture})`,
+        backgroundBlendMode: "overlay",
+        backgroundSize: "cover",
       }}
     >
-      {/* 1. SIDEBAR */}
       <Sidebar
         theme={theme}
         isDarkMode={isDarkMode}
-        toggleTheme={toggleTheme}
-        handleLogout={handleLogout}
-        openAddModal={openAddModal}
+        toggleTheme={() => {
+          setIsDarkMode(!isDarkMode);
+          localStorage.setItem("theme", !isDarkMode ? "dark" : "light");
+        }}
+        handleLogout={() => {
+          localStorage.removeItem("fitness_synergy_auth");
+          setIsLoggedIn(false);
+        }}
+        openAddModal={() => {
+          clearMemberForm();
+          setShowMemberModal(true);
+        }}
         setShowTdeeModal={setShowTdeeModal}
       />
 
-      <div style={{ flex: 1, padding: "30px", overflowY: "auto" }}>
-        <div
+      <main style={{ flex: 1, padding: "30px", overflowY: "auto" }}>
+        <header
           style={{
             display: "flex",
             justifyContent: "space-between",
@@ -401,54 +375,100 @@ function App() {
           <h1 style={{ margin: 0, fontSize: "28px" }}>
             Fitness Synergy Dashboard
           </h1>
-          <button
-            onClick={openAddModal}
+          <div
             style={{
-              padding: "12px 24px",
-              backgroundColor: theme.primary,
-              color: theme.primaryText,
-              border: "none",
-              borderRadius: "8px",
-              cursor: "pointer",
-              fontWeight: "bold",
-              fontSize: "16px",
-              boxShadow: `0 4px 14px ${isDarkMode ? "rgba(202, 255, 4, 0.3)" : "rgba(21, 101, 192, 0.3)"}`,
+              textAlign: "right",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "flex-end",
             }}
           >
-            + Add New Member
-          </button>
+            <span
+              style={{
+                fontSize: "20px",
+                fontWeight: "bold",
+                color: theme.text,
+                letterSpacing: "0.5px",
+              }}
+            >
+              {formattedTime}
+            </span>
+            <span
+              style={{
+                fontSize: "12px",
+                fontWeight: "600",
+                color: theme.textMuted,
+                textTransform: "uppercase",
+                letterSpacing: "1px",
+                marginTop: "4px",
+              }}
+            >
+              {formattedDate}
+            </span>
+          </div>
+        </header>
+
+        <div style={{ display: "flex", gap: "20px", alignItems: "flex-start" }}>
+          <div
+            style={{
+              flex: 1,
+              display: "flex",
+              flexDirection: "column",
+              gap: "20px",
+            }}
+          >
+            <StatsCards stats={stats} theme={theme} />
+            <MembersTable
+              theme={theme}
+              searchQuery={searchQuery}
+              setSearchQuery={setSearchQuery}
+              filteredMembers={filteredMembers}
+              getDaysRemaining={getDaysRemaining}
+              handleTimeIn={(id) => handleAttendance(id, "in")}
+              handleTimeOut={(id) => handleAttendance(id, "out")}
+              attendanceLogs={attendanceLogs}
+              viewProfile={viewProfile}
+              handleDelete={(id, name) => {
+                if (window.confirm(`Delete ${name}?`)) {
+                  fetch(`${API_BASE}/delete_member.php`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ member_id: id }),
+                  })
+                    .then(fetchData)
+                    .catch(() => showToast("Delete failed", "error"));
+                }
+              }}
+              startEditing={(m) => {
+                setEditingId(m.member_id);
+                setNewName(m.full_name);
+                setNewPlan(m.plan_id);
+                setAddress(m.address || "");
+                setContactNumber(m.contact_number || "");
+                setDob(m.dob || "");
+                setGender(m.gender || "");
+                setOccupation(m.occupation || "");
+                setEmergencyContactName(m.emergency_contact_name || "");
+                setEmergencyContactNumber(m.emergency_contact_number || "");
+                setContractId(m.contract_id || "");
+                setDiscountType(m.discount_type || "None");
+                setDiscountId(m.discount_id || "");
+                setShowMemberModal(true);
+              }}
+            />
+          </div>
+
+          <div style={{ width: "350px", flexShrink: 0 }}>
+            <LiveFeed theme={theme} attendanceLogs={attendanceLogs} />
+          </div>
         </div>
+      </main>
 
-        {/* 2. STATS CARDS */}
-        <StatsCards stats={stats} theme={theme} />
-
-        <div style={{ display: "flex", gap: "20px" }}>
-          {/* 3. MEMBERS TABLE */}
-          <MembersTable
-            theme={theme}
-            searchQuery={searchQuery}
-            setSearchQuery={setSearchQuery}
-            filteredMembers={filteredMembers}
-            getDaysRemaining={getDaysRemaining}
-            handleTimeIn={handleTimeIn}
-            handleTimeOut={handleTimeOut}
-            attendanceLogs={attendanceLogs}
-            viewProfile={viewProfile}
-            startEditing={startEditing}
-            handleDelete={handleDelete}
-          />
-
-          {/* 4. LIVE FEED */}
-          <LiveFeed theme={theme} attendanceLogs={attendanceLogs} />
-        </div>
-      </div>
-
-      {/* 5. MODALS */}
       {showMemberModal && (
         <AddEditModal
           theme={theme}
           editingId={editingId}
-          cancelEdit={cancelEdit}
+          cancelEdit={clearMemberForm}
           setShowMemberModal={setShowMemberModal}
           handleSubmit={handleSubmit}
           newName={newName}
@@ -456,18 +476,42 @@ function App() {
           newPlan={newPlan}
           setNewPlan={setNewPlan}
           plans={plans}
+          bonusDays={bonusDays}
+          setBonusDays={setBonusDays}
+          customPrice={customPrice}
+          setCustomPrice={setCustomPrice}
+          address={address}
+          setAddress={setAddress}
+          contactNumber={contactNumber}
+          setContactNumber={setContactNumber}
+          dob={dob}
+          setDob={setDob}
+          gender={gender}
+          setGender={setGender}
+          occupation={occupation}
+          setOccupation={setOccupation}
+          emergencyContactName={emergencyContactName}
+          setEmergencyContactName={setEmergencyContactName}
+          emergencyContactNumber={emergencyContactNumber}
+          setEmergencyContactNumber={setEmergencyContactNumber}
+          contractId={contractId}
+          setContractId={setContractId}
+          discountType={discountType}
+          setDiscountType={setDiscountType}
+          discountId={discountId}
+          setDiscountId={setDiscountId}
         />
       )}
+
       {selectedMember && (
         <ProfileModal
           theme={theme}
           selectedMember={selectedMember}
-          closeProfile={closeProfile}
-          totalVisits={totalVisits}
-          paymentHistory={paymentHistory}
+          closeProfile={() => setSelectedMember(null)}
+          totalVisits={memberHistory.visits}
+          paymentHistory={memberHistory.payments}
           formatSafeDate={formatSafeDate}
-          printReceipt={printReceipt}
-          memberHistory={memberHistory}
+          memberHistory={memberHistory.logs}
         />
       )}
       {showTdeeModal && (
@@ -480,7 +524,7 @@ function App() {
           tdeeResult={tdeeResult}
         />
       )}
-      {/* --- TOAST NOTIFICATION UI --- */}
+
       {toast.show && (
         <div
           style={{
@@ -493,18 +537,15 @@ function App() {
             padding: "16px 24px",
             borderRadius: "8px",
             boxShadow: "0 10px 25px rgba(0,0,0,0.4)",
-            zIndex: 99999, // Extremely high to stay on top of everything
-            display: "flex",
-            alignItems: "center",
-            gap: "12px",
-            fontSize: "16px",
+            zIndex: 99999,
             fontWeight: "bold",
           }}
         >
           {toast.message}
         </div>
       )}
-    </div> // <-- This is your final closing div for the app
+    </div>
   );
 }
+
 export default App;

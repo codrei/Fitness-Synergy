@@ -62,20 +62,7 @@ function Sidebar({
           gap: "10px",
         }}
       >
-        <button
-          style={{
-            textAlign: "left",
-            padding: "12px",
-            backgroundColor: "rgba(255,255,255,0.1)",
-            color: "white",
-            border: "none",
-            borderRadius: "8px",
-            cursor: "pointer",
-            fontWeight: "bold",
-          }}
-        >
-          📊 Dashboard
-        </button>
+        {/* Register Member moved to the top */}
         <button
           onClick={openAddModal}
           style={{
@@ -90,6 +77,23 @@ function Sidebar({
         >
           ➕ Register Member
         </button>
+
+        {/* Dashboard moved to the middle */}
+        <button
+          style={{
+            textAlign: "left",
+            padding: "12px",
+            backgroundColor: "rgba(255,255,255,0.1)",
+            color: "white",
+            border: "none",
+            borderRadius: "8px",
+            cursor: "pointer",
+            fontWeight: "bold",
+          }}
+        >
+          📊 Dashboard
+        </button>
+
         <button
           onClick={() => setShowTdeeModal(true)}
           style={{

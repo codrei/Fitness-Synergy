@@ -1,5 +1,5 @@
-import react from "react";
-import bg from "../assets/logBG.jpg";
+import React, { useState } from "react";
+import bg from "../assets/logBG1.png";
 
 function Login({
   theme,
@@ -10,9 +10,23 @@ function Login({
   loginError,
   handleLogin,
 }) {
+  const [loading, setLoading] = useState(false);
+
+  // We wrap the parent handleLogin to manage the loading UI locally
+  const onSubmit = async (e) => {
+    setLoading(true);
+    await handleLogin(e);
+    setLoading(false);
+  };
+
   return (
     <div
       style={{
+        // Replaced height: "100vh" with absolute layout to eliminate default browser margin white gaps
+        position: "absolute",
+        top: 0,
+        left: 0,
+        width: "100vw",
         height: "100vh",
         display: "flex",
         justifyContent: "center",
@@ -22,7 +36,9 @@ function Login({
         fontFamily: "sans-serif",
         backgroundImage: `url(${bg})`,
         backgroundSize: "cover",
-        backgroundPosition: "center",
+        // Changed from "center" to "left top" so the logo in your photo is never cropped out
+        backgroundPosition: "left top",
+        backgroundRepeat: "no-repeat",
       }}
     >
       <div
@@ -56,8 +72,9 @@ function Login({
         >
           Secure Gateway
         </p>
+
         <form
-          onSubmit={handleLogin}
+          onSubmit={onSubmit}
           style={{ display: "flex", flexDirection: "column", gap: "15px" }}
         >
           <input
@@ -101,8 +118,10 @@ function Login({
               {loginError}
             </div>
           )}
+
           <button
             type="submit"
+            disabled={loading}
             style={{
               boxShadow: "0 0 20px rgba(0,191,255,0.35)",
               padding: "14px",
@@ -116,7 +135,7 @@ function Login({
               marginTop: "10px",
             }}
           >
-            ACCESS SYSTEM
+            {loading ? "AUTHENTICATING..." : "ACCESS SYSTEM"}
           </button>
         </form>
       </div>
