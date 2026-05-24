@@ -1,6 +1,8 @@
-import React, { useState } from "react";
-import bg from "../assets/logBG1.png";
+import React, { useState, useEffect } from "react";
+import bg1 from "../assets/logBG1.png";
+import bg2 from "../assets/logBG2.png";
 
+// FIXED: Properly destructure all props within a single object parameter
 function Login({
   theme,
   loginUser,
@@ -10,35 +12,42 @@ function Login({
   loginError,
   handleLogin,
 }) {
-  const [loading, setLoading] = useState(false);
+  // ==================== BACKGROUND TIMER LOGIC ====================
+  const backgrounds = [bg1, bg2];
+  const [currentIndex, setCurrentIndex] = useState(0);
 
-  // We wrap the parent handleLogin to manage the loading UI locally
-  const onSubmit = async (e) => {
-    setLoading(true);
-    await handleLogin(e);
-    setLoading(false);
-  };
+  // 1. ADDED PASSWORD VISIBILITY TOGGLE STATE HERE
+  const [showPassword, setShowPassword] = useState(false);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentIndex((prevIndex) => (prevIndex + 1) % backgrounds.length);
+    }, 6000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <div
       style={{
-        // Replaced height: "100vh" with absolute layout to eliminate default browser margin white gaps
-        position: "absolute",
-        top: 0,
-        left: 0,
-        width: "100vw",
-        height: "100vh",
+        height: "100vh", // Full viewport height
+        width: "100vw", // Full viewport width
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
         backgroundColor: theme.bg,
         color: theme.text,
         fontFamily: "sans-serif",
-        backgroundImage: `url(${bg})`,
-        backgroundSize: "cover",
-        // Changed from "center" to "left top" so the logo in your photo is never cropped out
-        backgroundPosition: "left top",
-        backgroundRepeat: "no-repeat",
+
+        // --- THIS IS THE KEY PART ---
+        backgroundImage: `url(${backgrounds[currentIndex]})`,
+        backgroundSize: "cover", // Scales the image to cover the entire area
+        backgroundPosition: "center", // Keeps the image centered
+        backgroundRepeat: "no-repeat", // Prevents the image from repeating
+        backgroundAttachment: "fixed", // Keeps background stable during scroll
+        // ----------------------------
+
+        transition: "background-image 1.5s ease-in-out",
       }}
     >
       <div
@@ -54,27 +63,46 @@ function Login({
       >
         <h1
           style={{
-            color: theme.primary,
-            margin: "0 0 5px 0",
-            fontSize: "32px",
+            color: "#ffffff",
+            margin: "0",
+            fontSize: "42px",
+            fontWeight: "900",
             letterSpacing: "2px",
             textTransform: "uppercase",
+            lineHeight: "1.1",
           }}
         >
-          Fitness Synergy
+          Fitness
+        </h1>
+        <h1
+          style={{
+            color: theme.primary,
+            margin: "0 0 5px 0",
+            fontSize: "42px",
+            fontWeight: "900",
+            letterSpacing: "2px",
+            textTransform: "uppercase",
+            lineHeight: "1.1",
+          }}
+        >
+          Synergy
         </h1>
         <p
           style={{
             color: theme.textMuted,
-            marginTop: "0",
+            marginTop: "5px",
             marginBottom: "30px",
+            fontSize: "14px",
+            fontWeight: "600",
+            letterSpacing: "1.5px",
+            textTransform: "uppercase",
           }}
         >
-          Secure Gateway
+          Secure System
         </p>
 
         <form
-          onSubmit={onSubmit}
+          onSubmit={handleLogin}
           style={{ display: "flex", flexDirection: "column", gap: "15px" }}
         >
           <input
@@ -85,28 +113,63 @@ function Login({
             onChange={(e) => setLoginUser(e.target.value)}
             style={{
               padding: "14px",
-              borderRadius: "8px",
+              borderRadius: "4px",
               border: `1px solid ${theme.border}`,
-              backgroundColor: theme.bg,
-              color: theme.text,
+              backgroundColor: "#e0e0e0",
+              color: "#111111",
               fontSize: "16px",
+              outline: "none",
             }}
           />
-          <input
-            type="password"
-            placeholder="Password"
-            required
-            value={loginPass}
-            onChange={(e) => setLoginPass(e.target.value)}
+
+          <div
             style={{
-              padding: "14px",
-              borderRadius: "8px",
-              border: `1px solid ${theme.border}`,
-              backgroundColor: theme.bg,
-              color: theme.text,
-              fontSize: "16px",
+              position: "relative",
+              display: "flex",
+              alignItems: "center",
             }}
-          />
+          >
+            <input
+              type={showPassword ? "text" : "password"}
+              placeholder="Password"
+              required
+              value={loginPass}
+              onChange={(e) => setLoginPass(e.target.value)}
+              style={{
+                padding: "14px 50px 14px 14px",
+                borderRadius: "4px",
+                border: `1px solid ${theme.border}`,
+                backgroundColor: "#e0e0e0",
+                color: "#111111",
+                fontSize: "16px",
+                width: "100%",
+                boxSizing: "border-box",
+                outline: "none",
+              }}
+            />
+            <span
+              onClick={() => setShowPassword(!showPassword)}
+              style={{
+                position: "absolute",
+                right: "14px",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                userSelect: "none",
+                opacity: showPassword ? 1 : 0.5,
+                transition: "opacity 0.2s ease",
+              }}
+            >
+              <svg width="26" height="16" viewBox="0 0 24 12" fill="#111111">
+                <rect x="1" y="2" width="2" height="8" rx="0.5" />
+                <rect x="4" y="0" width="2" height="12" rx="0.5" />
+                <rect x="6" y="4.5" width="12" height="3" />
+                <rect x="18" y="0" width="2" height="12" rx="0.5" />
+                <rect x="21" y="2" width="2" height="8" rx="0.5" />
+              </svg>
+            </span>
+          </div>
+
           {loginError && (
             <div
               style={{
@@ -121,21 +184,20 @@ function Login({
 
           <button
             type="submit"
-            disabled={loading}
             style={{
-              boxShadow: "0 0 20px rgba(0,191,255,0.35)",
+              boxShadow: "0 0 20px rgba(84, 202, 241, 0.25)",
               padding: "14px",
               backgroundColor: theme.primary,
               color: theme.primaryText,
               border: "none",
-              borderRadius: "8px",
+              borderRadius: "4px",
               cursor: "pointer",
               fontSize: "16px",
               fontWeight: "bold",
               marginTop: "10px",
             }}
           >
-            {loading ? "AUTHENTICATING..." : "ACCESS SYSTEM"}
+            ACCESS SYSTEM
           </button>
         </form>
       </div>

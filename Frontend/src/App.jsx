@@ -10,7 +10,7 @@ import ProfileModal from "./components/ProfileModal";
 import TdeeModal from "./components/TdeeModal";
 import bgTexture from "./assets/geomblue.png";
 
-const API_BASE = "http://localhost:8080";
+const API_BASE = "https://fitness-synergy.infinityfreeapp.com";
 
 const formatSafeDate = (dateStr, includeTime = false) => {
   if (!dateStr)
