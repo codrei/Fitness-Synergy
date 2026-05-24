@@ -2,6 +2,6 @@
   "vscode-pets.theme": "winter",
   "vscode-pets.throwBallWithMouse": false,
   "vscode-pets.petColor": "white",
-  "vscode-pets.petSize": "large",
+  "vscode-pets.petSize": "medium",
   "vscode-pets.petType": "dog"
 }
