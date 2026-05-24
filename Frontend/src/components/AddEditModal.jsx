@@ -36,6 +36,16 @@ function AddEditModal({
   setCustomPrice,
   bonusDays,
   setBonusDays,
+  cashAmount,
+  setCashAmount,
+  gcashAmount,
+  setGcashAmount,
+  mayaAmount,
+  setMayaAmount,
+  debitAmount,
+  setDebitAmount,
+  creditAmount,
+  setCreditAmount,
 }) {
   const selectedPlanObj = plans.find(
     (p) => String(p.plan_id) === String(newPlan),
@@ -398,7 +408,158 @@ function AddEditModal({
               </div>
             </fieldset>
           )}
+          {/* PAYMENT DETAILS */}
+          <fieldset
+            style={{
+              border: `1px dashed ${theme.border}`,
+              borderRadius: "8px",
+              padding: "20px",
+              display: "flex",
+              flexDirection: "column",
+              gap: "18px",
+              margin: "5px 0",
+            }}
+          >
+            <legend
+              style={{
+                color: theme.primary,
+                fontWeight: "bold",
+                fontSize: "12px",
+                padding: "0 8px",
+              }}
+            >
+              💳 PAYMENT DETAILS
+            </legend>
 
+            {/* Total display */}
+            <div
+              style={{
+                background: theme.bg,
+                borderRadius: 8,
+                padding: "12px 16px",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                border: `1px solid ${theme.border}`,
+              }}
+            >
+              <span style={{ color: theme.textMuted, fontSize: 13 }}>
+                Total Payment
+              </span>
+              <span
+                style={{
+                  color: theme.primary,
+                  fontWeight: "bold",
+                  fontSize: 18,
+                }}
+              >
+                ₱
+                {(
+                  parseFloat(cashAmount || 0) +
+                  parseFloat(gcashAmount || 0) +
+                  parseFloat(mayaAmount || 0) +
+                  parseFloat(debitAmount || 0) +
+                  parseFloat(creditAmount || 0)
+                ).toLocaleString("en-PH", { minimumFractionDigits: 2 })}
+              </span>
+            </div>
+
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                gap: "15px",
+              }}
+            >
+              <div>
+                <label style={labelStyle}>💵 Cash</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={cashAmount}
+                  onChange={(e) => setCashAmount(e.target.value)}
+                  placeholder="0.00"
+                  style={inputStyle}
+                />
+              </div>
+              <div>
+                <label style={labelStyle}>📱 GCash</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={gcashAmount}
+                  onChange={(e) => setGcashAmount(e.target.value)}
+                  placeholder="0.00"
+                  style={inputStyle}
+                />
+              </div>
+            </div>
+
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                gap: "15px",
+              }}
+            >
+              <div>
+                <label style={labelStyle}>🟢 Maya</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={mayaAmount}
+                  onChange={(e) => setMayaAmount(e.target.value)}
+                  placeholder="0.00"
+                  style={inputStyle}
+                />
+              </div>
+              <div>
+                <label style={labelStyle}>💳 Debit Card</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={debitAmount}
+                  onChange={(e) => setDebitAmount(e.target.value)}
+                  placeholder="0.00"
+                  style={inputStyle}
+                />
+              </div>
+            </div>
+
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                gap: "15px",
+              }}
+            >
+              <div>
+                <label style={labelStyle}>💳 Credit Card</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={creditAmount}
+                  onChange={(e) => setCreditAmount(e.target.value)}
+                  placeholder="0.00"
+                  style={inputStyle}
+                />
+              </div>
+              <div>
+                <label style={labelStyle}>🔖 Reference Number</label>
+                <input
+                  type="text"
+                  value={""}
+                  placeholder="e.g., GCash ref #"
+                  style={inputStyle}
+                />
+              </div>
+            </div>
+          </fieldset>
           <button
             type="submit"
             style={{
