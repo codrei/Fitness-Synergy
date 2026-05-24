@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import * as XLSX from "xlsx";
 
-const API_BASE = "http://localhost:8080";
+const API_BASE = "https://fitness-synergy.infinityfreeapp.com";
 const MONTHS = [
   "January",
   "February",
