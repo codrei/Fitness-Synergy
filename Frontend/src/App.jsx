@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
+import RevenueReport from "./components/RevenueReport";
 import Login from "./components/Login";
 import Sidebar from "./components/Sidebar";
 import StatsCards from "./components/StatsCards";
@@ -9,7 +10,7 @@ import ProfileModal from "./components/ProfileModal";
 import TdeeModal from "./components/TdeeModal";
 import bgTexture from "./assets/geomblue.png";
 
-const API_BASE = "https://fitness-synergy.infinityfreeapp.com";
+const API_BASE = "http://localhost:8080";
 
 const formatSafeDate = (dateStr, includeTime = false) => {
   if (!dateStr)
@@ -53,6 +54,7 @@ function App() {
   });
   const [showMemberModal, setShowMemberModal] = useState(false);
   const [showTdeeModal, setShowTdeeModal] = useState(false);
+  const [currentView, setCurrentView] = useState("dashboard");
   const [editingId, setEditingId] = useState(null);
 
   // Basic Info States
@@ -72,6 +74,11 @@ function App() {
   const [contractId, setContractId] = useState("");
   const [discountType, setDiscountType] = useState("None");
   const [discountId, setDiscountId] = useState("");
+  const [cashAmount, setCashAmount] = useState(0);
+  const [gcashAmount, setGcashAmount] = useState(0);
+  const [mayaAmount, setMayaAmount] = useState(0);
+  const [debitAmount, setDebitAmount] = useState(0);
+  const [creditAmount, setCreditAmount] = useState(0);
 
   const [selectedMember, setSelectedMember] = useState(null);
   const [memberHistory, setMemberHistory] = useState({
@@ -140,6 +147,11 @@ function App() {
     setContractId("");
     setDiscountType("None");
     setDiscountId("");
+    setCashAmount(0);
+    setGcashAmount(0);
+    setMayaAmount(0);
+    setDebitAmount(0);
+    setCreditAmount(0);
   };
 
   const fetchData = async () => {
@@ -245,6 +257,11 @@ function App() {
           contract_id: contractId,
           discount_type: discountType,
           discount_id: discountId,
+          cash_amount: cashAmount,
+          gcash_amount: gcashAmount,
+          maya_amount: mayaAmount,
+          debit_amount: debitAmount,
+          credit_amount: creditAmount,
           ...(editingId && { member_id: editingId }),
         }),
       }).then((r) => r.json());
@@ -361,107 +378,116 @@ function App() {
           setShowMemberModal(true);
         }}
         setShowTdeeModal={setShowTdeeModal}
+        currentView={currentView}
+        setCurrentView={setCurrentView}
       />
 
       <main style={{ flex: 1, padding: "30px", overflowY: "auto" }}>
-        <header
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            marginBottom: "30px",
-          }}
-        >
-          <h1 style={{ margin: 0, fontSize: "28px" }}>
-            Fitness Synergy Dashboard
-          </h1>
-          <div
-            style={{
-              textAlign: "right",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "flex-end",
-            }}
-          >
-            <span
+        {currentView.startsWith("revenue") ? (
+          <RevenueReport theme={theme} activeTab={currentView} />
+        ) : (
+          <>
+            <header
               style={{
-                fontSize: "20px",
-                fontWeight: "bold",
-                color: theme.text,
-                letterSpacing: "0.5px",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                marginBottom: "30px",
               }}
             >
-              {formattedTime}
-            </span>
-            <span
-              style={{
-                fontSize: "12px",
-                fontWeight: "600",
-                color: theme.textMuted,
-                textTransform: "uppercase",
-                letterSpacing: "1px",
-                marginTop: "4px",
-              }}
+              <h1 style={{ margin: 0, fontSize: "28px" }}>
+                Fitness Synergy Dashboard
+              </h1>
+              <div
+                style={{
+                  textAlign: "right",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "flex-end",
+                }}
+              >
+                <span
+                  style={{
+                    fontSize: "20px",
+                    fontWeight: "bold",
+                    color: theme.text,
+                    letterSpacing: "0.5px",
+                  }}
+                >
+                  {formattedTime}
+                </span>
+                <span
+                  style={{
+                    fontSize: "12px",
+                    fontWeight: "600",
+                    color: theme.textMuted,
+                    textTransform: "uppercase",
+                    letterSpacing: "1px",
+                    marginTop: "4px",
+                  }}
+                >
+                  {formattedDate}
+                </span>
+              </div>
+            </header>
+
+            <div
+              style={{ display: "flex", gap: "20px", alignItems: "flex-start" }}
             >
-              {formattedDate}
-            </span>
-          </div>
-        </header>
-
-        <div style={{ display: "flex", gap: "20px", alignItems: "flex-start" }}>
-          <div
-            style={{
-              flex: 1,
-              display: "flex",
-              flexDirection: "column",
-              gap: "20px",
-            }}
-          >
-            <StatsCards stats={stats} theme={theme} />
-            <MembersTable
-              theme={theme}
-              searchQuery={searchQuery}
-              setSearchQuery={setSearchQuery}
-              filteredMembers={filteredMembers}
-              getDaysRemaining={getDaysRemaining}
-              handleTimeIn={(id) => handleAttendance(id, "in")}
-              handleTimeOut={(id) => handleAttendance(id, "out")}
-              attendanceLogs={attendanceLogs}
-              viewProfile={viewProfile}
-              handleDelete={(id, name) => {
-                if (window.confirm(`Delete ${name}?`)) {
-                  fetch(`${API_BASE}/delete_member.php`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ member_id: id }),
-                  })
-                    .then(fetchData)
-                    .catch(() => showToast("Delete failed", "error"));
-                }
-              }}
-              startEditing={(m) => {
-                setEditingId(m.member_id);
-                setNewName(m.full_name);
-                setNewPlan(m.plan_id);
-                setAddress(m.address || "");
-                setContactNumber(m.contact_number || "");
-                setDob(m.dob || "");
-                setGender(m.gender || "");
-                setOccupation(m.occupation || "");
-                setEmergencyContactName(m.emergency_contact_name || "");
-                setEmergencyContactNumber(m.emergency_contact_number || "");
-                setContractId(m.contract_id || "");
-                setDiscountType(m.discount_type || "None");
-                setDiscountId(m.discount_id || "");
-                setShowMemberModal(true);
-              }}
-            />
-          </div>
-
-          <div style={{ width: "350px", flexShrink: 0 }}>
-            <LiveFeed theme={theme} attendanceLogs={attendanceLogs} />
-          </div>
-        </div>
+              <div
+                style={{
+                  flex: 1,
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "20px",
+                }}
+              >
+                <StatsCards stats={stats} theme={theme} />
+                <MembersTable
+                  theme={theme}
+                  searchQuery={searchQuery}
+                  setSearchQuery={setSearchQuery}
+                  filteredMembers={filteredMembers}
+                  getDaysRemaining={getDaysRemaining}
+                  handleTimeIn={(id) => handleAttendance(id, "in")}
+                  handleTimeOut={(id) => handleAttendance(id, "out")}
+                  attendanceLogs={attendanceLogs}
+                  viewProfile={viewProfile}
+                  handleDelete={(id, name) => {
+                    if (window.confirm(`Delete ${name}?`)) {
+                      fetch(`${API_BASE}/delete_member.php`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ member_id: id }),
+                      })
+                        .then(fetchData)
+                        .catch(() => showToast("Delete failed", "error"));
+                    }
+                  }}
+                  startEditing={(m) => {
+                    setEditingId(m.member_id);
+                    setNewName(m.full_name);
+                    setNewPlan(m.plan_id);
+                    setAddress(m.address || "");
+                    setContactNumber(m.contact_number || "");
+                    setDob(m.dob || "");
+                    setGender(m.gender || "");
+                    setOccupation(m.occupation || "");
+                    setEmergencyContactName(m.emergency_contact_name || "");
+                    setEmergencyContactNumber(m.emergency_contact_number || "");
+                    setContractId(m.contract_id || "");
+                    setDiscountType(m.discount_type || "None");
+                    setDiscountId(m.discount_id || "");
+                    setShowMemberModal(true);
+                  }}
+                />
+              </div>
+              <div style={{ width: "350px", flexShrink: 0 }}>
+                <LiveFeed theme={theme} attendanceLogs={attendanceLogs} />
+              </div>
+            </div>
+          </>
+        )}
       </main>
 
       {showMemberModal && (
@@ -500,6 +526,16 @@ function App() {
           setDiscountType={setDiscountType}
           discountId={discountId}
           setDiscountId={setDiscountId}
+          cashAmount={cashAmount}
+          setCashAmount={setCashAmount}
+          gcashAmount={gcashAmount}
+          setGcashAmount={setGcashAmount}
+          mayaAmount={mayaAmount}
+          setMayaAmount={setMayaAmount}
+          debitAmount={debitAmount}
+          setDebitAmount={setDebitAmount}
+          creditAmount={creditAmount}
+          setCreditAmount={setCreditAmount}
         />
       )}
 
