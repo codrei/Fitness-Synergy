@@ -2,10 +2,10 @@
 // db.php - Keep this strictly for connection setup
 date_default_timezone_set('Asia/Manila');
 
-$host = "127.0.0.1";
+$host = "sql303.infinityfree.com";
 $dbname = "if0_41975335_fitnesssynergy"; 
-$username = "root";
-$password = ""; 
+$username = "if0_41975335";
+$password = "l0s6Y0PVPO"; 
 
 try {
     $conn = new PDO(
