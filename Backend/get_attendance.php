@@ -20,8 +20,8 @@ try {
         WHERE DATE(attendance.time_in) = CURRENT_DATE()
         UNION ALL
         SELECT NULL, guest_name, created_at, 'Walk-in'
-        FROM walk_ins
-        WHERE DATE(payment_date) = CURRENT_DATE()
+        FROM payments
+        WHERE customer_type = 'Walk-in' AND DATE(payment_date) = CURRENT_DATE()
         ORDER BY time_in DESC
     ");
 

@@ -99,9 +99,9 @@ if (!empty($data->full_name)) {
 
         $paymentQuery = $conn->prepare("
             INSERT INTO payments
-                (member_id, amount, payment_date, plan_id, cash_amount, gcash_amount, maya_amount, debit_amount, credit_amount, reference_number)
+                (member_id, customer_type, amount, payment_date, plan_id, cash_amount, gcash_amount, maya_amount, debit_amount, credit_amount, reference_number)
             VALUES
-                (:member_id, :amount, CURRENT_DATE(), :plan_id, :cash, :gcash, :maya, :debit, :credit, :reference)
+                (:member_id, 'Member', :amount, CURRENT_DATE(), :plan_id, :cash, :gcash, :maya, :debit, :credit, :reference)
         ");
         $paymentQuery->execute([
             ':member_id' => $new_member_id,

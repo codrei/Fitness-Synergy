@@ -40,10 +40,14 @@ try {
     }
 
     $stmt = $conn->prepare("
-        INSERT INTO walk_ins
-            (guest_name, guest_age, plan_id, amount, cash_amount, gcash_amount, maya_amount, debit_amount, credit_amount, reference_number, payment_date)
+        INSERT INTO payments
+            (member_id, customer_type, guest_name, guest_age, plan_id, amount,
+             cash_amount, gcash_amount, maya_amount, debit_amount, credit_amount,
+             reference_number, payment_date)
         VALUES
-            (:guest_name, :guest_age, :plan_id, :amount, :cash, :gcash, :maya, :debit, :credit, :reference, CURRENT_DATE())
+            (NULL, 'Walk-in', :guest_name, :guest_age, :plan_id, :amount,
+             :cash, :gcash, :maya, :debit, :credit,
+             :reference, CURRENT_DATE())
     ");
     $stmt->execute([
         ':guest_name' => $data->guest_name,
