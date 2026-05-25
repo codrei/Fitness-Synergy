@@ -15,8 +15,8 @@ requireAuth();
 try {
     $stats = [];
     $stats['total'] = (int) $conn->query("SELECT COUNT(*) FROM members")->fetchColumn();
-    $stats['active'] = (int) $conn->query("SELECT COUNT(*) FROM members WHERE expiration_date >= CURRENT_DATE()")->fetchColumn();
-    $stats['expired'] = (int) $conn->query("SELECT COUNT(*) FROM members WHERE expiration_date < CURRENT_DATE()")->fetchColumn();
+    $stats['active']  = (int) $conn->query("SELECT COUNT(*) FROM members WHERE expiration_date >= CURRENT_DATE() OR expiration_date IS NULL")->fetchColumn();
+    $stats['expired'] = (int) $conn->query("SELECT COUNT(*) FROM members WHERE expiration_date < CURRENT_DATE() AND expiration_date IS NOT NULL")->fetchColumn();
     $stats['checkins'] = (int) $conn->query("SELECT COUNT(*) FROM attendance WHERE DATE(time_in) = CURRENT_DATE()")->fetchColumn();
     $stats['revenue'] = (float) $conn->query("SELECT COALESCE(SUM(amount), 0) FROM payments WHERE MONTH(payment_date) = MONTH(CURRENT_DATE()) AND YEAR(payment_date) = YEAR(CURRENT_DATE())")->fetchColumn();
 
