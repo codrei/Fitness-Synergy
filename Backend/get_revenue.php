@@ -18,7 +18,7 @@ $stmt = $conn->prepare("
         TIMESTAMPDIFF(YEAR, m.dob, CURDATE()) as age,
         pl.plan_name,
         p.amount, p.cash_amount, p.gcash_amount, p.maya_amount,
-        p.debit_amount, p.credit_amount,
+        p.bank_transfer_amount, p.debit_amount, p.credit_amount,
         p.payment_method, p.reference_number,
         'Member' as customer_type
     FROM payments p
@@ -40,7 +40,7 @@ $stmt2 = $conn->prepare("
         CASE WHEN p.guest_age >= 60 THEN 'Senior' ELSE 'None' END as discount_type,
         pl.plan_name,
         p.amount, p.cash_amount, p.gcash_amount, p.maya_amount,
-        p.debit_amount, p.credit_amount,
+        p.bank_transfer_amount, p.debit_amount, p.credit_amount,
         NULL as payment_method, p.reference_number,
         'Walk-in' as customer_type
     FROM payments p

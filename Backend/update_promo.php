@@ -1,0 +1,32 @@
+<?php
+require_once 'cors.php';
+require_once 'db.php';
+require_once 'auth_check.php';
+requireAuth();
+
+$data = json_decode(file_get_contents("php://input"));
+
+if (empty($data->promo_id)) {
+    echo json_encode(["success" => false, "error" => "Promo ID required."]);
+    exit;
+}
+
+try {
+    $conn->prepare("
+        UPDATE promos SET
+            promo_name  = :name,
+            bonus_days  = :days,
+            description = :desc,
+            is_active   = :active
+        WHERE promo_id = :id
+    ")->execute([
+        ':id'     => (int)$data->promo_id,
+        ':name'   => trim($data->promo_name),
+        ':days'   => isset($data->bonus_days) ? (int)$data->bonus_days : 0,
+        ':desc'   => !empty($data->description) ? trim($data->description) : null,
+        ':active' => isset($data->is_active) ? (int)$data->is_active : 1,
+    ]);
+    echo json_encode(["success" => true]);
+} catch (PDOException $e) {
+    echo json_encode(["success" => false, "error" => $e->getMessage()]);
+}

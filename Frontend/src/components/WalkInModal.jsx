@@ -28,6 +28,7 @@ function WalkInModal({ theme, onClose, handleWalkInSubmit, walkInForm, setWalkIn
     parseFloat(walkInForm.cashAmount || 0) +
     parseFloat(walkInForm.gcashAmount || 0) +
     parseFloat(walkInForm.mayaAmount || 0) +
+    parseFloat(walkInForm.bankTransferAmount || 0) +
     parseFloat(walkInForm.debitAmount || 0) +
     parseFloat(walkInForm.creditAmount || 0)
   ).toLocaleString("en-PH", { minimumFractionDigits: 2 });
@@ -222,6 +223,21 @@ function WalkInModal({ theme, onClose, handleWalkInSubmit, walkInForm, setWalkIn
                 />
               </div>
               <div>
+                <label style={labelStyle}>🏦 Bank Transfer</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={walkInForm.bankTransferAmount}
+                  onChange={(e) => update("bankTransferAmount", e.target.value)}
+                  placeholder="0.00"
+                  style={inputStyle}
+                />
+              </div>
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px" }}>
+              <div>
                 <label style={labelStyle}>💳 Debit Card</label>
                 <input
                   type="number"
@@ -233,9 +249,6 @@ function WalkInModal({ theme, onClose, handleWalkInSubmit, walkInForm, setWalkIn
                   style={inputStyle}
                 />
               </div>
-            </div>
-
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px" }}>
               <div>
                 <label style={labelStyle}>💳 Credit Card</label>
                 <input
@@ -248,16 +261,17 @@ function WalkInModal({ theme, onClose, handleWalkInSubmit, walkInForm, setWalkIn
                   style={inputStyle}
                 />
               </div>
-              <div>
-                <label style={labelStyle}>🔖 Reference Number</label>
-                <input
-                  type="text"
-                  value={walkInForm.referenceNumber}
-                  onChange={(e) => update("referenceNumber", e.target.value)}
-                  placeholder="e.g., GCash ref #"
-                  style={inputStyle}
-                />
-              </div>
+            </div>
+
+            <div>
+              <label style={labelStyle}>🔖 Reference Number</label>
+              <input
+                type="text"
+                value={walkInForm.referenceNumber}
+                onChange={(e) => update("referenceNumber", e.target.value)}
+                placeholder="e.g., GCash ref #"
+                style={inputStyle}
+              />
             </div>
           </fieldset>
 

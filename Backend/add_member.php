@@ -19,12 +19,15 @@ if (!empty($data->full_name)) {
         $custom_price = !empty($data->custom_price) ? (float)$data->custom_price : null; 
 
         // PAYMENT METHOD BREAKDOWN
-        $cash_amount      = !empty($data->cash_amount)      ? (float)$data->cash_amount      : 0;
-        $gcash_amount     = !empty($data->gcash_amount)     ? (float)$data->gcash_amount     : 0;
-        $maya_amount      = !empty($data->maya_amount)      ? (float)$data->maya_amount      : 0;
-        $debit_amount     = !empty($data->debit_amount)     ? (float)$data->debit_amount     : 0;
-        $credit_amount    = !empty($data->credit_amount)    ? (float)$data->credit_amount    : 0;
-        $reference_number = !empty($data->reference_number) ? $data->reference_number        : null;
+        $cash_amount          = !empty($data->cash_amount)          ? (float)$data->cash_amount          : 0;
+        $gcash_amount         = !empty($data->gcash_amount)         ? (float)$data->gcash_amount         : 0;
+        $maya_amount          = !empty($data->maya_amount)          ? (float)$data->maya_amount          : 0;
+        $bank_transfer_amount = !empty($data->bank_transfer_amount) ? (float)$data->bank_transfer_amount : 0;
+        $debit_amount         = !empty($data->debit_amount)         ? (float)$data->debit_amount         : 0;
+        $credit_amount        = !empty($data->credit_amount)        ? (float)$data->credit_amount        : 0;
+        $reference_number     = !empty($data->reference_number)     ? $data->reference_number            : null;
+        $is_installment       = !empty($data->is_installment)       ? 1                                  : 0;
+        $installment_total    = !empty($data->installment_total)    ? (float)$data->installment_total    : 0;
 
         // Fetch base duration days from the chosen plan tier
         $planQuery = $conn->prepare("SELECT duration_days FROM plans WHERE plan_id = :plan");
@@ -65,12 +68,12 @@ if (!empty($data->full_name)) {
                 full_name, address, contact_number, dob, gender, occupation, facebook,
                 emergency_contact_name, emergency_contact_number, contract_id,
                 discount_type, discount_id, discount_id_type, discount_school_name,
-                plan_id, start_date, expiration_date
+                plan_id, start_date, expiration_date, is_installment, installment_total
             ) VALUES (
                 :name, :address, :contact_number, :dob, :gender, :occupation, :facebook,
                 :emergency_name, :emergency_number, :contract_id,
                 :discount_type, :discount_id, :discount_id_type, :discount_school_name,
-                :plan, CURRENT_DATE(), :expiration
+                :plan, CURRENT_DATE(), :expiration, :is_installment, :installment_total
             )
         ");
 
@@ -90,7 +93,9 @@ if (!empty($data->full_name)) {
             ':discount_id_type'     => $discount_id_type,
             ':discount_school_name' => $discount_school_name,
             ':plan'                 => $plan_id,
-            ':expiration'           => $expirationDate
+            ':expiration'           => $expirationDate,
+            ':is_installment'       => $is_installment,
+            ':installment_total'    => $installment_total,
         ]);
 
         // === NEW BILLING TRACKING RECORD INSIDE PAYMENTS TABLE ===
@@ -106,9 +111,13 @@ if (!empty($data->full_name)) {
 
         $paymentQuery = $conn->prepare("
             INSERT INTO payments
-                (member_id, customer_type, amount, payment_date, plan_id, cash_amount, gcash_amount, maya_amount, debit_amount, credit_amount, reference_number)
+                (member_id, customer_type, amount, payment_date, plan_id,
+                 cash_amount, gcash_amount, maya_amount, bank_transfer_amount,
+                 debit_amount, credit_amount, reference_number)
             VALUES
-                (:member_id, 'Member', :amount, CURRENT_DATE(), :plan_id, :cash, :gcash, :maya, :debit, :credit, :reference)
+                (:member_id, 'Member', :amount, CURRENT_DATE(), :plan_id,
+                 :cash, :gcash, :maya, :bank,
+                 :debit, :credit, :reference)
         ");
         $paymentQuery->execute([
             ':member_id' => $new_member_id,
@@ -117,6 +126,7 @@ if (!empty($data->full_name)) {
             ':cash'      => $cash_amount,
             ':gcash'     => $gcash_amount,
             ':maya'      => $maya_amount,
+            ':bank'      => $bank_transfer_amount,
             ':debit'     => $debit_amount,
             ':credit'    => $credit_amount,
             ':reference' => $reference_number,

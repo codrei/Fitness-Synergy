@@ -13,6 +13,7 @@ function ProfileModal({
   memberHistory,
   onEditInfo,
   onPhotoUpdate,
+  onAddInstallmentPayment,
 }) {
   const [showPhotoModal, setShowPhotoModal] = useState(false);
   const [showLightbox, setShowLightbox] = useState(false);
@@ -39,6 +40,14 @@ function ProfileModal({
     }
   };
   const m = selectedMember;
+
+  const paymentsInCycle = paymentHistory.filter((p) =>
+    !m.start_date || new Date(p.payment_date) >= new Date(m.start_date)
+  );
+  const installmentTotalAmt = parseFloat(m.installment_total || 0);
+  const installmentPaid = paymentsInCycle.reduce((s, p) => s + parseFloat(p.amount || 0), 0);
+  const installmentOutstanding = Math.max(0, installmentTotalAmt - installmentPaid);
+  const fmtMoney = (n) => parseFloat(n || 0).toLocaleString("en-PH", { minimumFractionDigits: 2 });
 
   const infoRow = (label, value) =>
     value ? (
@@ -330,6 +339,42 @@ function ProfileModal({
             <strong style={{ fontSize: "14px" }}>{totalVisits}</strong>
           </div>
         </div>
+
+        {/* Installment section */}
+        {m.is_installment == 1 && installmentTotalAmt > 0 && (
+          <div style={{
+            backgroundColor: "#f59e0b22", border: "1px solid #f59e0b",
+            borderRadius: "10px", padding: "16px", marginBottom: "20px",
+          }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
+              <span style={{ backgroundColor: "#f59e0b", color: "#000", padding: "3px 10px", borderRadius: "12px", fontSize: "11px", fontWeight: "bold" }}>
+                💰 INSTALLMENT PLAN
+              </span>
+              <button
+                onClick={() => onAddInstallmentPayment(m)}
+                style={{ padding: "7px 14px", backgroundColor: theme.primary, color: theme.primaryText, border: "none", borderRadius: "6px", cursor: "pointer", fontWeight: "bold", fontSize: "12px" }}
+              >
+                ➕ Add Payment
+              </button>
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "12px" }}>
+              <div>
+                <div style={{ fontSize: "11px", color: theme.textMuted, textTransform: "uppercase", marginBottom: "2px" }}>Total Plan</div>
+                <strong>₱{fmtMoney(installmentTotalAmt)}</strong>
+              </div>
+              <div>
+                <div style={{ fontSize: "11px", color: theme.textMuted, textTransform: "uppercase", marginBottom: "2px" }}>Paid So Far</div>
+                <strong style={{ color: "#22c55e" }}>₱{fmtMoney(installmentPaid)}</strong>
+              </div>
+              <div>
+                <div style={{ fontSize: "11px", color: theme.textMuted, textTransform: "uppercase", marginBottom: "2px" }}>Outstanding</div>
+                <strong style={{ color: installmentOutstanding > 0 ? theme.danger : "#22c55e" }}>
+                  ₱{fmtMoney(installmentOutstanding)}
+                </strong>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Personal info section */}
         <div

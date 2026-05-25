@@ -1,14 +1,18 @@
 import React from "react";
 
-function RenewalModal({ theme, member, plans, renewalForm, setRenewalForm, onSubmit, onClose }) {
+function RenewalModal({ theme, member, plans, promos = [], renewalForm, setRenewalForm, onSubmit, onClose }) {
   const update = (field, value) => setRenewalForm((f) => ({ ...f, [field]: value }));
 
   const membershipPlans = plans.filter((p) => String(p.plan_id) !== "1");
+
+  const selectedPlanObj = membershipPlans.find((p) => String(p.plan_id) === String(renewalForm.planId));
+  const isLongTermPlan = selectedPlanObj ? parseInt(selectedPlanObj.duration_days, 10) > 1 : false;
 
   const total = (
     parseFloat(renewalForm.cashAmount || 0) +
     parseFloat(renewalForm.gcashAmount || 0) +
     parseFloat(renewalForm.mayaAmount || 0) +
+    parseFloat(renewalForm.bankTransferAmount || 0) +
     parseFloat(renewalForm.debitAmount || 0) +
     parseFloat(renewalForm.creditAmount || 0)
   ).toLocaleString("en-PH", { minimumFractionDigits: 2 });
@@ -107,6 +111,27 @@ function RenewalModal({ theme, member, plans, renewalForm, setRenewalForm, onSub
             </select>
           </div>
 
+          {promos.length > 0 && (
+            <div>
+              <label style={labelStyle}>🎁 Apply Promo (Optional)</label>
+              <select
+                defaultValue=""
+                onChange={(e) => {
+                  const p = promos.find((pr) => String(pr.promo_id) === e.target.value);
+                  if (p) update("bonusDays", p.bonus_days);
+                }}
+                style={inputStyle}
+              >
+                <option value="">— No Promo —</option>
+                {promos.map((p) => (
+                  <option key={p.promo_id} value={p.promo_id}>
+                    {p.promo_name} (+{p.bonus_days} days)
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px" }}>
             <div>
               <label style={labelStyle}>Custom Price Override (₱)</label>
@@ -131,6 +156,35 @@ function RenewalModal({ theme, member, plans, renewalForm, setRenewalForm, onSub
               />
             </div>
           </div>
+
+          {isLongTermPlan && (
+            <div style={{ borderTop: `1px dashed ${theme.border}`, paddingTop: "16px" }}>
+              <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", fontSize: "13px", fontWeight: "bold", color: theme.text }}>
+                <input
+                  type="checkbox"
+                  checked={renewalForm.isInstallment || false}
+                  onChange={(e) => update("isInstallment", e.target.checked)}
+                  style={{ width: "16px", height: "16px" }}
+                />
+                💰 Installment Plan
+              </label>
+              {renewalForm.isInstallment && (
+                <div style={{ marginTop: "12px" }}>
+                  <label style={labelStyle}>Total Contract Amount (₱)</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    required
+                    value={renewalForm.installmentTotal || ""}
+                    onChange={(e) => update("installmentTotal", e.target.value)}
+                    placeholder="e.g., 5000.00"
+                    style={inputStyle}
+                  />
+                </div>
+              )}
+            </div>
+          )}
 
           <fieldset
             style={{
@@ -212,6 +266,21 @@ function RenewalModal({ theme, member, plans, renewalForm, setRenewalForm, onSub
                 />
               </div>
               <div>
+                <label style={labelStyle}>🏦 Bank Transfer</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={renewalForm.bankTransferAmount}
+                  onChange={(e) => update("bankTransferAmount", e.target.value)}
+                  placeholder="0.00"
+                  style={inputStyle}
+                />
+              </div>
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px" }}>
+              <div>
                 <label style={labelStyle}>💳 Debit Card</label>
                 <input
                   type="number"
@@ -223,9 +292,6 @@ function RenewalModal({ theme, member, plans, renewalForm, setRenewalForm, onSub
                   style={inputStyle}
                 />
               </div>
-            </div>
-
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px" }}>
               <div>
                 <label style={labelStyle}>💳 Credit Card</label>
                 <input
@@ -238,16 +304,17 @@ function RenewalModal({ theme, member, plans, renewalForm, setRenewalForm, onSub
                   style={inputStyle}
                 />
               </div>
-              <div>
-                <label style={labelStyle}>🔖 Reference Number</label>
-                <input
-                  type="text"
-                  value={renewalForm.referenceNumber}
-                  onChange={(e) => update("referenceNumber", e.target.value)}
-                  placeholder="e.g., GCash ref #"
-                  style={inputStyle}
-                />
-              </div>
+            </div>
+
+            <div>
+              <label style={labelStyle}>🔖 Reference Number</label>
+              <input
+                type="text"
+                value={renewalForm.referenceNumber}
+                onChange={(e) => update("referenceNumber", e.target.value)}
+                placeholder="e.g., GCash ref #"
+                style={inputStyle}
+              />
             </div>
           </fieldset>
 

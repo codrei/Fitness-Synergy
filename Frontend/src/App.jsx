@@ -1,5 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import RevenueReport from "./components/RevenueReport";
+import PlansManager from "./components/PlansManager";
+import PromosManager from "./components/PromosManager";
 import Login from "./components/Login";
 import Sidebar from "./components/Sidebar";
 import StatsCards from "./components/StatsCards";
@@ -11,6 +13,7 @@ import ProfileModal from "./components/ProfileModal";
 import RenewalModal from "./components/RenewalModal";
 import EditInfoModal from "./components/EditInfoModal";
 import TimeInConfirmModal from "./components/TimeInConfirmModal";
+import InstallmentPaymentModal from "./components/InstallmentPaymentModal";
 import TdeeModal from "./components/TdeeModal";
 import ConfirmModal from "./components/ConfirmModal";
 import bgTexture from "./assets/geomblue.png";
@@ -25,6 +28,7 @@ const WALKIN_FORM_DEFAULT = {
   cashAmount: 0,
   gcashAmount: 0,
   mayaAmount: 0,
+  bankTransferAmount: 0,
   debitAmount: 0,
   creditAmount: 0,
   referenceNumber: "",
@@ -34,9 +38,12 @@ const RENEWAL_FORM_DEFAULT = {
   planId: "",
   customPrice: "",
   bonusDays: 0,
+  isInstallment: false,
+  installmentTotal: "",
   cashAmount: 0,
   gcashAmount: 0,
   mayaAmount: 0,
+  bankTransferAmount: 0,
   debitAmount: 0,
   creditAmount: 0,
   referenceNumber: "",
@@ -47,6 +54,8 @@ const MEMBER_FORM_DEFAULT = {
   plan: "",
   bonusDays: 0,
   customPrice: "",
+  isInstallment: false,
+  installmentTotal: "",
   address: "",
   contactNumber: "",
   facebook: "",
@@ -62,6 +71,7 @@ const MEMBER_FORM_DEFAULT = {
   cashAmount: 0,
   gcashAmount: 0,
   mayaAmount: 0,
+  bankTransferAmount: 0,
   debitAmount: 0,
   creditAmount: 0,
   referenceNumber: "",
@@ -94,7 +104,9 @@ function App() {
   const [members, setMembers] = useState([]);
   const [attendanceLogs, setAttendanceLogs] = useState([]);
   const [plans, setPlans] = useState([]);
+  const [promos, setPromos] = useState([]);
   const [stats, setStats] = useState(null);
+  const [installmentPaymentMember, setInstallmentPaymentMember] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(
     !!localStorage.getItem("fitness_synergy_token"),
@@ -187,6 +199,7 @@ function App() {
         "get_attendance",
         "get_plans",
         "get_stats",
+        "get_promos",
       ];
       const responses = await Promise.all(
         endpoints.map((e) => apiFetch(`${e}.php`)),
@@ -208,6 +221,7 @@ function App() {
       setAttendanceLogs(results[1] || []);
       setPlans(results[2] || []);
       setStats(results[3] || null);
+      setPromos(Array.isArray(results[4]) ? results[4] : []);
     } catch (err) {
       showToast("Failed to load data. Check server connection.", "error");
       console.error("Fetch error:", err);
@@ -274,17 +288,18 @@ function App() {
       const res = await apiFetch("add_walkin.php", {
         method: "POST",
         body: JSON.stringify({
-          guest_name: walkInForm.guestName,
-          guest_age: walkInForm.guestAge,
-          guest_contact: walkInForm.guestContact,
-          guest_address: walkInForm.guestAddress,
-          custom_price: walkInForm.customPrice,
-          cash_amount: walkInForm.cashAmount,
-          gcash_amount: walkInForm.gcashAmount,
-          maya_amount: walkInForm.mayaAmount,
-          debit_amount: walkInForm.debitAmount,
-          credit_amount: walkInForm.creditAmount,
-          reference_number: walkInForm.referenceNumber,
+          guest_name:           walkInForm.guestName,
+          guest_age:            walkInForm.guestAge,
+          guest_contact:        walkInForm.guestContact,
+          guest_address:        walkInForm.guestAddress,
+          custom_price:         walkInForm.customPrice,
+          cash_amount:          walkInForm.cashAmount,
+          gcash_amount:         walkInForm.gcashAmount,
+          maya_amount:          walkInForm.mayaAmount,
+          bank_transfer_amount: walkInForm.bankTransferAmount,
+          debit_amount:         walkInForm.debitAmount,
+          credit_amount:        walkInForm.creditAmount,
+          reference_number:     walkInForm.referenceNumber,
         }),
       }).then((r) => r.json());
 
@@ -317,6 +332,8 @@ function App() {
           plan_id:                  memberForm.plan,
           bonus_days:               memberForm.bonusDays,
           custom_price:             memberForm.customPrice,
+          is_installment:           memberForm.isInstallment ? 1 : 0,
+          installment_total:        memberForm.installmentTotal,
           address:                  memberForm.address,
           contact_number:           memberForm.contactNumber,
           facebook:                 memberForm.facebook,
@@ -332,6 +349,7 @@ function App() {
           cash_amount:              memberForm.cashAmount,
           gcash_amount:             memberForm.gcashAmount,
           maya_amount:              memberForm.mayaAmount,
+          bank_transfer_amount:     memberForm.bankTransferAmount,
           debit_amount:             memberForm.debitAmount,
           credit_amount:            memberForm.creditAmount,
           reference_number:         memberForm.referenceNumber,
@@ -381,16 +399,19 @@ function App() {
       const res = await apiFetch("renew_member.php", {
         method: "POST",
         body: JSON.stringify({
-          member_id:        renewalMember.member_id,
-          plan_id:          renewalForm.planId,
-          custom_price:     renewalForm.customPrice,
-          bonus_days:       renewalForm.bonusDays,
-          cash_amount:      renewalForm.cashAmount,
-          gcash_amount:     renewalForm.gcashAmount,
-          maya_amount:      renewalForm.mayaAmount,
-          debit_amount:     renewalForm.debitAmount,
-          credit_amount:    renewalForm.creditAmount,
-          reference_number: renewalForm.referenceNumber,
+          member_id:            renewalMember.member_id,
+          plan_id:              renewalForm.planId,
+          custom_price:         renewalForm.customPrice,
+          bonus_days:           renewalForm.bonusDays,
+          is_installment:       renewalForm.isInstallment ? 1 : 0,
+          installment_total:    renewalForm.installmentTotal,
+          cash_amount:          renewalForm.cashAmount,
+          gcash_amount:         renewalForm.gcashAmount,
+          maya_amount:          renewalForm.mayaAmount,
+          bank_transfer_amount: renewalForm.bankTransferAmount,
+          debit_amount:         renewalForm.debitAmount,
+          credit_amount:        renewalForm.creditAmount,
+          reference_number:     renewalForm.referenceNumber,
         }),
       }).then((r) => r.json());
 
@@ -406,6 +427,12 @@ function App() {
     } catch {
       showToast("Renewal failed", "error");
     }
+  };
+
+  const handleInstallmentPaymentSuccess = () => {
+    setInstallmentPaymentMember(null);
+    showToast("Installment payment recorded!");
+    if (selectedMember) viewProfile(selectedMember);
   };
 
   const openEditInfo = (member) => {
@@ -503,11 +530,12 @@ function App() {
 
   const printReceipt = (payment, member) => {
     const rows = [
-      ["Cash",        payment.cash_amount],
-      ["GCash",       payment.gcash_amount],
-      ["Maya",        payment.maya_amount],
-      ["Debit Card",  payment.debit_amount],
-      ["Credit Card", payment.credit_amount],
+      ["Cash",          payment.cash_amount],
+      ["GCash",         payment.gcash_amount],
+      ["Maya",          payment.maya_amount],
+      ["Bank Transfer", payment.bank_transfer_amount],
+      ["Debit Card",    payment.debit_amount],
+      ["Credit Card",   payment.credit_amount],
     ]
       .filter(([, v]) => parseFloat(v) > 0)
       .map(([label, val]) => `<tr><td>${label}</td><td>₱${parseFloat(val).toLocaleString("en-PH", { minimumFractionDigits: 2 })}</td></tr>`)
@@ -645,6 +673,10 @@ function App() {
         )}
         {currentView.startsWith("revenue") ? (
           <RevenueReport theme={theme} activeTab={currentView} />
+        ) : currentView === "plans" ? (
+          <PlansManager theme={theme} />
+        ) : currentView === "promos" ? (
+          <PromosManager theme={theme} />
         ) : (
           <>
             <header
@@ -742,6 +774,7 @@ function App() {
           setShowMemberModal={setShowMemberModal}
           handleSubmit={handleSubmit}
           plans={plans}
+          promos={promos}
           memberForm={memberForm}
           setMemberForm={setMemberForm}
         />
@@ -788,6 +821,17 @@ function App() {
             setSelectedMember((m) => ({ ...m, photo_url: url }));
             fetchData();
           }}
+          onAddInstallmentPayment={(member) => setInstallmentPaymentMember(member)}
+        />
+      )}
+
+      {installmentPaymentMember && (
+        <InstallmentPaymentModal
+          theme={theme}
+          member={installmentPaymentMember}
+          paymentHistory={memberHistory.payments}
+          onSuccess={handleInstallmentPaymentSuccess}
+          onClose={() => setInstallmentPaymentMember(null)}
         />
       )}
       {showRenewalModal && renewalMember && (
@@ -795,6 +839,7 @@ function App() {
           theme={theme}
           member={renewalMember}
           plans={plans}
+          promos={promos}
           renewalForm={renewalForm}
           setRenewalForm={setRenewalForm}
           onSubmit={handleRenewal}

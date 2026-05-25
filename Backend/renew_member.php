@@ -16,12 +16,15 @@ try {
     $bonus_days   = !empty($data->bonus_days)   ? (int)$data->bonus_days   : 0;
     $custom_price = !empty($data->custom_price) ? (float)$data->custom_price : null;
 
-    $cash_amount      = !empty($data->cash_amount)      ? (float)$data->cash_amount      : 0;
-    $gcash_amount     = !empty($data->gcash_amount)     ? (float)$data->gcash_amount     : 0;
-    $maya_amount      = !empty($data->maya_amount)      ? (float)$data->maya_amount      : 0;
-    $debit_amount     = !empty($data->debit_amount)     ? (float)$data->debit_amount     : 0;
-    $credit_amount    = !empty($data->credit_amount)    ? (float)$data->credit_amount    : 0;
-    $reference_number = !empty($data->reference_number) ? $data->reference_number        : null;
+    $cash_amount          = !empty($data->cash_amount)          ? (float)$data->cash_amount          : 0;
+    $gcash_amount         = !empty($data->gcash_amount)         ? (float)$data->gcash_amount         : 0;
+    $maya_amount          = !empty($data->maya_amount)          ? (float)$data->maya_amount          : 0;
+    $bank_transfer_amount = !empty($data->bank_transfer_amount) ? (float)$data->bank_transfer_amount : 0;
+    $debit_amount         = !empty($data->debit_amount)         ? (float)$data->debit_amount         : 0;
+    $credit_amount        = !empty($data->credit_amount)        ? (float)$data->credit_amount        : 0;
+    $reference_number     = !empty($data->reference_number)     ? $data->reference_number            : null;
+    $is_installment       = !empty($data->is_installment)       ? 1                                  : 0;
+    $installment_total    = !empty($data->installment_total)    ? (float)$data->installment_total    : 0;
 
     // Get plan duration and price
     $pStmt = $conn->prepare("SELECT duration_days, price FROM plans WHERE plan_id = :p");
@@ -61,20 +64,30 @@ try {
 
     $conn->prepare("
         UPDATE members SET
-            plan_id = :plan,
-            start_date = CURRENT_DATE(),
-            expiration_date = :exp,
-            status = 'Active'
+            plan_id           = :plan,
+            start_date        = CURRENT_DATE(),
+            expiration_date   = :exp,
+            status            = 'Active',
+            is_installment    = :is_installment,
+            installment_total = :installment_total
         WHERE member_id = :id
-    ")->execute([':plan' => $plan_id, ':exp' => $newExpiration, ':id' => $data->member_id]);
+    ")->execute([
+        ':plan'              => $plan_id,
+        ':exp'               => $newExpiration,
+        ':id'                => $data->member_id,
+        ':is_installment'    => $is_installment,
+        ':installment_total' => $installment_total,
+    ]);
 
     $conn->prepare("
         INSERT INTO payments
             (member_id, customer_type, amount, payment_date, plan_id,
-             cash_amount, gcash_amount, maya_amount, debit_amount, credit_amount, reference_number)
+             cash_amount, gcash_amount, maya_amount, bank_transfer_amount,
+             debit_amount, credit_amount, reference_number)
         VALUES
             (:member_id, 'Member', :amount, CURRENT_DATE(), :plan_id,
-             :cash, :gcash, :maya, :debit, :credit, :reference)
+             :cash, :gcash, :maya, :bank,
+             :debit, :credit, :reference)
     ")->execute([
         ':member_id' => $data->member_id,
         ':amount'    => $custom_price,
@@ -82,6 +95,7 @@ try {
         ':cash'      => $cash_amount,
         ':gcash'     => $gcash_amount,
         ':maya'      => $maya_amount,
+        ':bank'      => $bank_transfer_amount,
         ':debit'     => $debit_amount,
         ':credit'    => $credit_amount,
         ':reference' => $reference_number,

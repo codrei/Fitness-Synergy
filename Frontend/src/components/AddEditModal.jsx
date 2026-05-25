@@ -7,6 +7,7 @@ function AddEditModal({
   setShowMemberModal,
   handleSubmit,
   plans,
+  promos = [],
   memberForm,
   setMemberForm,
 }) {
@@ -45,6 +46,7 @@ function AddEditModal({
     parseFloat(memberForm.cashAmount || 0) +
     parseFloat(memberForm.gcashAmount || 0) +
     parseFloat(memberForm.mayaAmount || 0) +
+    parseFloat(memberForm.bankTransferAmount || 0) +
     parseFloat(memberForm.debitAmount || 0) +
     parseFloat(memberForm.creditAmount || 0)
   ).toLocaleString("en-PH", { minimumFractionDigits: 2 });
@@ -147,6 +149,27 @@ function AddEditModal({
               ))}
             </select>
           </div>
+
+          {promos.length > 0 && (
+            <div>
+              <label style={labelStyle}>🎁 Apply Promo (Optional)</label>
+              <select
+                defaultValue=""
+                onChange={(e) => {
+                  const p = promos.find((pr) => String(pr.promo_id) === e.target.value);
+                  if (p) update("bonusDays", p.bonus_days);
+                }}
+                style={inputStyle}
+              >
+                <option value="">— No Promo —</option>
+                {promos.map((p) => (
+                  <option key={p.promo_id} value={p.promo_id}>
+                    {p.promo_name} (+{p.bonus_days} days)
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
 
           <div
             style={{
@@ -402,6 +425,33 @@ function AddEditModal({
                   )}
                 </div>
               )}
+
+              <div style={{ borderTop: `1px dashed ${theme.border}`, paddingTop: "16px" }}>
+                <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", fontSize: "13px", fontWeight: "bold", color: theme.text }}>
+                  <input
+                    type="checkbox"
+                    checked={memberForm.isInstallment || false}
+                    onChange={(e) => update("isInstallment", e.target.checked)}
+                    style={{ width: "16px", height: "16px" }}
+                  />
+                  💰 Installment Plan
+                </label>
+                {memberForm.isInstallment && (
+                  <div style={{ marginTop: "12px" }}>
+                    <label style={labelStyle}>Total Contract Amount (₱)</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      required
+                      value={memberForm.installmentTotal || ""}
+                      onChange={(e) => update("installmentTotal", e.target.value)}
+                      placeholder="e.g., 5000.00"
+                      style={inputStyle}
+                    />
+                  </div>
+                )}
+              </div>
             </fieldset>
           )}
 
@@ -505,13 +555,13 @@ function AddEditModal({
                 />
               </div>
               <div>
-                <label style={labelStyle}>💳 Debit Card</label>
+                <label style={labelStyle}>🏦 Bank Transfer</label>
                 <input
                   type="number"
                   step="0.01"
                   min="0"
-                  value={memberForm.debitAmount}
-                  onChange={(e) => update("debitAmount", e.target.value)}
+                  value={memberForm.bankTransferAmount}
+                  onChange={(e) => update("bankTransferAmount", e.target.value)}
                   placeholder="0.00"
                   style={inputStyle}
                 />
@@ -526,6 +576,18 @@ function AddEditModal({
               }}
             >
               <div>
+                <label style={labelStyle}>💳 Debit Card</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={memberForm.debitAmount}
+                  onChange={(e) => update("debitAmount", e.target.value)}
+                  placeholder="0.00"
+                  style={inputStyle}
+                />
+              </div>
+              <div>
                 <label style={labelStyle}>💳 Credit Card</label>
                 <input
                   type="number"
@@ -537,16 +599,17 @@ function AddEditModal({
                   style={inputStyle}
                 />
               </div>
-              <div>
-                <label style={labelStyle}>🔖 Reference Number</label>
-                <input
-                  type="text"
-                  value={memberForm.referenceNumber}
-                  onChange={(e) => update("referenceNumber", e.target.value)}
-                  placeholder="e.g., GCash ref #"
-                  style={inputStyle}
-                />
-              </div>
+            </div>
+
+            <div>
+              <label style={labelStyle}>🔖 Reference Number</label>
+              <input
+                type="text"
+                value={memberForm.referenceNumber}
+                onChange={(e) => update("referenceNumber", e.target.value)}
+                placeholder="e.g., GCash ref #"
+                style={inputStyle}
+              />
             </div>
           </fieldset>
 

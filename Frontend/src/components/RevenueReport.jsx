@@ -132,7 +132,7 @@ function PaymentTable({ payments, theme }) {
       }}
     >
       <table
-        style={{ width: "100%", borderCollapse: "collapse", minWidth: 900 }}
+        style={{ width: "100%", borderCollapse: "collapse", minWidth: 1000 }}
       >
         <thead>
           <tr style={{ background: theme.sidebar }}>
@@ -147,6 +147,7 @@ function PaymentTable({ payments, theme }) {
               "Cash",
               "GCash",
               "Maya",
+              "Bank Transfer",
               "Debit",
               "Credit",
               "Total",
@@ -298,6 +299,17 @@ function PaymentTable({ payments, theme }) {
                     fontSize: 12,
                   }}
                 >
+                  {parseFloat(p.bank_transfer_amount || 0) > 0
+                    ? fmtPHP(p.bank_transfer_amount)
+                    : "-"}
+                </td>
+                <td
+                  style={{
+                    padding: "10px 12px",
+                    color: theme.text,
+                    fontSize: 12,
+                  }}
+                >
                   {parseFloat(p.debit_amount || 0) > 0
                     ? fmtPHP(p.debit_amount)
                     : "-"}
@@ -390,6 +402,7 @@ export default function RevenueReport({ theme, activeTab }) {
         "Cash",
         "GCash",
         "Maya",
+        "Bank Transfer",
         "Debit",
         "Credit",
         "Total",
@@ -409,6 +422,7 @@ export default function RevenueReport({ theme, activeTab }) {
           parseFloat(p.cash_amount || 0),
           parseFloat(p.gcash_amount || 0),
           parseFloat(p.maya_amount || 0),
+          parseFloat(p.bank_transfer_amount || 0),
           parseFloat(p.debit_amount || 0),
           parseFloat(p.credit_amount || 0),
           parseFloat(p.amount || 0),
@@ -427,6 +441,7 @@ export default function RevenueReport({ theme, activeTab }) {
         rows.reduce((s, p) => s + parseFloat(p.cash_amount || 0), 0),
         rows.reduce((s, p) => s + parseFloat(p.gcash_amount || 0), 0),
         rows.reduce((s, p) => s + parseFloat(p.maya_amount || 0), 0),
+        rows.reduce((s, p) => s + parseFloat(p.bank_transfer_amount || 0), 0),
         rows.reduce((s, p) => s + parseFloat(p.debit_amount || 0), 0),
         rows.reduce((s, p) => s + parseFloat(p.credit_amount || 0), 0),
         rows.reduce((s, p) => s + parseFloat(p.amount || 0), 0),
@@ -445,6 +460,7 @@ export default function RevenueReport({ theme, activeTab }) {
       { wch: 12 },
       { wch: 12 },
       { wch: 12 },
+      { wch: 14 },
       { wch: 12 },
       { wch: 12 },
       { wch: 14 },
@@ -478,7 +494,7 @@ export default function RevenueReport({ theme, activeTab }) {
       <table><thead><tr>
         <th>#</th><th>Date</th><th>Name</th><th>Age</th><th>Senior?</th>
         <th>Type</th><th>Plan</th><th>Cash</th><th>GCash</th><th>Maya</th>
-        <th>Debit</th><th>Credit</th><th>Total</th><th>Reference</th>
+        <th>Bank Transfer</th><th>Debit</th><th>Credit</th><th>Total</th><th>Reference</th>
       </tr></thead><tbody>
       ${rows
         .map((p, i) => {
@@ -496,7 +512,8 @@ export default function RevenueReport({ theme, activeTab }) {
           <td class="${p.customer_type === "Walk-in" ? "walkin" : ""}">${p.customer_type || "Member"}</td>
           <td>${p.plan_name || "-"}</td>
           <td>${fmt(p.cash_amount)}</td><td>${fmt(p.gcash_amount)}</td>
-          <td>${fmt(p.maya_amount)}</td><td>${fmt(p.debit_amount)}</td>
+          <td>${fmt(p.maya_amount)}</td><td>${fmt(p.bank_transfer_amount)}</td>
+          <td>${fmt(p.debit_amount)}</td>
           <td>${fmt(p.credit_amount)}</td>
           <td><strong>₱${parseFloat(p.amount || 0).toLocaleString("en-PH", { minimumFractionDigits: 2 })}</strong></td>
           <td>${p.reference_number || "-"}</td>
@@ -504,10 +521,11 @@ export default function RevenueReport({ theme, activeTab }) {
         })
         .join("")}
       <tr class="total-row">
-        <td colspan="7" style="text-align:right">TOTAL:</td>
+        <td colspan="8" style="text-align:right">TOTAL:</td>
         <td>₱${rows.reduce((s, p) => s + parseFloat(p.cash_amount || 0), 0).toLocaleString("en-PH", { minimumFractionDigits: 2 })}</td>
         <td>₱${rows.reduce((s, p) => s + parseFloat(p.gcash_amount || 0), 0).toLocaleString("en-PH", { minimumFractionDigits: 2 })}</td>
         <td>₱${rows.reduce((s, p) => s + parseFloat(p.maya_amount || 0), 0).toLocaleString("en-PH", { minimumFractionDigits: 2 })}</td>
+        <td>₱${rows.reduce((s, p) => s + parseFloat(p.bank_transfer_amount || 0), 0).toLocaleString("en-PH", { minimumFractionDigits: 2 })}</td>
         <td>₱${rows.reduce((s, p) => s + parseFloat(p.debit_amount || 0), 0).toLocaleString("en-PH", { minimumFractionDigits: 2 })}</td>
         <td>₱${rows.reduce((s, p) => s + parseFloat(p.credit_amount || 0), 0).toLocaleString("en-PH", { minimumFractionDigits: 2 })}</td>
         <td><strong>₱${total.toLocaleString("en-PH", { minimumFractionDigits: 2 })}</strong></td>
@@ -621,6 +639,13 @@ export default function RevenueReport({ theme, activeTab }) {
         label="Maya"
         value={fmtPHP(
           rows.reduce((s, p) => s + parseFloat(p.maya_amount || 0), 0),
+        )}
+        theme={theme}
+      />
+      <StatCard
+        label="Bank Transfer"
+        value={fmtPHP(
+          rows.reduce((s, p) => s + parseFloat(p.bank_transfer_amount || 0), 0),
         )}
         theme={theme}
       />
