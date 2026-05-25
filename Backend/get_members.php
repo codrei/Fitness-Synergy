@@ -1,10 +1,6 @@
 <?php
 require_once 'cors.php';
 
-// Handle preflight "OPTIONS" requests
-if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
-    exit;
-}
 require_once 'db.php';
 require_once 'auth_check.php';
 requireAuth();

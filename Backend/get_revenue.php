@@ -2,9 +2,6 @@
 require_once 'cors.php';
 header("Content-Type: application/json; charset=UTF-8");
 
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    exit;
-}
 
 require_once 'db.php';
 require_once 'auth_check.php';
