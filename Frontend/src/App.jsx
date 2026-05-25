@@ -17,7 +17,6 @@ const WALKIN_FORM_DEFAULT = {
   guestName: "",
   guestAge: "",
   guestContact: "",
-  planId: "",
   customPrice: "",
   cashAmount: 0,
   gcashAmount: 0,
@@ -246,7 +245,6 @@ function App() {
 
   const handleWalkInSubmit = async (e) => {
     e.preventDefault();
-    if (!walkInForm.planId) return alert("Please select a plan!");
     try {
       const res = await apiFetch("add_walkin.php", {
         method: "POST",
@@ -254,7 +252,6 @@ function App() {
           guest_name: walkInForm.guestName,
           guest_age: walkInForm.guestAge,
           guest_contact: walkInForm.guestContact,
-          plan_id: walkInForm.planId,
           custom_price: walkInForm.customPrice,
           cash_amount: walkInForm.cashAmount,
           gcash_amount: walkInForm.gcashAmount,
@@ -630,7 +627,6 @@ function App() {
           theme={theme}
           onClose={() => setShowWalkInModal(false)}
           handleWalkInSubmit={handleWalkInSubmit}
-          plans={plans}
           walkInForm={walkInForm}
           setWalkInForm={setWalkInForm}
         />

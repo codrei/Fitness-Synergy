@@ -140,7 +140,7 @@ function AddEditModal({
               <option value="" disabled>
                 Select a Plan...
               </option>
-              {plans.map((plan) => (
+              {plans.filter((p) => String(p.plan_id) !== "1").map((plan) => (
                 <option key={plan.plan_id} value={plan.plan_id}>
                   {plan.plan_name} - ₱{plan.price}
                 </option>

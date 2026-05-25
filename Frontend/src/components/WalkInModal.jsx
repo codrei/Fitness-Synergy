@@ -1,6 +1,6 @@
 import React from "react";
 
-function WalkInModal({ theme, onClose, handleWalkInSubmit, plans, walkInForm, setWalkInForm }) {
+function WalkInModal({ theme, onClose, handleWalkInSubmit, walkInForm, setWalkInForm }) {
   const update = (field, value) =>
     setWalkInForm((f) => ({ ...f, [field]: value }));
 
@@ -117,35 +117,6 @@ function WalkInModal({ theme, onClose, handleWalkInSubmit, plans, walkInForm, se
               placeholder="e.g., 09171234567 — used to track repeat visits"
               style={inputStyle}
             />
-          </div>
-
-          <div>
-            <label style={labelStyle}>Session Plan</label>
-            <select
-              value={walkInForm.planId}
-              onChange={(e) => {
-                const selectedId = e.target.value;
-                const matchedPlan = plans.find(
-                  (p) => String(p.plan_id) === String(selectedId),
-                );
-                setWalkInForm((f) => ({
-                  ...f,
-                  planId: selectedId,
-                  customPrice: matchedPlan ? matchedPlan.price : f.customPrice,
-                }));
-              }}
-              required
-              style={inputStyle}
-            >
-              <option value="" disabled>
-                Select a Plan...
-              </option>
-              {plans.map((plan) => (
-                <option key={plan.plan_id} value={plan.plan_id}>
-                  {plan.plan_name} - ₱{plan.price}
-                </option>
-              ))}
-            </select>
           </div>
 
           <div>

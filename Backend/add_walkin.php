@@ -13,7 +13,7 @@ if (empty($data->guest_name)) {
 }
 
 try {
-    $plan_id       = !empty($data->plan_id)        ? (int)$data->plan_id        : null;
+    $plan_id       = 1;
     $guest_age     = !empty($data->guest_age)       ? (int)$data->guest_age      : null;
     $guest_contact = !empty($data->guest_contact)   ? trim($data->guest_contact) : null;
     $custom_price  = !empty($data->custom_price)    ? (float)$data->custom_price : null;
@@ -25,13 +25,10 @@ try {
     $credit_amount    = !empty($data->credit_amount)    ? (float)$data->credit_amount    : 0;
     $reference_number = !empty($data->reference_number) ? $data->reference_number        : null;
 
-    if ($custom_price === null && $plan_id !== null) {
-        $priceQuery = $conn->prepare("SELECT price FROM plans WHERE plan_id = :plan");
-        $priceQuery->execute([':plan' => $plan_id]);
-        $custom_price = (float)$priceQuery->fetchColumn();
-    }
     if ($custom_price === null) {
-        $custom_price = 0;
+        $priceQuery = $conn->prepare("SELECT price FROM plans WHERE plan_id = 1");
+        $priceQuery->execute();
+        $custom_price = (float)$priceQuery->fetchColumn();
     }
 
     $stmt = $conn->prepare("
