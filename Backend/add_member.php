@@ -28,6 +28,7 @@ if (!empty($data->full_name)) {
         $reference_number     = !empty($data->reference_number)     ? $data->reference_number            : null;
         $is_installment       = !empty($data->is_installment)       ? 1                                  : 0;
         $installment_total    = !empty($data->installment_total)    ? (float)$data->installment_total    : 0;
+        $actual_paid          = $cash_amount + $gcash_amount + $maya_amount + $bank_transfer_amount + $debit_amount + $credit_amount;
 
         // Fetch base duration days from the chosen plan tier
         $planQuery = $conn->prepare("SELECT duration_days FROM plans WHERE plan_id = :plan");
@@ -121,7 +122,7 @@ if (!empty($data->full_name)) {
         ");
         $paymentQuery->execute([
             ':member_id' => $new_member_id,
-            ':amount'    => $custom_price,
+            ':amount'    => ($is_installment && $actual_paid > 0) ? $actual_paid : $custom_price,
             ':plan_id'   => $plan_id,
             ':cash'      => $cash_amount,
             ':gcash'     => $gcash_amount,

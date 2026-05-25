@@ -25,6 +25,7 @@ try {
     $reference_number     = !empty($data->reference_number)     ? $data->reference_number            : null;
     $is_installment       = !empty($data->is_installment)       ? 1                                  : 0;
     $installment_total    = !empty($data->installment_total)    ? (float)$data->installment_total    : 0;
+    $actual_paid          = $cash_amount + $gcash_amount + $maya_amount + $bank_transfer_amount + $debit_amount + $credit_amount;
 
     // Get plan duration and price
     $pStmt = $conn->prepare("SELECT duration_days, price FROM plans WHERE plan_id = :p");
@@ -89,7 +90,7 @@ try {
              :debit, :credit, :reference)
     ")->execute([
         ':member_id' => $data->member_id,
-        ':amount'    => $custom_price,
+        ':amount'    => ($is_installment && $actual_paid > 0) ? $actual_paid : $custom_price,
         ':plan_id'   => $plan_id,
         ':cash'      => $cash_amount,
         ':gcash'     => $gcash_amount,
