@@ -1,4 +1,6 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+
+const PAGE_SIZE = 10;
 
 function MembersTable({
   theme,
@@ -13,6 +15,16 @@ function MembersTable({
   startEditing,
   handleDelete,
 }) {
+  const [currentPage, setCurrentPage] = useState(1);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filteredMembers.length, searchQuery]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredMembers.length / PAGE_SIZE));
+  const safeCurrentPage = Math.min(currentPage, totalPages);
+  const startIdx = (safeCurrentPage - 1) * PAGE_SIZE;
+  const pageMembers = filteredMembers.slice(startIdx, startIdx + PAGE_SIZE);
 
   return (
     <div
@@ -82,7 +94,7 @@ function MembersTable({
         </thead>
 
         <tbody>
-          {filteredMembers.map((member) => {
+          {pageMembers.map((member) => {
             const daysLeft = getDaysRemaining(member.expiration_date);
 
             const isExpired =
@@ -239,6 +251,64 @@ function MembersTable({
           })}
         </tbody>
       </table>
+
+      <div
+        style={{
+          padding: "14px 20px",
+          borderTop: `1px solid ${theme.border}`,
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          fontSize: "13px",
+          color: theme.textMuted,
+        }}
+      >
+        <span>
+          Showing {filteredMembers.length === 0 ? 0 : startIdx + 1}–
+          {Math.min(startIdx + PAGE_SIZE, filteredMembers.length)} of{" "}
+          {filteredMembers.length} member{filteredMembers.length !== 1 ? "s" : ""}
+        </span>
+
+        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+          <button
+            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+            disabled={safeCurrentPage === 1}
+            style={{
+              padding: "6px 14px",
+              borderRadius: "6px",
+              border: `1px solid ${theme.border}`,
+              backgroundColor: safeCurrentPage === 1 ? "transparent" : theme.primary,
+              color: safeCurrentPage === 1 ? theme.textMuted : theme.primaryText,
+              cursor: safeCurrentPage === 1 ? "default" : "pointer",
+              fontWeight: "bold",
+              fontSize: "13px",
+            }}
+          >
+            ‹ Prev
+          </button>
+
+          <span style={{ fontWeight: "bold", color: theme.text }}>
+            Page {safeCurrentPage} of {totalPages}
+          </span>
+
+          <button
+            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+            disabled={safeCurrentPage === totalPages}
+            style={{
+              padding: "6px 14px",
+              borderRadius: "6px",
+              border: `1px solid ${theme.border}`,
+              backgroundColor: safeCurrentPage === totalPages ? "transparent" : theme.primary,
+              color: safeCurrentPage === totalPages ? theme.textMuted : theme.primaryText,
+              cursor: safeCurrentPage === totalPages ? "default" : "pointer",
+              fontWeight: "bold",
+              fontSize: "13px",
+            }}
+          >
+            Next ›
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
