@@ -16,6 +16,7 @@ import { apiFetch } from "./api";
 const WALKIN_FORM_DEFAULT = {
   guestName: "",
   guestAge: "",
+  guestContact: "",
   planId: "",
   customPrice: "",
   cashAmount: 0,
@@ -94,6 +95,7 @@ function App() {
   const [showMemberModal, setShowMemberModal] = useState(false);
   const [showWalkInModal, setShowWalkInModal] = useState(false);
   const [walkInForm, setWalkInForm] = useState(WALKIN_FORM_DEFAULT);
+  const [walkInRecommend, setWalkInRecommend] = useState({ show: false, name: "", visits: 0 });
   const [showTdeeModal, setShowTdeeModal] = useState(false);
   const [currentView, setCurrentView] = useState("dashboard");
   const [editingId, setEditingId] = useState(null);
@@ -251,6 +253,7 @@ function App() {
         body: JSON.stringify({
           guest_name: walkInForm.guestName,
           guest_age: walkInForm.guestAge,
+          guest_contact: walkInForm.guestContact,
           plan_id: walkInForm.planId,
           custom_price: walkInForm.customPrice,
           cash_amount: walkInForm.cashAmount,
@@ -267,6 +270,9 @@ function App() {
         setWalkInForm(WALKIN_FORM_DEFAULT);
         fetchData();
         showToast("Walk-in registered!");
+        if (res.recommend_membership) {
+          setWalkInRecommend({ show: true, name: res.guest_name, visits: res.visit_count });
+        }
       } else {
         showToast(res.error || "Walk-in registration failed", "error");
       }
@@ -668,6 +674,61 @@ function App() {
             setDeleteConfirm({ show: false, id: null, name: "" });
           }}
         />
+      )}
+
+      {walkInRecommend.show && (
+        <div style={{
+          position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.7)",
+          display: "flex", justifyContent: "center", alignItems: "center",
+          zIndex: 2000, backdropFilter: "blur(4px)",
+        }}>
+          <div style={{
+            backgroundColor: theme.surface, borderRadius: "16px",
+            padding: "36px", width: "420px", textAlign: "center",
+            border: `1px solid ${theme.border}`,
+            boxShadow: "0 20px 60px rgba(0,0,0,0.5)",
+          }}>
+            <div style={{ fontSize: "48px", marginBottom: "12px" }}>🏆</div>
+            <h2 style={{ margin: "0 0 10px", fontSize: "20px", color: theme.primary }}>
+              Loyal Walk-in Guest!
+            </h2>
+            <p style={{ color: theme.text, margin: "0 0 6px", fontSize: "15px" }}>
+              Si <strong>{walkInRecommend.name}</strong> ay bumisita na ng{" "}
+              <strong style={{ color: theme.primary }}>{walkInRecommend.visits}x</strong> sa gym!
+            </p>
+            <p style={{ color: theme.textMuted, fontSize: "13px", margin: "0 0 28px" }}>
+              Consider mo na siyang i-offer ng membership plan para makatipid siya at makapag-enjoy ng full benefits.
+            </p>
+            <div style={{ display: "flex", gap: "12px", justifyContent: "center" }}>
+              <button
+                onClick={() => {
+                  const name = walkInRecommend.name;
+                  setWalkInRecommend({ show: false, name: "", visits: 0 });
+                  clearMemberForm();
+                  setMemberForm((f) => ({ ...f, name }));
+                  setShowMemberModal(true);
+                }}
+                style={{
+                  padding: "12px 22px", backgroundColor: theme.primary,
+                  color: theme.primaryText, border: "none", borderRadius: "8px",
+                  cursor: "pointer", fontWeight: "bold", fontSize: "14px",
+                }}
+              >
+                ➕ Register as Member
+              </button>
+              <button
+                onClick={() => setWalkInRecommend({ show: false, name: "", visits: 0 })}
+                style={{
+                  padding: "12px 22px", backgroundColor: "transparent",
+                  color: theme.textMuted, border: `1px solid ${theme.border}`,
+                  borderRadius: "8px", cursor: "pointer", fontSize: "14px",
+                }}
+              >
+                Maybe Later
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       {toast.show && (

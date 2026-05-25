@@ -109,6 +109,17 @@ function WalkInModal({ theme, onClose, handleWalkInSubmit, plans, walkInForm, se
           </div>
 
           <div>
+            <label style={labelStyle}>Contact Number</label>
+            <input
+              type="text"
+              value={walkInForm.guestContact}
+              onChange={(e) => update("guestContact", e.target.value)}
+              placeholder="e.g., 09171234567 — used to track repeat visits"
+              style={inputStyle}
+            />
+          </div>
+
+          <div>
             <label style={labelStyle}>Session Plan</label>
             <select
               value={walkInForm.planId}
