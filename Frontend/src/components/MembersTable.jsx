@@ -8,7 +8,6 @@ function MembersTable({
   filteredMembers,
   getDaysRemaining,
   handleTimeIn,
-  handleTimeOut,
   attendanceLogs,
   viewProfile,
   startEditing,
@@ -89,11 +88,9 @@ function MembersTable({
             const isExpired =
               member.status === "Expired" || daysLeft === "Expired";
 
-            const activeSession = attendanceLogs.find(
-              (log) => log.member_id === member.member_id && !log.time_out,
+            const isTimedIn = attendanceLogs.some(
+              (log) => log.member_id === member.member_id,
             );
-
-            const isTimedIn = !!activeSession;
 
             const statusBg = isExpired
               ? isDarkMode
@@ -165,25 +162,30 @@ function MembersTable({
                   <button
                     onClick={() => {
                       if (isExpired) alert("⛔ Please renew plan to time in.");
-                      else if (isTimedIn) handleTimeOut(member.member_id);
-                      else handleTimeIn(member.member_id);
+                      else if (!isTimedIn) handleTimeIn(member.member_id);
                     }}
+                    disabled={isTimedIn}
                     style={{
                       padding: "8px 12px",
                       backgroundColor: isExpired
                         ? theme.border
                         : isTimedIn
-                          ? theme.danger
+                          ? isDarkMode ? "rgba(0,230,118,0.18)" : "#e8f5e9"
                           : theme.success,
-                      color: isExpired ? theme.textMuted : "#fff",
-                      border: "none",
+                      color: isExpired
+                        ? theme.textMuted
+                        : isTimedIn
+                          ? theme.success
+                          : "#fff",
+                      border: isTimedIn ? `1px solid ${theme.success}` : "none",
                       borderRadius: "6px",
-                      cursor: isExpired ? "not-allowed" : "pointer",
+                      cursor: isExpired || isTimedIn ? "default" : "pointer",
                       fontWeight: "bold",
                       marginRight: "8px",
+                      opacity: isTimedIn ? 0.85 : 1,
                     }}
                   >
-                    {isTimedIn ? "TIME OUT" : "TIME IN"}
+                    {isTimedIn ? "✅ CHECKED IN" : "TIME IN"}
                   </button>
 
                   <button

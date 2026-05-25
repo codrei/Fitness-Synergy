@@ -14,11 +14,11 @@ requireAuth();
 
 try {
     $query = $conn->query("
-        SELECT members.full_name, attendance.time_in 
-        FROM attendance 
-        JOIN members ON attendance.member_id = members.member_id 
+        SELECT attendance.member_id, members.full_name, attendance.time_in
+        FROM attendance
+        JOIN members ON attendance.member_id = members.member_id
         WHERE DATE(attendance.time_in) = CURRENT_DATE()
-        ORDER BY attendance.time_in DESC 
+        ORDER BY attendance.time_in DESC
     ");
     
     echo json_encode($query->fetchAll(PDO::FETCH_ASSOC));

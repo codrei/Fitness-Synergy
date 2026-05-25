@@ -207,15 +207,15 @@ function App() {
     }
   };
 
-  const handleAttendance = async (memberId, action) => {
+  const handleTimeIn = async (memberId) => {
     try {
-      const res = await apiFetch(`time_${action}.php`, {
+      const res = await apiFetch("time_in.php", {
         method: "POST",
         body: JSON.stringify({ member_id: memberId }),
       }).then((r) => r.json());
 
       if (res.success) {
-        showToast(`Member successfully timed ${action}!`);
+        showToast("Member successfully timed in!");
         fetchData();
       } else {
         showToast(res.error, "error");
@@ -457,8 +457,7 @@ function App() {
                   setSearchQuery={setSearchQuery}
                   filteredMembers={filteredMembers}
                   getDaysRemaining={getDaysRemaining}
-                  handleTimeIn={(id) => handleAttendance(id, "in")}
-                  handleTimeOut={(id) => handleAttendance(id, "out")}
+                  handleTimeIn={handleTimeIn}
                   attendanceLogs={attendanceLogs}
                   viewProfile={viewProfile}
                   handleDelete={(id, name) => {
