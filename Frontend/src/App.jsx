@@ -10,6 +10,7 @@ import WalkInModal from "./components/WalkInModal";
 import ProfileModal from "./components/ProfileModal";
 import RenewalModal from "./components/RenewalModal";
 import EditInfoModal from "./components/EditInfoModal";
+import TimeInConfirmModal from "./components/TimeInConfirmModal";
 import TdeeModal from "./components/TdeeModal";
 import ConfirmModal from "./components/ConfirmModal";
 import bgTexture from "./assets/geomblue.png";
@@ -121,6 +122,7 @@ function App() {
   const [showEditInfoModal, setShowEditInfoModal] = useState(false);
   const [editInfoMember, setEditInfoMember] = useState(null);
   const [infoForm, setInfoForm] = useState({});
+  const [timeInConfirmMember, setTimeInConfirmMember] = useState(null);
   const [memberForm, setMemberForm] = useState(MEMBER_FORM_DEFAULT);
   const [selectedMember, setSelectedMember] = useState(null);
   const [memberHistory, setMemberHistory] = useState({
@@ -708,7 +710,7 @@ function App() {
                   setSearchQuery={setSearchQuery}
                   filteredMembers={filteredMembers}
                   getDaysRemaining={getDaysRemaining}
-                  handleTimeIn={handleTimeIn}
+                  confirmTimeIn={(member) => setTimeInConfirmMember(member)}
                   attendanceLogs={attendanceLogs}
                   viewProfile={viewProfile}
                   startRenewal={startRenewal}
@@ -752,6 +754,19 @@ function App() {
           handleWalkInSubmit={handleWalkInSubmit}
           walkInForm={walkInForm}
           setWalkInForm={setWalkInForm}
+        />
+      )}
+
+      {timeInConfirmMember && (
+        <TimeInConfirmModal
+          theme={theme}
+          member={timeInConfirmMember}
+          getDaysRemaining={getDaysRemaining}
+          onConfirm={() => {
+            handleTimeIn(timeInConfirmMember.member_id);
+            setTimeInConfirmMember(null);
+          }}
+          onClose={() => setTimeInConfirmMember(null)}
         />
       )}
 

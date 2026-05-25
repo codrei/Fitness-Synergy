@@ -9,7 +9,7 @@ function MembersTable({
   setSearchQuery,
   filteredMembers,
   getDaysRemaining,
-  handleTimeIn,
+  confirmTimeIn,
   attendanceLogs,
   viewProfile,
   startRenewal,
@@ -107,23 +107,41 @@ function MembersTable({
                   key={member.member_id}
                   style={{ borderBottom: `1px solid ${theme.border}` }}
                 >
-                  <td style={{ padding: "15px 20px", fontWeight: "bold" }}>
-                    <span>{member.full_name}</span>
-                    <span
-                      style={{
-                        marginLeft: "8px",
-                        backgroundColor: isDarkMode
-                          ? "rgba(99,102,241,0.18)"
-                          : "#ede9fe",
-                        color: "#7c3aed",
-                        padding: "2px 8px",
-                        borderRadius: "12px",
-                        fontSize: "11px",
-                        fontWeight: "bold",
-                      }}
-                    >
-                      🚶 WALK-IN
-                    </span>
+                  <td style={{ padding: "12px 20px" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                      <div
+                        style={{
+                          width: "36px",
+                          height: "36px",
+                          borderRadius: "50%",
+                          backgroundColor: isDarkMode ? "rgba(99,102,241,0.18)" : "#ede9fe",
+                          border: `2px solid #7c3aed`,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          fontSize: "16px",
+                          flexShrink: 0,
+                        }}
+                      >
+                        🚶
+                      </div>
+                      <div>
+                        <span style={{ fontWeight: "bold" }}>{member.full_name}</span>
+                        <span
+                          style={{
+                            marginLeft: "8px",
+                            backgroundColor: isDarkMode ? "rgba(99,102,241,0.18)" : "#ede9fe",
+                            color: "#7c3aed",
+                            padding: "2px 8px",
+                            borderRadius: "12px",
+                            fontSize: "11px",
+                            fontWeight: "bold",
+                          }}
+                        >
+                          WALK-IN
+                        </span>
+                      </div>
+                    </div>
                   </td>
 
                   <td style={{ padding: "15px 20px" }}>
@@ -225,13 +243,41 @@ function MembersTable({
                   borderBottom: `1px solid ${theme.border}`,
                 }}
               >
-                <td
-                  style={{
-                    padding: "15px 20px",
-                    fontWeight: "bold",
-                  }}
-                >
-                  {member.full_name}
+                <td style={{ padding: "12px 20px" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                    {member.photo_url ? (
+                      <img
+                        src={member.photo_url}
+                        alt={member.full_name}
+                        style={{
+                          width: "36px",
+                          height: "36px",
+                          borderRadius: "50%",
+                          objectFit: "cover",
+                          border: `2px solid ${theme.primary}`,
+                          flexShrink: 0,
+                        }}
+                      />
+                    ) : (
+                      <div
+                        style={{
+                          width: "36px",
+                          height: "36px",
+                          borderRadius: "50%",
+                          backgroundColor: theme.bg,
+                          border: `2px dashed ${theme.border}`,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          fontSize: "16px",
+                          flexShrink: 0,
+                        }}
+                      >
+                        👤
+                      </div>
+                    )}
+                    <span style={{ fontWeight: "bold" }}>{member.full_name}</span>
+                  </div>
                 </td>
 
                 <td style={{ padding: "15px 20px" }}>
@@ -264,7 +310,7 @@ function MembersTable({
                       if (isExpired) {
                         showToast("⛔ Membership expired — use 🔄 Renew to reactivate.", "error");
                       } else if (!isTimedIn) {
-                        handleTimeIn(member.member_id);
+                        confirmTimeIn(member);
                       }
                     }}
                     disabled={isTimedIn}
