@@ -555,7 +555,7 @@ function App() {
       .total { font-weight: bold; font-size: 15px; }
       .footer { text-align: center; margin-top: 14px; font-size: 11px; color: #777; }
     </style></head><body>
-    <h2>FITNESS SYNERGY</h2>
+    <h2>FITNESS SYNERGY LIPA</h2>
     <div class="sub">Official Payment Receipt</div>
     <hr>
     <table>
@@ -572,7 +572,7 @@ function App() {
     <hr>
     <table><tr class="total"><td>TOTAL PAID</td><td>₱${parseFloat(payment.amount).toLocaleString("en-PH", { minimumFractionDigits: 2 })}</td></tr></table>
     ${payment.reference_number ? `<hr><div style="font-size:11px">Ref #: ${payment.reference_number}</div>` : ""}
-    <div class="footer">Thank you for choosing Fitness Synergy!<br>Keep this receipt for your records.</div>
+    <div class="footer">Thank you for choosing Fitness Synergy Lipa!<br>Keep this receipt for your records.</div>
     </body></html>`;
 
     const w = window.open("", "_blank", "width=400,height=600");
@@ -691,7 +691,7 @@ function App() {
               }}
             >
               <h1 style={{ margin: 0, fontSize: "28px" }}>
-                Fitness Synergy Dashboard
+                Fitness Synergy Lipa Dashboard
               </h1>
               <div
                 style={{

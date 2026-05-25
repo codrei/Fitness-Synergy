@@ -62,7 +62,7 @@ function Sidebar({
       <div style={{ textAlign: "center", marginBottom: "30px" }}>
         <img
           src={logo}
-          alt="Fitness Synergy"
+          alt="Fitness Synergy Lipa"
           style={{
             width: "120px",
             borderRadius: "12px",
@@ -86,7 +86,7 @@ function Sidebar({
             letterSpacing: "1px",
           }}
         >
-          FITNESS SYNERGY
+          FITNESS SYNERGY LIPA
         </h2>
         <span style={{ fontSize: "12px", letterSpacing: "2px", color: "#888" }}>
           GYM SYSTEM

@@ -395,7 +395,7 @@ export default function RevenueReport({ theme, activeTab }) {
   const exportExcel = (rows, sheetName, filename) => {
     const monthName = MONTHS[month - 1].toUpperCase();
     const wsData = [
-      ["FITNESS SYNERGY - GYM SYSTEM"],
+      ["FITNESS SYNERGY LIPA - GYM SYSTEM"],
       [`${sheetName} — ${monthName} ${year}`],
       [],
       [
@@ -495,7 +495,7 @@ export default function RevenueReport({ theme, activeTab }) {
         .total-row{font-weight:bold;background:#e8f5e9}
         .badge{margin:12px 0;padding:10px 16px;background:#0d1b2a;color:white;display:inline-block;border-radius:6px}
       </style></head><body>
-      <h1>FITNESS SYNERGY — GYM SYSTEM</h1>
+      <h1>FITNESS SYNERGY LIPA — GYM SYSTEM</h1>
       <h2>${title}</h2>
       <div class="badge">TOTAL REVENUE: ₱${total.toLocaleString("en-PH", { minimumFractionDigits: 2 })}</div>
       <table><thead><tr>
@@ -582,7 +582,7 @@ export default function RevenueReport({ theme, activeTab }) {
         .footer{text-align:center;color:#999;font-size:11px;margin-top:20px}
         @media print{button{display:none}}
       </style></head><body>
-      <h1>FITNESS SYNERGY — DAILY SUMMARY</h1>
+      <h1>FITNESS SYNERGY LIPA — DAILY SUMMARY</h1>
       <div class="sub">${dateLabel}</div>
       <div class="total-box">
         <div class="lbl">Total Revenue</div>
@@ -594,7 +594,7 @@ export default function RevenueReport({ theme, activeTab }) {
         <div class="card"><div class="lbl">🚶 Walk-ins</div><div class="val">${wiRows.length} transaction(s)</div></div>
       </div>
       ${methods.length > 0 ? `<hr><div style="font-size:12px;color:#555;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Payment Breakdown</div><div class="grid">${methods.map(([lbl, val]) => `<div class="card"><div class="lbl">${lbl}</div><div class="val">₱${val.toLocaleString("en-PH", { minimumFractionDigits: 2 })}</div></div>`).join("")}</div>` : ""}
-      <div class="footer">Printed on ${new Date().toLocaleString("en-PH")} · FITNESS SYNERGY GYM SYSTEM</div>
+      <div class="footer">Printed on ${new Date().toLocaleString("en-PH")} · FITNESS SYNERGY LIPA GYM SYSTEM</div>
       </body></html>
     `);
     win.document.close();
