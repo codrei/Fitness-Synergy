@@ -100,6 +100,17 @@ function EditInfoModal({ theme, infoForm, setInfoForm, onSubmit, onClose }) {
             />
           </div>
 
+          <div>
+            <label style={labelStyle}>Facebook / Social Media (Optional)</label>
+            <input
+              type="text"
+              value={infoForm.facebook}
+              onChange={(e) => update("facebook", e.target.value)}
+              placeholder="facebook.com/username or @handle"
+              style={inputStyle}
+            />
+          </div>
+
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px" }}>
             <div>
               <label style={labelStyle}>Date of Birth</label>
@@ -141,9 +152,8 @@ function EditInfoModal({ theme, infoForm, setInfoForm, onSubmit, onClose }) {
               <input
                 type="text"
                 value={infoForm.contractId}
-                onChange={(e) => update("contractId", e.target.value)}
-                placeholder="Unique Contract number"
-                style={inputStyle}
+                readOnly
+                style={{ ...inputStyle, opacity: 0.6, cursor: "default", backgroundColor: theme.surface }}
               />
             </div>
           </div>
@@ -171,6 +181,7 @@ function EditInfoModal({ theme, infoForm, setInfoForm, onSubmit, onClose }) {
             </div>
           </div>
 
+          {/* Discount section */}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px" }}>
             <div>
               <label style={labelStyle}>Discount / Promo Group</label>
@@ -179,8 +190,10 @@ function EditInfoModal({ theme, infoForm, setInfoForm, onSubmit, onClose }) {
                 onChange={(e) =>
                   setInfoForm((f) => ({
                     ...f,
-                    discountType: e.target.value,
-                    discountId: e.target.value === "None" ? "" : f.discountId,
+                    discountType:       e.target.value,
+                    discountId:         e.target.value === "None" ? "" : f.discountId,
+                    discountIdType:     e.target.value === "None" ? "" : f.discountIdType,
+                    discountSchoolName: e.target.value !== "Student" ? "" : f.discountSchoolName,
                   }))
                 }
                 style={inputStyle}
@@ -192,21 +205,51 @@ function EditInfoModal({ theme, infoForm, setInfoForm, onSubmit, onClose }) {
             </div>
             {infoForm.discountType !== "None" && (
               <div>
+                <label style={labelStyle}>ID Type</label>
+                <select
+                  value={infoForm.discountIdType}
+                  onChange={(e) => update("discountIdType", e.target.value)}
+                  style={inputStyle}
+                >
+                  <option value="">Select ID Type...</option>
+                  <option value="School ID">School ID</option>
+                  <option value="Senior Citizen ID">Senior Citizen ID</option>
+                  <option value="PWD ID">PWD ID</option>
+                  <option value="Government ID">Government ID</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+            )}
+          </div>
+
+          {infoForm.discountType !== "None" && (
+            <div style={{ display: "grid", gridTemplateColumns: infoForm.discountType === "Student" ? "1fr 1fr" : "1fr", gap: "15px" }}>
+              <div>
                 <label style={labelStyle}>
-                  {infoForm.discountType === "Student"
-                    ? "Student ID Number"
-                    : "Senior Citizen ID Number"}
+                  {infoForm.discountType === "Student" ? "Student ID Number" : "Senior Citizen ID Number"}
                 </label>
                 <input
                   type="text"
                   value={infoForm.discountId}
                   onChange={(e) => update("discountId", e.target.value)}
-                  placeholder="Enter Identification ID"
+                  placeholder="Enter ID number"
                   style={inputStyle}
                 />
               </div>
-            )}
-          </div>
+              {infoForm.discountType === "Student" && (
+                <div>
+                  <label style={labelStyle}>School Name</label>
+                  <input
+                    type="text"
+                    value={infoForm.discountSchoolName}
+                    onChange={(e) => update("discountSchoolName", e.target.value)}
+                    placeholder="e.g., University of Santo Tomas"
+                    style={inputStyle}
+                  />
+                </div>
+              )}
+            </div>
+          )}
 
           <button
             type="submit"

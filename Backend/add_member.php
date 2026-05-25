@@ -42,43 +42,55 @@ if (!empty($data->full_name)) {
         }
 
         // Sanitize incoming fields, mapping missing parameters to NULL
-        $address                  = !empty($data->address) ? $data->address : null;
-        $contact_number           = !empty($data->contact_number) ? $data->contact_number : null;
-        $dob                      = !empty($data->dob) ? $data->dob : null;
-        $gender                   = !empty($data->gender) ? $data->gender : null;
-        $occupation               = !empty($data->occupation) ? $data->occupation : null;
-        $emergency_contact_name   = !empty($data->emergency_contact_name) ? $data->emergency_contact_name : null;
-        $emergency_contact_number = !empty($data->emergency_contact_number) ? $data->emergency_contact_number : null;
-        $contract_id              = !empty($data->contract_id) ? $data->contract_id : null;
-        $discount_type            = !empty($data->discount_type) ? $data->discount_type : 'None';
-        $discount_id              = !empty($data->discount_id) ? $data->discount_id : null;
+        $address                  = !empty($data->address)                   ? $data->address                   : null;
+        $contact_number           = !empty($data->contact_number)            ? $data->contact_number            : null;
+        $dob                      = !empty($data->dob)                       ? $data->dob                       : null;
+        $gender                   = !empty($data->gender)                    ? $data->gender                    : null;
+        $occupation               = !empty($data->occupation)                ? $data->occupation                : null;
+        $facebook                 = !empty($data->facebook)                  ? $data->facebook                  : null;
+        $emergency_contact_name   = !empty($data->emergency_contact_name)   ? $data->emergency_contact_name    : null;
+        $emergency_contact_number = !empty($data->emergency_contact_number) ? $data->emergency_contact_number  : null;
+        $discount_type            = !empty($data->discount_type)             ? $data->discount_type             : 'None';
+        $discount_id              = !empty($data->discount_id)               ? $data->discount_id               : null;
+        $discount_id_type         = !empty($data->discount_id_type)          ? $data->discount_id_type          : null;
+        $discount_school_name     = !empty($data->discount_school_name)      ? $data->discount_school_name      : null;
+
+        // Auto-generate contract ID in FS-XXXXXX format
+        $maxStmt = $conn->query("SELECT MAX(CAST(REPLACE(contract_id, 'FS-', '') AS UNSIGNED)) FROM members WHERE contract_id REGEXP '^FS-[0-9]+$'");
+        $maxNum  = (int)$maxStmt->fetchColumn();
+        $contract_id = 'FS-' . str_pad($maxNum + 1, 6, '0', STR_PAD_LEFT);
 
         $query = $conn->prepare("
             INSERT INTO members (
-                full_name, address, contact_number, dob, gender, occupation, 
-                emergency_contact_name, emergency_contact_number, contract_id, 
-                discount_type, discount_id, plan_id, start_date, expiration_date
+                full_name, address, contact_number, dob, gender, occupation, facebook,
+                emergency_contact_name, emergency_contact_number, contract_id,
+                discount_type, discount_id, discount_id_type, discount_school_name,
+                plan_id, start_date, expiration_date
             ) VALUES (
-                :name, :address, :contact_number, :dob, :gender, :occupation, 
-                :emergency_name, :emergency_number, :contract_id, 
-                :discount_type, :discount_id, :plan, CURRENT_DATE(), :expiration
+                :name, :address, :contact_number, :dob, :gender, :occupation, :facebook,
+                :emergency_name, :emergency_number, :contract_id,
+                :discount_type, :discount_id, :discount_id_type, :discount_school_name,
+                :plan, CURRENT_DATE(), :expiration
             )
         ");
 
         $query->execute([
-            ':name'             => $data->full_name,
-            ':address'          => $address,
-            ':contact_number'   => $contact_number,
-            ':dob'              => $dob,
-            ':gender'           => $gender,
-            ':occupation'       => $occupation,
-            ':emergency_name'   => $emergency_contact_name,
-            ':emergency_number' => $emergency_contact_number,
-            ':contract_id'      => $contract_id,
-            ':discount_type'    => $discount_type,
-            ':discount_id'      => $discount_id,
-            ':plan'             => $plan_id,
-            ':expiration'       => $expirationDate
+            ':name'                 => $data->full_name,
+            ':address'              => $address,
+            ':contact_number'       => $contact_number,
+            ':dob'                  => $dob,
+            ':gender'               => $gender,
+            ':occupation'           => $occupation,
+            ':facebook'             => $facebook,
+            ':emergency_name'       => $emergency_contact_name,
+            ':emergency_number'     => $emergency_contact_number,
+            ':contract_id'          => $contract_id,
+            ':discount_type'        => $discount_type,
+            ':discount_id'          => $discount_id,
+            ':discount_id_type'     => $discount_id_type,
+            ':discount_school_name' => $discount_school_name,
+            ':plan'                 => $plan_id,
+            ':expiration'           => $expirationDate
         ]);
 
         // === NEW BILLING TRACKING RECORD INSIDE PAYMENTS TABLE ===
@@ -111,7 +123,7 @@ if (!empty($data->full_name)) {
         ]);
         }
 
-        echo json_encode(["success" => true, "message" => "Member added successfully with promotional parameters!"]);
+        echo json_encode(["success" => true, "message" => "Member added successfully!", "contract_id" => $contract_id]);
     } catch (PDOException $e) {
         if (isset($e->errorInfo[1]) && $e->errorInfo[1] == 1062) {
             echo json_encode(["success" => false, "error" => "Contract ID already exists."]);

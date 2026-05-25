@@ -357,8 +357,12 @@ function ProfileModal({
             {infoRow("Date of Birth", m.dob ? formatSafeDate(m.dob) : null)}
             {infoRow("Gender", m.gender)}
             {infoRow("Occupation", m.occupation)}
+            {infoRow("Facebook", m.facebook)}
             {infoRow("Contract ID", m.contract_id)}
-            {infoRow("Discount", m.discount_type !== "None" ? `${m.discount_type} — ${m.discount_id || ""}` : null)}
+            {infoRow("Discount", m.discount_type && m.discount_type !== "None" ? m.discount_type : null)}
+            {infoRow("ID Type", m.discount_id_type)}
+            {infoRow("ID Number", m.discount_id)}
+            {infoRow("School", m.discount_school_name)}
             {infoRow("Emergency Contact", m.emergency_contact_name)}
             {infoRow("Emergency #", m.emergency_contact_number)}
           </div>

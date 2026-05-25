@@ -220,6 +220,17 @@ function AddEditModal({
             />
           </div>
 
+          <div>
+            <label style={labelStyle}>Facebook / Social Media (Optional)</label>
+            <input
+              type="text"
+              value={memberForm.facebook}
+              onChange={(e) => update("facebook", e.target.value)}
+              placeholder="facebook.com/username or @handle"
+              style={inputStyle}
+            />
+          </div>
+
           {isLongTermPlan && (
             <fieldset
               style={{
@@ -277,34 +288,15 @@ function AddEditModal({
                 </div>
               </div>
 
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "1fr 1fr",
-                  gap: "15px",
-                }}
-              >
-                <div>
-                  <label style={labelStyle}>Occupation</label>
-                  <input
-                    type="text"
-                    value={memberForm.occupation}
-                    onChange={(e) => update("occupation", e.target.value)}
-                    placeholder="Profession"
-                    style={inputStyle}
-                  />
-                </div>
-                <div>
-                  <label style={labelStyle}>Contract ID #</label>
-                  <input
-                    type="text"
-                    value={memberForm.contractId}
-                    onChange={(e) => update("contractId", e.target.value)}
-                    placeholder="Unique Contract number"
-                    required={isLongTermPlan}
-                    style={inputStyle}
-                  />
-                </div>
+              <div>
+                <label style={labelStyle}>Occupation</label>
+                <input
+                  type="text"
+                  value={memberForm.occupation}
+                  onChange={(e) => update("occupation", e.target.value)}
+                  placeholder="Profession"
+                  style={inputStyle}
+                />
               </div>
 
               <div
@@ -340,13 +332,7 @@ function AddEditModal({
                 </div>
               </div>
 
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "1fr 1fr",
-                  gap: "15px",
-                }}
-              >
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px" }}>
                 <div>
                   <label style={labelStyle}>Discount / Promo Group</label>
                   <select
@@ -354,9 +340,10 @@ function AddEditModal({
                     onChange={(e) =>
                       setMemberForm((f) => ({
                         ...f,
-                        discountType: e.target.value,
-                        discountId:
-                          e.target.value === "None" ? "" : f.discountId,
+                        discountType:     e.target.value,
+                        discountId:       e.target.value === "None" ? "" : f.discountId,
+                        discountIdType:   e.target.value === "None" ? "" : f.discountIdType,
+                        discountSchoolName: e.target.value !== "Student" ? "" : f.discountSchoolName,
                       }))
                     }
                     style={inputStyle}
@@ -369,22 +356,52 @@ function AddEditModal({
 
                 {memberForm.discountType !== "None" && (
                   <div>
+                    <label style={labelStyle}>ID Type</label>
+                    <select
+                      value={memberForm.discountIdType}
+                      onChange={(e) => update("discountIdType", e.target.value)}
+                      style={inputStyle}
+                    >
+                      <option value="">Select ID Type...</option>
+                      <option value="School ID">School ID</option>
+                      <option value="Senior Citizen ID">Senior Citizen ID</option>
+                      <option value="PWD ID">PWD ID</option>
+                      <option value="Government ID">Government ID</option>
+                      <option value="Other">Other</option>
+                    </select>
+                  </div>
+                )}
+              </div>
+
+              {memberForm.discountType !== "None" && (
+                <div style={{ display: "grid", gridTemplateColumns: memberForm.discountType === "Student" ? "1fr 1fr" : "1fr", gap: "15px" }}>
+                  <div>
                     <label style={labelStyle}>
-                      {memberForm.discountType === "Student"
-                        ? "Student ID Number"
-                        : "Senior Citizen ID Number"}
+                      {memberForm.discountType === "Student" ? "Student ID Number" : "Senior Citizen ID Number"}
                     </label>
                     <input
                       type="text"
                       value={memberForm.discountId}
                       onChange={(e) => update("discountId", e.target.value)}
-                      placeholder="Enter Identification ID"
+                      placeholder="Enter ID number"
                       required={memberForm.discountType !== "None"}
                       style={inputStyle}
                     />
                   </div>
-                )}
-              </div>
+                  {memberForm.discountType === "Student" && (
+                    <div>
+                      <label style={labelStyle}>School Name</label>
+                      <input
+                        type="text"
+                        value={memberForm.discountSchoolName}
+                        onChange={(e) => update("discountSchoolName", e.target.value)}
+                        placeholder="e.g., University of Santo Tomas"
+                        style={inputStyle}
+                      />
+                    </div>
+                  )}
+                </div>
+              )}
             </fieldset>
           )}
 

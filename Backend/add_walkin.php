@@ -14,9 +14,10 @@ if (empty($data->guest_name)) {
 
 try {
     $plan_id       = 1;
-    $guest_age     = !empty($data->guest_age)       ? (int)$data->guest_age      : null;
-    $guest_contact = !empty($data->guest_contact)   ? trim($data->guest_contact) : null;
-    $custom_price  = !empty($data->custom_price)    ? (float)$data->custom_price : null;
+    $guest_age     = !empty($data->guest_age)       ? (int)$data->guest_age       : null;
+    $guest_contact = !empty($data->guest_contact)   ? trim($data->guest_contact)  : null;
+    $guest_address = !empty($data->guest_address)   ? trim($data->guest_address)  : null;
+    $custom_price  = !empty($data->custom_price)    ? (float)$data->custom_price  : null;
 
     $cash_amount      = !empty($data->cash_amount)      ? (float)$data->cash_amount      : 0;
     $gcash_amount     = !empty($data->gcash_amount)     ? (float)$data->gcash_amount     : 0;
@@ -33,18 +34,19 @@ try {
 
     $stmt = $conn->prepare("
         INSERT INTO payments
-            (member_id, customer_type, guest_name, guest_age, guest_contact, plan_id, amount,
-             cash_amount, gcash_amount, maya_amount, debit_amount, credit_amount,
-             reference_number, payment_date)
+            (member_id, customer_type, guest_name, guest_age, guest_contact, guest_address,
+             plan_id, amount, cash_amount, gcash_amount, maya_amount, debit_amount,
+             credit_amount, reference_number, payment_date)
         VALUES
-            (NULL, 'Walk-in', :guest_name, :guest_age, :guest_contact, :plan_id, :amount,
-             :cash, :gcash, :maya, :debit, :credit,
-             :reference, CURRENT_DATE())
+            (NULL, 'Walk-in', :guest_name, :guest_age, :guest_contact, :guest_address,
+             :plan_id, :amount, :cash, :gcash, :maya, :debit,
+             :credit, :reference, CURRENT_DATE())
     ");
     $stmt->execute([
         ':guest_name'    => $data->guest_name,
         ':guest_age'     => $guest_age,
         ':guest_contact' => $guest_contact,
+        ':guest_address' => $guest_address,
         ':plan_id'       => $plan_id,
         ':amount'        => $custom_price,
         ':cash'          => $cash_amount,

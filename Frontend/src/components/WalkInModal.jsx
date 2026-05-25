@@ -120,6 +120,17 @@ function WalkInModal({ theme, onClose, handleWalkInSubmit, walkInForm, setWalkIn
           </div>
 
           <div>
+            <label style={labelStyle}>Address (Optional)</label>
+            <input
+              type="text"
+              value={walkInForm.guestAddress}
+              onChange={(e) => update("guestAddress", e.target.value)}
+              placeholder="House No., Street, Barangay, City"
+              style={inputStyle}
+            />
+          </div>
+
+          <div>
             <label style={labelStyle}>Custom Price Override (₱)</label>
             <input
               type="number"

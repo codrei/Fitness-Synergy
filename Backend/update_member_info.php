@@ -20,31 +20,31 @@ try {
             dob                      = :dob,
             gender                   = :gender,
             occupation               = :occupation,
+            facebook                 = :facebook,
             emergency_contact_name   = :emg_name,
             emergency_contact_number = :emg_number,
-            contract_id              = :contract_id,
             discount_type            = :discount_type,
-            discount_id              = :discount_id
+            discount_id              = :discount_id,
+            discount_id_type         = :discount_id_type,
+            discount_school_name     = :discount_school_name
         WHERE member_id = :id
     ")->execute([
-        ':name'          => $data->full_name,
-        ':address'       => !empty($data->address)                  ? $data->address                  : null,
-        ':contact'       => !empty($data->contact_number)           ? $data->contact_number           : null,
-        ':dob'           => !empty($data->dob)                      ? $data->dob                      : null,
-        ':gender'        => !empty($data->gender)                   ? $data->gender                   : null,
-        ':occupation'    => !empty($data->occupation)               ? $data->occupation               : null,
-        ':emg_name'      => !empty($data->emergency_contact_name)   ? $data->emergency_contact_name   : null,
-        ':emg_number'    => !empty($data->emergency_contact_number) ? $data->emergency_contact_number : null,
-        ':contract_id'   => !empty($data->contract_id)              ? $data->contract_id              : null,
-        ':discount_type' => !empty($data->discount_type)            ? $data->discount_type            : 'None',
-        ':discount_id'   => !empty($data->discount_id)              ? $data->discount_id              : null,
-        ':id'            => $data->member_id,
+        ':name'                 => $data->full_name,
+        ':address'              => !empty($data->address)                  ? $data->address                  : null,
+        ':contact'              => !empty($data->contact_number)           ? $data->contact_number           : null,
+        ':dob'                  => !empty($data->dob)                      ? $data->dob                      : null,
+        ':gender'               => !empty($data->gender)                   ? $data->gender                   : null,
+        ':occupation'           => !empty($data->occupation)               ? $data->occupation               : null,
+        ':facebook'             => !empty($data->facebook)                 ? $data->facebook                 : null,
+        ':emg_name'             => !empty($data->emergency_contact_name)   ? $data->emergency_contact_name   : null,
+        ':emg_number'           => !empty($data->emergency_contact_number) ? $data->emergency_contact_number : null,
+        ':discount_type'        => !empty($data->discount_type)            ? $data->discount_type            : 'None',
+        ':discount_id'          => !empty($data->discount_id)              ? $data->discount_id              : null,
+        ':discount_id_type'     => !empty($data->discount_id_type)         ? $data->discount_id_type         : null,
+        ':discount_school_name' => !empty($data->discount_school_name)     ? $data->discount_school_name     : null,
+        ':id'                   => $data->member_id,
     ]);
     echo json_encode(["success" => true, "message" => "Member info updated."]);
 } catch (PDOException $e) {
-    if (isset($e->errorInfo[1]) && $e->errorInfo[1] == 1062) {
-        echo json_encode(["success" => false, "error" => "Contract ID matches a pre-existing record."]);
-    } else {
-        echo json_encode(["success" => false, "error" => $e->getMessage()]);
-    }
+    echo json_encode(["success" => false, "error" => $e->getMessage()]);
 }
