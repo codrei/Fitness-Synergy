@@ -500,6 +500,7 @@ function App() {
       .map(([label, val]) => `<tr><td>${label}</td><td>₱${parseFloat(val).toLocaleString("en-PH", { minimumFractionDigits: 2 })}</td></tr>`)
       .join("");
 
+    const printedAt = new Date();
     const html = `<!DOCTYPE html><html><head><title>Receipt</title>
     <style>
       body { font-family: monospace; width: 320px; margin: 20px auto; font-size: 13px; }
@@ -518,7 +519,9 @@ function App() {
     <table>
       <tr><td>Receipt #</td><td>${payment.payment_id}</td></tr>
       <tr><td>Date</td><td>${new Date(payment.payment_date).toLocaleDateString()}</td></tr>
+      <tr><td>Time</td><td>${printedAt.toLocaleTimeString()}</td></tr>
       <tr><td>Member</td><td>${member.full_name}</td></tr>
+      ${member.address ? `<tr><td>Address</td><td style="text-align:right;max-width:160px;word-break:break-word">${member.address}</td></tr>` : ""}
       <tr><td>Plan</td><td>${payment.plan_name || member.plan_name || "—"}</td></tr>
       ${member.discount_type && member.discount_type !== "None" ? `<tr><td>Discount</td><td>${member.discount_type}</td></tr>` : ""}
     </table>
@@ -700,6 +703,7 @@ function App() {
                   startRenewal={startRenewal}
                   walkInAgain={walkInAgain}
                   convertWalkIn={convertWalkIn}
+                  showToast={showToast}
                   handleDelete={(id, name) => {
                     setDeleteConfirm({ show: true, id, name });
                   }}

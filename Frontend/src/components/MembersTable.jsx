@@ -15,6 +15,7 @@ function MembersTable({
   startRenewal,
   walkInAgain,
   convertWalkIn,
+  showToast,
   handleDelete,
 }) {
   const [currentPage, setCurrentPage] = useState(1);
@@ -260,10 +261,14 @@ function MembersTable({
                 >
                   <button
                     onClick={() => {
-                      if (isExpired) alert("⛔ Please renew plan to time in.");
-                      else if (!isTimedIn) handleTimeIn(member.member_id);
+                      if (isExpired) {
+                        showToast("⛔ Membership expired — use 🔄 Renew to reactivate.", "error");
+                      } else if (!isTimedIn) {
+                        handleTimeIn(member.member_id);
+                      }
                     }}
                     disabled={isTimedIn}
+                    title={isExpired ? "Membership expired — please renew first" : ""}
                     style={{
                       padding: "8px 12px",
                       backgroundColor: isExpired
