@@ -14,7 +14,16 @@ requireAuth();
 
 if (isset($_GET['id'])) {
     try {
-        $query = $conn->prepare("SELECT payment_id, amount, payment_date FROM payments WHERE member_id = :id ORDER BY payment_date DESC");
+        $query = $conn->prepare("
+            SELECT p.payment_id, p.amount, p.payment_date,
+                   p.cash_amount, p.gcash_amount, p.maya_amount,
+                   p.debit_amount, p.credit_amount, p.reference_number,
+                   pl.plan_name
+            FROM payments p
+            LEFT JOIN plans pl ON p.plan_id = pl.plan_id
+            WHERE p.member_id = :id
+            ORDER BY p.payment_date DESC
+        ");
         $query->execute([':id' => $_GET['id']]);
         
         echo json_encode(["success" => true, "payments" => $query->fetchAll(PDO::FETCH_ASSOC)]);

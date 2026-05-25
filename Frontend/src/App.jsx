@@ -355,6 +355,55 @@ function App() {
     setTdeeResult(Math.round(bmr * tdeeData.activity));
   };
 
+  const printReceipt = (payment, member) => {
+    const rows = [
+      ["Cash",        payment.cash_amount],
+      ["GCash",       payment.gcash_amount],
+      ["Maya",        payment.maya_amount],
+      ["Debit Card",  payment.debit_amount],
+      ["Credit Card", payment.credit_amount],
+    ]
+      .filter(([, v]) => parseFloat(v) > 0)
+      .map(([label, val]) => `<tr><td>${label}</td><td>₱${parseFloat(val).toLocaleString("en-PH", { minimumFractionDigits: 2 })}</td></tr>`)
+      .join("");
+
+    const html = `<!DOCTYPE html><html><head><title>Receipt</title>
+    <style>
+      body { font-family: monospace; width: 320px; margin: 20px auto; font-size: 13px; }
+      h2 { text-align: center; margin: 0; font-size: 16px; }
+      .sub { text-align: center; color: #555; font-size: 11px; margin-bottom: 12px; }
+      hr { border: none; border-top: 1px dashed #999; margin: 10px 0; }
+      table { width: 100%; border-collapse: collapse; }
+      td { padding: 3px 0; }
+      td:last-child { text-align: right; }
+      .total { font-weight: bold; font-size: 15px; }
+      .footer { text-align: center; margin-top: 14px; font-size: 11px; color: #777; }
+    </style></head><body>
+    <h2>FITNESS SYNERGY</h2>
+    <div class="sub">Official Payment Receipt</div>
+    <hr>
+    <table>
+      <tr><td>Receipt #</td><td>${payment.payment_id}</td></tr>
+      <tr><td>Date</td><td>${new Date(payment.payment_date).toLocaleDateString()}</td></tr>
+      <tr><td>Member</td><td>${member.full_name}</td></tr>
+      <tr><td>Plan</td><td>${payment.plan_name || member.plan_name || "—"}</td></tr>
+      ${member.discount_type && member.discount_type !== "None" ? `<tr><td>Discount</td><td>${member.discount_type}</td></tr>` : ""}
+    </table>
+    <hr>
+    <table>${rows || '<tr><td colspan="2">—</td></tr>'}</table>
+    <hr>
+    <table><tr class="total"><td>TOTAL PAID</td><td>₱${parseFloat(payment.amount).toLocaleString("en-PH", { minimumFractionDigits: 2 })}</td></tr></table>
+    ${payment.reference_number ? `<hr><div style="font-size:11px">Ref #: ${payment.reference_number}</div>` : ""}
+    <div class="footer">Thank you for choosing Fitness Synergy!<br>Keep this receipt for your records.</div>
+    </body></html>`;
+
+    const w = window.open("", "_blank", "width=400,height=600");
+    w.document.write(html);
+    w.document.close();
+    w.focus();
+    w.print();
+  };
+
   const filteredMembers = members.filter((m) =>
     (m.full_name || "").toLowerCase().includes(searchQuery.toLowerCase()),
   );
@@ -589,6 +638,7 @@ function App() {
           totalVisits={memberHistory.visits}
           paymentHistory={memberHistory.payments}
           formatSafeDate={formatSafeDate}
+          printReceipt={printReceipt}
           memberHistory={memberHistory.logs}
         />
       )}
