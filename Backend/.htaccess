@@ -1,6 +1,12 @@
 Options -Indexes
 RewriteEngine On
 
+# Block direct web access to .env files
+<Files ".env">
+    Order allow,deny
+    Deny from all
+</Files>
+
 # Pass Authorization header to PHP (LiteSpeed / InfinityFree strips it by default)
 RewriteCond %{HTTP:Authorization} .+
 RewriteRule ^ - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
