@@ -70,12 +70,24 @@ function LiveFeed({ theme, isDarkMode, attendanceLogs }) {
                 backgroundColor: theme.bg,
                 border: `1px solid ${theme.border}`,
                 borderRadius: "8px",
-                borderLeft: `4px solid ${theme.success}`,
+                borderLeft: `4px solid ${log.type === "Walk-in" ? theme.primary : theme.success}`,
               }}
             >
-              <strong style={{ display: "block", fontSize: "14px" }}>
-                {log.full_name}
-              </strong>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <strong style={{ fontSize: "14px" }}>{log.full_name}</strong>
+                <span
+                  style={{
+                    fontSize: "10px",
+                    fontWeight: "bold",
+                    padding: "2px 8px",
+                    borderRadius: "20px",
+                    backgroundColor: log.type === "Walk-in" ? `${theme.primary}22` : `${theme.success}22`,
+                    color: log.type === "Walk-in" ? theme.primary : theme.success,
+                  }}
+                >
+                  {log.type || "Member"}
+                </span>
+              </div>
               <span style={{ color: theme.textMuted, fontSize: "11px" }}>
                 Timed in at {new Date(log.time_in).toLocaleTimeString()}
               </span>

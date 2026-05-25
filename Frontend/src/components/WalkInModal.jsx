@@ -1,0 +1,294 @@
+import React from "react";
+
+function WalkInModal({ theme, onClose, handleWalkInSubmit, plans, walkInForm, setWalkInForm }) {
+  const update = (field, value) =>
+    setWalkInForm((f) => ({ ...f, [field]: value }));
+
+  const labelStyle = {
+    fontSize: "12px",
+    color: theme.textMuted,
+    textTransform: "uppercase",
+    fontWeight: "bold",
+    display: "block",
+    marginBottom: "5px",
+  };
+
+  const inputStyle = {
+    width: "100%",
+    padding: "10px",
+    borderRadius: "6px",
+    border: `1px solid ${theme.border}`,
+    backgroundColor: theme.bg,
+    color: theme.text,
+    outline: "none",
+    boxSizing: "border-box",
+  };
+
+  const total = (
+    parseFloat(walkInForm.cashAmount || 0) +
+    parseFloat(walkInForm.gcashAmount || 0) +
+    parseFloat(walkInForm.mayaAmount || 0) +
+    parseFloat(walkInForm.debitAmount || 0) +
+    parseFloat(walkInForm.creditAmount || 0)
+  ).toLocaleString("en-PH", { minimumFractionDigits: 2 });
+
+  return (
+    <div
+      style={{
+        position: "fixed",
+        top: 0,
+        left: 0,
+        width: "100vw",
+        height: "100vh",
+        backgroundColor: "rgba(0,0,0,0.7)",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        zIndex: 1000,
+        backdropFilter: "blur(3px)",
+      }}
+    >
+      <div
+        style={{
+          backgroundColor: theme.surface,
+          padding: "30px",
+          borderRadius: "12px",
+          width: "500px",
+          maxHeight: "90vh",
+          overflowY: "auto",
+          border: `1px solid ${theme.border}`,
+          boxShadow: "0 10px 40px rgba(0,0,0,0.5)",
+          display: "flex",
+          flexDirection: "column",
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: "25px",
+          }}
+        >
+          <h2 style={{ margin: 0, fontSize: "20px" }}>🚶 Register Walk-in Guest</h2>
+          <button
+            onClick={onClose}
+            style={{ background: "none", border: "none", fontSize: "20px", cursor: "pointer" }}
+          >
+            ❌
+          </button>
+        </div>
+
+        <form
+          onSubmit={handleWalkInSubmit}
+          style={{ display: "flex", flexDirection: "column", gap: "18px", flex: 1 }}
+        >
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px" }}>
+            <div>
+              <label style={labelStyle}>Guest Name</label>
+              <input
+                type="text"
+                value={walkInForm.guestName}
+                onChange={(e) => update("guestName", e.target.value)}
+                required
+                placeholder="Full Name"
+                style={inputStyle}
+              />
+            </div>
+            <div>
+              <label style={labelStyle}>Age (Optional)</label>
+              <input
+                type="number"
+                value={walkInForm.guestAge}
+                onChange={(e) => update("guestAge", e.target.value)}
+                placeholder="e.g., 25"
+                min="1"
+                style={inputStyle}
+              />
+            </div>
+          </div>
+
+          <div>
+            <label style={labelStyle}>Session Plan</label>
+            <select
+              value={walkInForm.planId}
+              onChange={(e) => {
+                const selectedId = e.target.value;
+                const matchedPlan = plans.find(
+                  (p) => String(p.plan_id) === String(selectedId),
+                );
+                setWalkInForm((f) => ({
+                  ...f,
+                  planId: selectedId,
+                  customPrice: matchedPlan ? matchedPlan.price : f.customPrice,
+                }));
+              }}
+              required
+              style={inputStyle}
+            >
+              <option value="" disabled>
+                Select a Plan...
+              </option>
+              {plans.map((plan) => (
+                <option key={plan.plan_id} value={plan.plan_id}>
+                  {plan.plan_name} - ₱{plan.price}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label style={labelStyle}>Custom Price Override (₱)</label>
+            <input
+              type="number"
+              step="0.01"
+              value={walkInForm.customPrice}
+              onChange={(e) => update("customPrice", e.target.value)}
+              placeholder="Override plan price..."
+              style={inputStyle}
+            />
+          </div>
+
+          <fieldset
+            style={{
+              border: `1px dashed ${theme.border}`,
+              borderRadius: "8px",
+              padding: "20px",
+              display: "flex",
+              flexDirection: "column",
+              gap: "18px",
+              margin: "5px 0",
+            }}
+          >
+            <legend
+              style={{
+                color: theme.primary,
+                fontWeight: "bold",
+                fontSize: "12px",
+                padding: "0 8px",
+              }}
+            >
+              💳 PAYMENT DETAILS
+            </legend>
+
+            <div
+              style={{
+                background: theme.bg,
+                borderRadius: 8,
+                padding: "12px 16px",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                border: `1px solid ${theme.border}`,
+              }}
+            >
+              <span style={{ color: theme.textMuted, fontSize: 13 }}>Total Payment</span>
+              <span style={{ color: theme.primary, fontWeight: "bold", fontSize: 18 }}>
+                ₱{total}
+              </span>
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px" }}>
+              <div>
+                <label style={labelStyle}>💵 Cash</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={walkInForm.cashAmount}
+                  onChange={(e) => update("cashAmount", e.target.value)}
+                  placeholder="0.00"
+                  style={inputStyle}
+                />
+              </div>
+              <div>
+                <label style={labelStyle}>📱 GCash</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={walkInForm.gcashAmount}
+                  onChange={(e) => update("gcashAmount", e.target.value)}
+                  placeholder="0.00"
+                  style={inputStyle}
+                />
+              </div>
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px" }}>
+              <div>
+                <label style={labelStyle}>🟢 Maya</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={walkInForm.mayaAmount}
+                  onChange={(e) => update("mayaAmount", e.target.value)}
+                  placeholder="0.00"
+                  style={inputStyle}
+                />
+              </div>
+              <div>
+                <label style={labelStyle}>💳 Debit Card</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={walkInForm.debitAmount}
+                  onChange={(e) => update("debitAmount", e.target.value)}
+                  placeholder="0.00"
+                  style={inputStyle}
+                />
+              </div>
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px" }}>
+              <div>
+                <label style={labelStyle}>💳 Credit Card</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={walkInForm.creditAmount}
+                  onChange={(e) => update("creditAmount", e.target.value)}
+                  placeholder="0.00"
+                  style={inputStyle}
+                />
+              </div>
+              <div>
+                <label style={labelStyle}>🔖 Reference Number</label>
+                <input
+                  type="text"
+                  value={walkInForm.referenceNumber}
+                  onChange={(e) => update("referenceNumber", e.target.value)}
+                  placeholder="e.g., GCash ref #"
+                  style={inputStyle}
+                />
+              </div>
+            </div>
+          </fieldset>
+
+          <button
+            type="submit"
+            style={{
+              padding: "16px",
+              backgroundColor: theme.primary,
+              color: theme.primaryText,
+              border: "none",
+              borderRadius: "6px",
+              cursor: "pointer",
+              fontWeight: "bold",
+              marginTop: "auto",
+              fontSize: "14px",
+              letterSpacing: "0.5px",
+            }}
+          >
+            🚶 Complete Walk-in Registration
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+export default WalkInModal;

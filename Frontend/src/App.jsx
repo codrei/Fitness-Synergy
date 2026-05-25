@@ -6,11 +6,25 @@ import StatsCards from "./components/StatsCards";
 import MembersTable from "./components/MembersTable";
 import LiveFeed from "./components/LiveFeed";
 import AddEditModal from "./components/AddEditModal";
+import WalkInModal from "./components/WalkInModal";
 import ProfileModal from "./components/ProfileModal";
 import TdeeModal from "./components/TdeeModal";
 import ConfirmModal from "./components/ConfirmModal";
 import bgTexture from "./assets/geomblue.png";
 import { apiFetch } from "./api";
+
+const WALKIN_FORM_DEFAULT = {
+  guestName: "",
+  guestAge: "",
+  planId: "",
+  customPrice: "",
+  cashAmount: 0,
+  gcashAmount: 0,
+  mayaAmount: 0,
+  debitAmount: 0,
+  creditAmount: 0,
+  referenceNumber: "",
+};
 
 const MEMBER_FORM_DEFAULT = {
   name: "",
@@ -78,6 +92,8 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState({ show: false, id: null, name: "" });
   const [showMemberModal, setShowMemberModal] = useState(false);
+  const [showWalkInModal, setShowWalkInModal] = useState(false);
+  const [walkInForm, setWalkInForm] = useState(WALKIN_FORM_DEFAULT);
   const [showTdeeModal, setShowTdeeModal] = useState(false);
   const [currentView, setCurrentView] = useState("dashboard");
   const [editingId, setEditingId] = useState(null);
@@ -226,6 +242,39 @@ function App() {
     }
   };
 
+  const handleWalkInSubmit = async (e) => {
+    e.preventDefault();
+    if (!walkInForm.planId) return alert("Please select a plan!");
+    try {
+      const res = await apiFetch("add_walkin.php", {
+        method: "POST",
+        body: JSON.stringify({
+          guest_name: walkInForm.guestName,
+          guest_age: walkInForm.guestAge,
+          plan_id: walkInForm.planId,
+          custom_price: walkInForm.customPrice,
+          cash_amount: walkInForm.cashAmount,
+          gcash_amount: walkInForm.gcashAmount,
+          maya_amount: walkInForm.mayaAmount,
+          debit_amount: walkInForm.debitAmount,
+          credit_amount: walkInForm.creditAmount,
+          reference_number: walkInForm.referenceNumber,
+        }),
+      }).then((r) => r.json());
+
+      if (res.success) {
+        setShowWalkInModal(false);
+        setWalkInForm(WALKIN_FORM_DEFAULT);
+        fetchData();
+        showToast("Walk-in registered!");
+      } else {
+        showToast(res.error || "Walk-in registration failed", "error");
+      }
+    } catch (err) {
+      showToast("Walk-in registration failed", "error");
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!memberForm.plan) return alert("Please select a plan!");
@@ -366,6 +415,10 @@ function App() {
         openAddModal={() => {
           clearMemberForm();
           setShowMemberModal(true);
+        }}
+        openWalkInModal={() => {
+          setWalkInForm(WALKIN_FORM_DEFAULT);
+          setShowWalkInModal(true);
         }}
         setShowTdeeModal={setShowTdeeModal}
         currentView={currentView}
@@ -514,6 +567,17 @@ function App() {
           plans={plans}
           memberForm={memberForm}
           setMemberForm={setMemberForm}
+        />
+      )}
+
+      {showWalkInModal && (
+        <WalkInModal
+          theme={theme}
+          onClose={() => setShowWalkInModal(false)}
+          handleWalkInSubmit={handleWalkInSubmit}
+          plans={plans}
+          walkInForm={walkInForm}
+          setWalkInForm={setWalkInForm}
         />
       )}
 

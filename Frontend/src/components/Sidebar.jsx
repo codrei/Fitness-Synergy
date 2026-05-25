@@ -6,6 +6,7 @@ function Sidebar({
   toggleTheme,
   handleLogout,
   openAddModal,
+  openWalkInModal,
   setShowTdeeModal,
   currentView,
   setCurrentView,
@@ -103,6 +104,10 @@ function Sidebar({
       >
         <button onClick={openAddModal} style={navBtn("none")}>
           ➕ Register Member
+        </button>
+
+        <button onClick={openWalkInModal} style={navBtn("none")}>
+          🚶 Walk-in Guest
         </button>
 
         <button
