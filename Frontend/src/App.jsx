@@ -9,8 +9,29 @@ import AddEditModal from "./components/AddEditModal";
 import ProfileModal from "./components/ProfileModal";
 import TdeeModal from "./components/TdeeModal";
 import bgTexture from "./assets/geomblue.png";
+import { API_BASE } from "./config";
 
-const API_BASE = "https://fitness-synergy.infinityfreeapp.com";
+const MEMBER_FORM_DEFAULT = {
+  name: "",
+  plan: "",
+  bonusDays: 0,
+  customPrice: "",
+  address: "",
+  contactNumber: "",
+  dob: "",
+  gender: "",
+  occupation: "",
+  emergencyContactName: "",
+  emergencyContactNumber: "",
+  contractId: "",
+  discountType: "None",
+  discountId: "",
+  cashAmount: 0,
+  gcashAmount: 0,
+  mayaAmount: 0,
+  debitAmount: 0,
+  creditAmount: 0,
+};
 
 const formatSafeDate = (dateStr, includeTime = false) => {
   if (!dateStr)
@@ -56,30 +77,7 @@ function App() {
   const [showTdeeModal, setShowTdeeModal] = useState(false);
   const [currentView, setCurrentView] = useState("dashboard");
   const [editingId, setEditingId] = useState(null);
-
-  // Basic Info States
-  const [newName, setNewName] = useState("");
-  const [newPlan, setNewPlan] = useState("");
-  const [bonusDays, setBonusDays] = useState(0);
-  const [customPrice, setCustomPrice] = useState("");
-
-  // NEW STAGES: Profile Data States
-  const [address, setAddress] = useState("");
-  const [contactNumber, setContactNumber] = useState("");
-  const [dob, setDob] = useState("");
-  const [gender, setGender] = useState("");
-  const [occupation, setOccupation] = useState("");
-  const [emergencyContactName, setEmergencyContactName] = useState("");
-  const [emergencyContactNumber, setEmergencyContactNumber] = useState("");
-  const [contractId, setContractId] = useState("");
-  const [discountType, setDiscountType] = useState("None");
-  const [discountId, setDiscountId] = useState("");
-  const [cashAmount, setCashAmount] = useState(0);
-  const [gcashAmount, setGcashAmount] = useState(0);
-  const [mayaAmount, setMayaAmount] = useState(0);
-  const [debitAmount, setDebitAmount] = useState(0);
-  const [creditAmount, setCreditAmount] = useState(0);
-
+  const [memberForm, setMemberForm] = useState(MEMBER_FORM_DEFAULT);
   const [selectedMember, setSelectedMember] = useState(null);
   const [memberHistory, setMemberHistory] = useState({
     logs: [],
@@ -130,28 +128,9 @@ function App() {
     );
   };
 
-  // Helper resetting states when modal closes or saves successfully
   const clearMemberForm = () => {
     setEditingId(null);
-    setNewName("");
-    setNewPlan("");
-    setBonusDays(0);
-    setCustomPrice("");
-    setAddress("");
-    setContactNumber("");
-    setDob("");
-    setGender("");
-    setOccupation("");
-    setEmergencyContactName("");
-    setEmergencyContactNumber("");
-    setContractId("");
-    setDiscountType("None");
-    setDiscountId("");
-    setCashAmount(0);
-    setGcashAmount(0);
-    setMayaAmount(0);
-    setDebitAmount(0);
-    setCreditAmount(0);
+    setMemberForm(MEMBER_FORM_DEFAULT);
   };
 
   const fetchData = async () => {
@@ -235,7 +214,7 @@ function App() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!newPlan) return alert("Please select a plan!");
+    if (!memberForm.plan) return alert("Please select a plan!");
 
     try {
       const target = editingId ? "update_member" : "add_member";
@@ -243,25 +222,25 @@ function App() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          full_name: newName,
-          plan_id: newPlan,
-          bonus_days: bonusDays,
-          custom_price: customPrice,
-          address: address,
-          contact_number: contactNumber,
-          dob: dob,
-          gender: gender,
-          occupation: occupation,
-          emergency_contact_name: emergencyContactName,
-          emergency_contact_number: emergencyContactNumber,
-          contract_id: contractId,
-          discount_type: discountType,
-          discount_id: discountId,
-          cash_amount: cashAmount,
-          gcash_amount: gcashAmount,
-          maya_amount: mayaAmount,
-          debit_amount: debitAmount,
-          credit_amount: creditAmount,
+          full_name: memberForm.name,
+          plan_id: memberForm.plan,
+          bonus_days: memberForm.bonusDays,
+          custom_price: memberForm.customPrice,
+          address: memberForm.address,
+          contact_number: memberForm.contactNumber,
+          dob: memberForm.dob,
+          gender: memberForm.gender,
+          occupation: memberForm.occupation,
+          emergency_contact_name: memberForm.emergencyContactName,
+          emergency_contact_number: memberForm.emergencyContactNumber,
+          contract_id: memberForm.contractId,
+          discount_type: memberForm.discountType,
+          discount_id: memberForm.discountId,
+          cash_amount: memberForm.cashAmount,
+          gcash_amount: memberForm.gcashAmount,
+          maya_amount: memberForm.mayaAmount,
+          debit_amount: memberForm.debitAmount,
+          credit_amount: memberForm.creditAmount,
           ...(editingId && { member_id: editingId }),
         }),
       }).then((r) => r.json());
@@ -442,9 +421,10 @@ function App() {
                   gap: "20px",
                 }}
               >
-                <StatsCards stats={stats} theme={theme} />
+                <StatsCards stats={stats} theme={theme} isDarkMode={isDarkMode} />
                 <MembersTable
                   theme={theme}
+                  isDarkMode={isDarkMode}
                   searchQuery={searchQuery}
                   setSearchQuery={setSearchQuery}
                   filteredMembers={filteredMembers}
@@ -466,24 +446,37 @@ function App() {
                   }}
                   startEditing={(m) => {
                     setEditingId(m.member_id);
-                    setNewName(m.full_name);
-                    setNewPlan(m.plan_id);
-                    setAddress(m.address || "");
-                    setContactNumber(m.contact_number || "");
-                    setDob(m.dob || "");
-                    setGender(m.gender || "");
-                    setOccupation(m.occupation || "");
-                    setEmergencyContactName(m.emergency_contact_name || "");
-                    setEmergencyContactNumber(m.emergency_contact_number || "");
-                    setContractId(m.contract_id || "");
-                    setDiscountType(m.discount_type || "None");
-                    setDiscountId(m.discount_id || "");
+                    setMemberForm({
+                      name: m.full_name,
+                      plan: m.plan_id,
+                      bonusDays: 0,
+                      customPrice: "",
+                      address: m.address || "",
+                      contactNumber: m.contact_number || "",
+                      dob: m.dob || "",
+                      gender: m.gender || "",
+                      occupation: m.occupation || "",
+                      emergencyContactName: m.emergency_contact_name || "",
+                      emergencyContactNumber: m.emergency_contact_number || "",
+                      contractId: m.contract_id || "",
+                      discountType: m.discount_type || "None",
+                      discountId: m.discount_id || "",
+                      cashAmount: 0,
+                      gcashAmount: 0,
+                      mayaAmount: 0,
+                      debitAmount: 0,
+                      creditAmount: 0,
+                    });
                     setShowMemberModal(true);
                   }}
                 />
               </div>
               <div style={{ width: "350px", flexShrink: 0 }}>
-                <LiveFeed theme={theme} attendanceLogs={attendanceLogs} />
+                <LiveFeed
+                  theme={theme}
+                  isDarkMode={isDarkMode}
+                  attendanceLogs={attendanceLogs}
+                />
               </div>
             </div>
           </>
@@ -497,45 +490,9 @@ function App() {
           cancelEdit={clearMemberForm}
           setShowMemberModal={setShowMemberModal}
           handleSubmit={handleSubmit}
-          newName={newName}
-          setNewName={setNewName}
-          newPlan={newPlan}
-          setNewPlan={setNewPlan}
           plans={plans}
-          bonusDays={bonusDays}
-          setBonusDays={setBonusDays}
-          customPrice={customPrice}
-          setCustomPrice={setCustomPrice}
-          address={address}
-          setAddress={setAddress}
-          contactNumber={contactNumber}
-          setContactNumber={setContactNumber}
-          dob={dob}
-          setDob={setDob}
-          gender={gender}
-          setGender={setGender}
-          occupation={occupation}
-          setOccupation={setOccupation}
-          emergencyContactName={emergencyContactName}
-          setEmergencyContactName={setEmergencyContactName}
-          emergencyContactNumber={emergencyContactNumber}
-          setEmergencyContactNumber={setEmergencyContactNumber}
-          contractId={contractId}
-          setContractId={setContractId}
-          discountType={discountType}
-          setDiscountType={setDiscountType}
-          discountId={discountId}
-          setDiscountId={setDiscountId}
-          cashAmount={cashAmount}
-          setCashAmount={setCashAmount}
-          gcashAmount={gcashAmount}
-          setGcashAmount={setGcashAmount}
-          mayaAmount={mayaAmount}
-          setMayaAmount={setMayaAmount}
-          debitAmount={debitAmount}
-          setDebitAmount={setDebitAmount}
-          creditAmount={creditAmount}
-          setCreditAmount={setCreditAmount}
+          memberForm={memberForm}
+          setMemberForm={setMemberForm}
         />
       )}
 

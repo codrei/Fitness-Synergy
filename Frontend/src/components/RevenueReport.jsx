@@ -1,21 +1,6 @@
 import { useState, useEffect } from "react";
 import * as XLSX from "xlsx";
-
-const API_BASE = "https://fitness-synergy.infinityfreeapp.com";
-const MONTHS = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
-];
+import { API_BASE, MONTHS } from "../config";
 const fmtPHP = (n) =>
   `₱${parseFloat(n || 0).toLocaleString("en-PH", { minimumFractionDigits: 2 })}`;
 const calcAge = (dob) => {

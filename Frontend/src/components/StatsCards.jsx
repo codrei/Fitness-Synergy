@@ -1,6 +1,6 @@
 import React from "react";
 
-function StatsCards({ stats, theme }) {
+function StatsCards({ stats, theme, isDarkMode }) {
   // Add fallback empty object if stats is null
   const safeStats = stats || {};
 
@@ -28,12 +28,12 @@ function StatsCards({ stats, theme }) {
             borderRadius: "12px",
             boxShadow: "0 4px 6px rgba(0,0,0,0.05)",
             background:
-              theme.bg === "#081018"
+              isDarkMode
                 ? "rgba(15, 23, 42, 0.72)"
                 : "rgba(255, 255, 255, 0.78)",
             backdropFilter: "blur(14px)",
             border:
-              theme.bg === "#081018"
+              isDarkMode
                 ? "1px solid rgba(255,255,255,0.08)"
                 : "1px solid rgba(0,0,0,0.08)",
           }}

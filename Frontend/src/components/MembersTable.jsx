@@ -2,6 +2,7 @@ import React from "react";
 
 function MembersTable({
   theme,
+  isDarkMode,
   searchQuery,
   setSearchQuery,
   filteredMembers,
@@ -13,7 +14,6 @@ function MembersTable({
   startEditing,
   handleDelete,
 }) {
-  const isDarkMode = theme.bg === "#081018";
 
   return (
     <div

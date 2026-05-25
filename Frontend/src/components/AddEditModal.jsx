@@ -6,49 +6,15 @@ function AddEditModal({
   cancelEdit,
   setShowMemberModal,
   handleSubmit,
-  newName,
-  setNewName,
-  newPlan,
-  setNewPlan,
   plans,
-  address,
-  setAddress,
-  contactNumber,
-  setContactNumber,
-  dob,
-  setDob,
-  gender,
-  setGender,
-  occupation,
-  setOccupation,
-  emergencyContactName,
-  setEmergencyContactName,
-  emergencyContactNumber,
-  setEmergencyContactNumber,
-  contractId,
-  setContractId,
-  discountType,
-  setDiscountType,
-  discountId,
-  setDiscountId,
-  // NEW PROMO PROPS PASSED FROM PARENT STATE
-  customPrice,
-  setCustomPrice,
-  bonusDays,
-  setBonusDays,
-  cashAmount,
-  setCashAmount,
-  gcashAmount,
-  setGcashAmount,
-  mayaAmount,
-  setMayaAmount,
-  debitAmount,
-  setDebitAmount,
-  creditAmount,
-  setCreditAmount,
+  memberForm,
+  setMemberForm,
 }) {
+  const update = (field, value) =>
+    setMemberForm((f) => ({ ...f, [field]: value }));
+
   const selectedPlanObj = plans.find(
-    (p) => String(p.plan_id) === String(newPlan),
+    (p) => String(p.plan_id) === String(memberForm.plan),
   );
   const isLongTermPlan = selectedPlanObj
     ? parseInt(selectedPlanObj.duration_days, 10) > 1
@@ -74,6 +40,14 @@ function AddEditModal({
     boxSizing: "border-box",
     transition: "border-color 0.2s ease",
   };
+
+  const total = (
+    parseFloat(memberForm.cashAmount || 0) +
+    parseFloat(memberForm.gcashAmount || 0) +
+    parseFloat(memberForm.mayaAmount || 0) +
+    parseFloat(memberForm.debitAmount || 0) +
+    parseFloat(memberForm.creditAmount || 0)
+  ).toLocaleString("en-PH", { minimumFractionDigits: 2 });
 
   return (
     <div
@@ -145,22 +119,20 @@ function AddEditModal({
             flex: 1,
           }}
         >
-          {/* MEMBERSHIP PLAN SELECTION */}
           <div>
             <label style={labelStyle}>Membership Plan</label>
             <select
-              value={newPlan}
+              value={memberForm.plan}
               onChange={(e) => {
                 const selectedId = e.target.value;
-                setNewPlan(selectedId);
-
-                // Automatically find and set the price default when plan shifts
                 const matchedPlan = plans.find(
                   (p) => String(p.plan_id) === String(selectedId),
                 );
-                if (matchedPlan) {
-                  setCustomPrice(matchedPlan.price);
-                }
+                setMemberForm((f) => ({
+                  ...f,
+                  plan: selectedId,
+                  customPrice: matchedPlan ? matchedPlan.price : f.customPrice,
+                }));
               }}
               required
               style={inputStyle}
@@ -176,7 +148,6 @@ function AddEditModal({
             </select>
           </div>
 
-          {/* DYNAMIC PROMO FIELD ADJUSTMENTS */}
           <div
             style={{
               display: "grid",
@@ -189,8 +160,8 @@ function AddEditModal({
               <input
                 type="number"
                 step="0.01"
-                value={customPrice}
-                onChange={(e) => setCustomPrice(e.target.value)}
+                value={memberForm.customPrice}
+                onChange={(e) => update("customPrice", e.target.value)}
                 placeholder="Override base price..."
                 style={inputStyle}
               />
@@ -199,8 +170,8 @@ function AddEditModal({
               <label style={labelStyle}>Promo Bonus Days</label>
               <input
                 type="number"
-                value={bonusDays}
-                onChange={(e) => setBonusDays(e.target.value)}
+                value={memberForm.bonusDays}
+                onChange={(e) => update("bonusDays", e.target.value)}
                 placeholder="e.g., 3"
                 min="0"
                 style={inputStyle}
@@ -219,8 +190,8 @@ function AddEditModal({
               <label style={labelStyle}>Full Name</label>
               <input
                 type="text"
-                value={newName}
-                onChange={(e) => setNewName(e.target.value)}
+                value={memberForm.name}
+                onChange={(e) => update("name", e.target.value)}
                 required
                 style={inputStyle}
               />
@@ -229,8 +200,8 @@ function AddEditModal({
               <label style={labelStyle}>Contact Number</label>
               <input
                 type="text"
-                value={contactNumber}
-                onChange={(e) => setContactNumber(e.target.value)}
+                value={memberForm.contactNumber}
+                onChange={(e) => update("contactNumber", e.target.value)}
                 placeholder="e.g., 0917XXXXXXX"
                 style={inputStyle}
               />
@@ -241,8 +212,8 @@ function AddEditModal({
             <label style={labelStyle}>Complete Address</label>
             <input
               type="text"
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
+              value={memberForm.address}
+              onChange={(e) => update("address", e.target.value)}
               placeholder="House No., Street, Barangay, City"
               required
               style={inputStyle}
@@ -284,8 +255,8 @@ function AddEditModal({
                   <label style={labelStyle}>Date of Birth</label>
                   <input
                     type="date"
-                    value={dob}
-                    onChange={(e) => setDob(e.target.value)}
+                    value={memberForm.dob}
+                    onChange={(e) => update("dob", e.target.value)}
                     required={isLongTermPlan}
                     style={inputStyle}
                   />
@@ -293,8 +264,8 @@ function AddEditModal({
                 <div>
                   <label style={labelStyle}>Gender</label>
                   <select
-                    value={gender}
-                    onChange={(e) => setGender(e.target.value)}
+                    value={memberForm.gender}
+                    onChange={(e) => update("gender", e.target.value)}
                     required={isLongTermPlan}
                     style={inputStyle}
                   >
@@ -317,8 +288,8 @@ function AddEditModal({
                   <label style={labelStyle}>Occupation</label>
                   <input
                     type="text"
-                    value={occupation}
-                    onChange={(e) => setOccupation(e.target.value)}
+                    value={memberForm.occupation}
+                    onChange={(e) => update("occupation", e.target.value)}
                     placeholder="Profession"
                     style={inputStyle}
                   />
@@ -327,8 +298,8 @@ function AddEditModal({
                   <label style={labelStyle}>Contract ID #</label>
                   <input
                     type="text"
-                    value={contractId}
-                    onChange={(e) => setContractId(e.target.value)}
+                    value={memberForm.contractId}
+                    onChange={(e) => update("contractId", e.target.value)}
                     placeholder="Unique Contract number"
                     required={isLongTermPlan}
                     style={inputStyle}
@@ -347,8 +318,10 @@ function AddEditModal({
                   <label style={labelStyle}>Emergency Contact Name</label>
                   <input
                     type="text"
-                    value={emergencyContactName}
-                    onChange={(e) => setEmergencyContactName(e.target.value)}
+                    value={memberForm.emergencyContactName}
+                    onChange={(e) =>
+                      update("emergencyContactName", e.target.value)
+                    }
                     placeholder="Full Name"
                     style={inputStyle}
                   />
@@ -357,8 +330,10 @@ function AddEditModal({
                   <label style={labelStyle}>Emergency Contact #</label>
                   <input
                     type="text"
-                    value={emergencyContactNumber}
-                    onChange={(e) => setEmergencyContactNumber(e.target.value)}
+                    value={memberForm.emergencyContactNumber}
+                    onChange={(e) =>
+                      update("emergencyContactNumber", e.target.value)
+                    }
                     placeholder="Phone number"
                     style={inputStyle}
                   />
@@ -375,11 +350,15 @@ function AddEditModal({
                 <div>
                   <label style={labelStyle}>Discount / Promo Group</label>
                   <select
-                    value={discountType}
-                    onChange={(e) => {
-                      setDiscountType(e.target.value);
-                      if (e.target.value === "None") setDiscountId("");
-                    }}
+                    value={memberForm.discountType}
+                    onChange={(e) =>
+                      setMemberForm((f) => ({
+                        ...f,
+                        discountType: e.target.value,
+                        discountId:
+                          e.target.value === "None" ? "" : f.discountId,
+                      }))
+                    }
                     style={inputStyle}
                   >
                     <option value="None">Regular (No Promo)</option>
@@ -388,19 +367,19 @@ function AddEditModal({
                   </select>
                 </div>
 
-                {discountType !== "None" && (
+                {memberForm.discountType !== "None" && (
                   <div>
                     <label style={labelStyle}>
-                      {discountType === "Student"
+                      {memberForm.discountType === "Student"
                         ? "Student ID Number"
                         : "Senior Citizen ID Number"}
                     </label>
                     <input
                       type="text"
-                      value={discountId}
-                      onChange={(e) => setDiscountId(e.target.value)}
+                      value={memberForm.discountId}
+                      onChange={(e) => update("discountId", e.target.value)}
                       placeholder="Enter Identification ID"
-                      required={discountType !== "None"}
+                      required={memberForm.discountType !== "None"}
                       style={inputStyle}
                     />
                   </div>
@@ -408,7 +387,7 @@ function AddEditModal({
               </div>
             </fieldset>
           )}
-          {/* PAYMENT DETAILS */}
+
           <fieldset
             style={{
               border: `1px dashed ${theme.border}`,
@@ -431,7 +410,6 @@ function AddEditModal({
               💳 PAYMENT DETAILS
             </legend>
 
-            {/* Total display */}
             <div
               style={{
                 background: theme.bg,
@@ -453,14 +431,7 @@ function AddEditModal({
                   fontSize: 18,
                 }}
               >
-                ₱
-                {(
-                  parseFloat(cashAmount || 0) +
-                  parseFloat(gcashAmount || 0) +
-                  parseFloat(mayaAmount || 0) +
-                  parseFloat(debitAmount || 0) +
-                  parseFloat(creditAmount || 0)
-                ).toLocaleString("en-PH", { minimumFractionDigits: 2 })}
+                ₱{total}
               </span>
             </div>
 
@@ -477,8 +448,8 @@ function AddEditModal({
                   type="number"
                   step="0.01"
                   min="0"
-                  value={cashAmount}
-                  onChange={(e) => setCashAmount(e.target.value)}
+                  value={memberForm.cashAmount}
+                  onChange={(e) => update("cashAmount", e.target.value)}
                   placeholder="0.00"
                   style={inputStyle}
                 />
@@ -489,8 +460,8 @@ function AddEditModal({
                   type="number"
                   step="0.01"
                   min="0"
-                  value={gcashAmount}
-                  onChange={(e) => setGcashAmount(e.target.value)}
+                  value={memberForm.gcashAmount}
+                  onChange={(e) => update("gcashAmount", e.target.value)}
                   placeholder="0.00"
                   style={inputStyle}
                 />
@@ -510,8 +481,8 @@ function AddEditModal({
                   type="number"
                   step="0.01"
                   min="0"
-                  value={mayaAmount}
-                  onChange={(e) => setMayaAmount(e.target.value)}
+                  value={memberForm.mayaAmount}
+                  onChange={(e) => update("mayaAmount", e.target.value)}
                   placeholder="0.00"
                   style={inputStyle}
                 />
@@ -522,8 +493,8 @@ function AddEditModal({
                   type="number"
                   step="0.01"
                   min="0"
-                  value={debitAmount}
-                  onChange={(e) => setDebitAmount(e.target.value)}
+                  value={memberForm.debitAmount}
+                  onChange={(e) => update("debitAmount", e.target.value)}
                   placeholder="0.00"
                   style={inputStyle}
                 />
@@ -543,8 +514,8 @@ function AddEditModal({
                   type="number"
                   step="0.01"
                   min="0"
-                  value={creditAmount}
-                  onChange={(e) => setCreditAmount(e.target.value)}
+                  value={memberForm.creditAmount}
+                  onChange={(e) => update("creditAmount", e.target.value)}
                   placeholder="0.00"
                   style={inputStyle}
                 />
@@ -560,6 +531,7 @@ function AddEditModal({
               </div>
             </div>
           </fieldset>
+
           <button
             type="submit"
             style={{
