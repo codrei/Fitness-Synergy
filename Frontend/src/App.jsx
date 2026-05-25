@@ -32,6 +32,7 @@ const MEMBER_FORM_DEFAULT = {
   mayaAmount: 0,
   debitAmount: 0,
   creditAmount: 0,
+  referenceNumber: "",
 };
 
 const formatSafeDate = (dateStr, includeTime = false) => {
@@ -253,6 +254,7 @@ function App() {
           maya_amount: memberForm.mayaAmount,
           debit_amount: memberForm.debitAmount,
           credit_amount: memberForm.creditAmount,
+          reference_number: memberForm.referenceNumber,
           ...(editingId && { member_id: editingId }),
         }),
       }).then((r) => r.json());

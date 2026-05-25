@@ -524,7 +524,8 @@ function AddEditModal({
                 <label style={labelStyle}>🔖 Reference Number</label>
                 <input
                   type="text"
-                  value={""}
+                  value={memberForm.referenceNumber}
+                  onChange={(e) => update("referenceNumber", e.target.value)}
                   placeholder="e.g., GCash ref #"
                   style={inputStyle}
                 />
