@@ -1,4 +1,5 @@
-import React from "react";
+import { useState } from "react";
+import PhotoCropModal from "./PhotoCropModal";
 
 function ProfileModal({
   theme,
@@ -10,7 +11,9 @@ function ProfileModal({
   printReceipt,
   memberHistory,
   onEditInfo,
+  onPhotoUpdate,
 }) {
+  const [showPhotoModal, setShowPhotoModal] = useState(false);
   const m = selectedMember;
 
   const infoRow = (label, value) =>
@@ -69,9 +72,68 @@ function ProfileModal({
             borderBottom: `1px solid ${theme.border}`,
             paddingBottom: "15px",
             marginBottom: "20px",
+            gap: "14px",
           }}
         >
-          <h2 style={{ margin: 0 }}>👤 {m.full_name}</h2>
+          {/* Profile photo */}
+          <div
+            style={{ position: "relative", flexShrink: 0, cursor: "pointer" }}
+            onClick={() => setShowPhotoModal(true)}
+            title="Click to upload photo"
+          >
+            {m.photo_url ? (
+              <img
+                src={m.photo_url}
+                alt={m.full_name}
+                style={{
+                  width: "70px",
+                  height: "70px",
+                  borderRadius: "50%",
+                  objectFit: "cover",
+                  border: `3px solid ${theme.primary}`,
+                  display: "block",
+                }}
+              />
+            ) : (
+              <div
+                style={{
+                  width: "70px",
+                  height: "70px",
+                  borderRadius: "50%",
+                  backgroundColor: theme.bg,
+                  border: `3px solid ${theme.border}`,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: "28px",
+                }}
+              >
+                👤
+              </div>
+            )}
+            {/* Camera overlay */}
+            <div
+              style={{
+                position: "absolute",
+                bottom: 0,
+                right: 0,
+                width: "24px",
+                height: "24px",
+                borderRadius: "50%",
+                backgroundColor: theme.primary,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: "12px",
+                border: `2px solid ${theme.surface}`,
+              }}
+            >
+              📷
+            </div>
+          </div>
+
+          <h2 style={{ margin: 0, flex: 1, fontSize: "18px" }}>{m.full_name}</h2>
+
           <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
             <button
               onClick={() => onEditInfo(m)}
@@ -102,6 +164,18 @@ function ProfileModal({
             </button>
           </div>
         </div>
+
+        {showPhotoModal && (
+          <PhotoCropModal
+            theme={theme}
+            memberId={m.member_id}
+            onSuccess={(url) => {
+              setShowPhotoModal(false);
+              onPhotoUpdate(url);
+            }}
+            onClose={() => setShowPhotoModal(false)}
+          />
+        )}
 
         {/* Plan + visits summary */}
         <div

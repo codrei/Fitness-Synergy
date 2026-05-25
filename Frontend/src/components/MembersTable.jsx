@@ -13,6 +13,7 @@ function MembersTable({
   attendanceLogs,
   viewProfile,
   startRenewal,
+  walkInAgain,
   convertWalkIn,
   handleDelete,
 }) {
@@ -147,7 +148,7 @@ function MembersTable({
 
                   <td style={{ padding: "15px 20px", textAlign: "right" }}>
                     <button
-                      onClick={() => convertWalkIn(member)}
+                      onClick={() => walkInAgain(member)}
                       style={{
                         padding: "8px 12px",
                         backgroundColor: "#7c3aed",
@@ -157,9 +158,25 @@ function MembersTable({
                         cursor: "pointer",
                         fontWeight: "bold",
                         fontSize: "12px",
+                        marginRight: "8px",
                       }}
                     >
-                      ➕ Convert to Member
+                      🚶 Walk-in Again
+                    </button>
+                    <button
+                      onClick={() => convertWalkIn(member)}
+                      style={{
+                        padding: "8px 12px",
+                        backgroundColor: "transparent",
+                        color: "#7c3aed",
+                        border: "1px solid #7c3aed",
+                        borderRadius: "6px",
+                        cursor: "pointer",
+                        fontWeight: "bold",
+                        fontSize: "12px",
+                      }}
+                    >
+                      ➕ Member
                     </button>
                   </td>
                 </tr>

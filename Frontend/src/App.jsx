@@ -452,6 +452,15 @@ function App() {
     }
   };
 
+  const walkInAgain = (walkin) => {
+    setWalkInForm({
+      ...WALKIN_FORM_DEFAULT,
+      guestName:    walkin.full_name || "",
+      guestContact: walkin.contact_number || "",
+    });
+    setShowWalkInModal(true);
+  };
+
   const convertWalkIn = (walkin) => {
     clearMemberForm();
     setMemberForm((f) => ({
@@ -689,6 +698,7 @@ function App() {
                   attendanceLogs={attendanceLogs}
                   viewProfile={viewProfile}
                   startRenewal={startRenewal}
+                  walkInAgain={walkInAgain}
                   convertWalkIn={convertWalkIn}
                   handleDelete={(id, name) => {
                     setDeleteConfirm({ show: true, id, name });
@@ -743,6 +753,10 @@ function App() {
           onEditInfo={(member) => {
             setSelectedMember(null);
             openEditInfo(member);
+          }}
+          onPhotoUpdate={(url) => {
+            setSelectedMember((m) => ({ ...m, photo_url: url }));
+            fetchData();
           }}
         />
       )}
