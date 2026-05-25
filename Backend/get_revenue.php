@@ -1,8 +1,16 @@
 <?php
 header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Methods: GET, OPTIONS");
+header("Access-Control-Allow-Headers: Content-Type, Authorization");
 header("Content-Type: application/json; charset=UTF-8");
 
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    exit;
+}
+
 require_once 'db.php';
+require_once 'auth_check.php';
+requireAuth();
 
 $month = $_GET['month'] ?? date('m');
 $year  = $_GET['year']  ?? date('Y');

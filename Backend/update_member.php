@@ -8,6 +8,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
 }
 
 require_once 'db.php';
+require_once 'auth_check.php';
+requireAuth();
 $data = json_decode(file_get_contents("php://input"));
 
 if (!empty($data->member_id) && !empty($data->full_name)) {

@@ -9,6 +9,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
 }
 
 require_once 'db.php';
+require_once 'auth_check.php';
+requireAuth();
 
 if (isset($_GET['id'])) {
     try {

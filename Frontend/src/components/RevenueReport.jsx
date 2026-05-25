@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import * as XLSX from "xlsx";
-import { API_BASE, MONTHS } from "../config";
+import { MONTHS } from "../config";
+import { apiFetch } from "../api";
 const fmtPHP = (n) =>
   `₱${parseFloat(n || 0).toLocaleString("en-PH", { minimumFractionDigits: 2 })}`;
 const calcAge = (dob) => {
@@ -354,8 +355,8 @@ export default function RevenueReport({ theme, activeTab }) {
   const fetchAll = async () => {
     setLoading(true);
     try {
-      const res = await fetch(
-        `${API_BASE}/get_revenue.php?month=${month}&year=${year}`,
+      const res = await apiFetch(
+        `get_revenue.php?month=${month}&year=${year}`,
       );
       const d = await res.json();
       if (d.success) setData(d);

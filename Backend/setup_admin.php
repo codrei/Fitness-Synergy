@@ -21,8 +21,9 @@ try {
     $conn->query("TRUNCATE TABLE admins");
 
     // 3. Hash the password securely (NEVER STORE PLAIN TEXT!)
+    // ⚠️  CHANGE THESE BEFORE RUNNING! Delete this file after use.
     $username = "admin";
-    $password = "admin"; // Feel free to change this!
+    $password = "FSlipa2026";
     $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
     // 4. Save it to the database

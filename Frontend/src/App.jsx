@@ -9,7 +9,7 @@ import AddEditModal from "./components/AddEditModal";
 import ProfileModal from "./components/ProfileModal";
 import TdeeModal from "./components/TdeeModal";
 import bgTexture from "./assets/geomblue.png";
-import { API_BASE } from "./config";
+import { apiFetch } from "./api";
 
 const MEMBER_FORM_DEFAULT = {
   name: "",
@@ -63,7 +63,7 @@ function App() {
   const [stats, setStats] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(
-    localStorage.getItem("fitness_synergy_auth") === "true",
+    !!localStorage.getItem("fitness_synergy_token"),
   );
   const [isDarkMode, setIsDarkMode] = useState(
     localStorage.getItem("theme") !== "light",
@@ -143,7 +143,7 @@ function App() {
       ];
       const results = await Promise.all(
         endpoints.map((e) =>
-          fetch(`${API_BASE}/${e}.php`).then((res) => {
+          apiFetch(`${e}.php`).then((res) => {
             if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
             return res.json();
           }),
@@ -166,9 +166,8 @@ function App() {
     e.preventDefault();
     setLoginForm((p) => ({ ...p, error: "" }));
     try {
-      const response = await fetch(`${API_BASE}/login.php`, {
+      const response = await apiFetch("login.php", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           username: loginForm.user,
           password: loginForm.pass,
@@ -177,7 +176,7 @@ function App() {
       if (!response.ok) throw new Error("Server offline");
       const res = await response.json();
       if (res.success) {
-        localStorage.setItem("fitness_synergy_auth", "true");
+        localStorage.setItem("fitness_synergy_token", res.token);
         setIsLoggedIn(true);
       } else {
         setLoginForm((prev) => ({
@@ -195,9 +194,8 @@ function App() {
 
   const handleAttendance = async (memberId, action) => {
     try {
-      const res = await fetch(`${API_BASE}/time_${action}.php`, {
+      const res = await apiFetch(`time_${action}.php`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ member_id: memberId }),
       }).then((r) => r.json());
 
@@ -218,9 +216,8 @@ function App() {
 
     try {
       const target = editingId ? "update_member" : "add_member";
-      const res = await fetch(`${API_BASE}/${target}.php`, {
+      const res = await apiFetch(`${target}.php`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           full_name: memberForm.name,
           plan_id: memberForm.plan,
@@ -262,12 +259,8 @@ function App() {
     setSelectedMember(member);
     try {
       const [att, pay] = await Promise.all([
-        fetch(
-          `${API_BASE}/get_member_attendance.php?id=${member.member_id}`,
-        ).then((r) => r.json()),
-        fetch(
-          `${API_BASE}/get_member_payments.php?id=${member.member_id}`,
-        ).then((r) => r.json()),
+        apiFetch(`get_member_attendance.php?id=${member.member_id}`).then((r) => r.json()),
+        apiFetch(`get_member_payments.php?id=${member.member_id}`).then((r) => r.json()),
       ]);
       setMemberHistory({
         logs: att.logs || [],
@@ -349,7 +342,8 @@ function App() {
           localStorage.setItem("theme", !isDarkMode ? "dark" : "light");
         }}
         handleLogout={() => {
-          localStorage.removeItem("fitness_synergy_auth");
+          apiFetch("logout.php", { method: "POST" }).catch(() => {});
+          localStorage.removeItem("fitness_synergy_token");
           setIsLoggedIn(false);
         }}
         openAddModal={() => {
@@ -435,9 +429,8 @@ function App() {
                   viewProfile={viewProfile}
                   handleDelete={(id, name) => {
                     if (window.confirm(`Delete ${name}?`)) {
-                      fetch(`${API_BASE}/delete_member.php`, {
+                      apiFetch("delete_member.php", {
                         method: "POST",
-                        headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({ member_id: id }),
                       })
                         .then(fetchData)

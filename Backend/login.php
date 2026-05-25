@@ -1,21 +1,17 @@
 <?php
-// 1. CORS Headers
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, Authorization");
- 
+
 if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
     exit;
 }
 
-// Pull in your local database connection
 require_once 'db.php';
 
-// 2. Read the JSON payload sent by your React application
 $data = json_decode(file_get_contents('php://input'));
 
 if (!empty($data->username) && !empty($data->password)) {
-    // Define the missing variables using the parsed JSON data!
     $userIn = trim($data->username);
     $passIn = $data->password;
 
@@ -24,41 +20,48 @@ if (!empty($data->username) && !empty($data->password)) {
             throw new PDOException("Database connection variable was dropped.");
         }
 
-        // Fetch user information explicitly
+        // Create sessions table on first use if it does not exist
+        $conn->exec("CREATE TABLE IF NOT EXISTS `sessions` (
+            `id` INT AUTO_INCREMENT PRIMARY KEY,
+            `session_token` VARCHAR(64) NOT NULL UNIQUE,
+            `admin_id` INT NOT NULL,
+            `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            `expires_at` TIMESTAMP NOT NULL,
+            INDEX (`session_token`)
+        )");
+
         $stmt = $conn->prepare("SELECT * FROM `admins` WHERE `username` = :user");
         $stmt->execute([':user' => $userIn]);
         $admin = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        // --- 🚨 EMERGENCY OVERRIDE: FORCE PASSWORD UPDATE 🚨 ---
-        // If the user exists, we completely overwrite their old broken hash
-        // with a brand new one generated from the password you just typed.
-        if ($admin) {
-            $newHash = password_hash($passIn, PASSWORD_DEFAULT);
-            $update = $conn->prepare("UPDATE `admins` SET `password` = :hash WHERE `username` = :user");
-            $update->execute([':hash' => $newHash, ':user' => $userIn]);
-            
-            // Re-fetch the newly updated user row so the verify step passes
-            $stmt->execute([':user' => $userIn]);
-            $admin = $stmt->fetch(PDO::FETCH_ASSOC);
-        }
-        // --- END EMERGENCY OVERRIDE ---
-
         header("Content-Type: application/json");
-        
-        // Check password validation safely
+
         if ($admin && password_verify($passIn, $admin['password'])) {
+            $token   = bin2hex(random_bytes(32));
+            $expires = date('Y-m-d H:i:s', strtotime('+24 hours'));
+
+            $insertSession = $conn->prepare(
+                "INSERT INTO sessions (session_token, admin_id, expires_at) VALUES (:token, :admin_id, :expires)"
+            );
+            $insertSession->execute([
+                ':token'    => $token,
+                ':admin_id' => $admin['admin_id'],
+                ':expires'  => $expires,
+            ]);
+
             echo json_encode([
-                "success" => true, 
-                "message" => "Login successful!"
+                "success" => true,
+                "message" => "Login successful!",
+                "token"   => $token,
             ]);
         } else {
             echo json_encode([
-                "success" => false, 
-                "error" => "Incorrect username or password."
+                "success" => false,
+                "error"   => "Incorrect username or password.",
             ]);
         }
         exit;
-    
+
     } catch (PDOException $e) {
         header("Content-Type: application/json");
         echo json_encode(["success" => false, "error" => $e->getMessage()]);
@@ -67,8 +70,7 @@ if (!empty($data->username) && !empty($data->password)) {
     header("Content-Type: application/json");
     http_response_code(400);
     echo json_encode([
-        "success" => false, 
-        "error" => "Please fill in all fields."
+        "success" => false,
+        "error"   => "Please fill in all fields.",
     ]);
 }
-?>
