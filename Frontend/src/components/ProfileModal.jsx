@@ -1,5 +1,6 @@
 import { useState } from "react";
 import PhotoCropModal from "./PhotoCropModal";
+import { apiFetch } from "../api";
 
 function ProfileModal({
   theme,
@@ -14,6 +15,29 @@ function ProfileModal({
   onPhotoUpdate,
 }) {
   const [showPhotoModal, setShowPhotoModal] = useState(false);
+  const [showLightbox, setShowLightbox] = useState(false);
+  const [deletingPhoto, setDeletingPhoto] = useState(false);
+
+  const handleDeletePhoto = async () => {
+    if (!window.confirm("Remove this profile photo?")) return;
+    setDeletingPhoto(true);
+    try {
+      const res = await apiFetch("delete_member_photo.php", {
+        method: "POST",
+        body: JSON.stringify({ member_id: m.member_id }),
+      }).then((r) => r.json());
+      if (res.success) {
+        setShowLightbox(false);
+        onPhotoUpdate(null);
+      } else {
+        alert(res.error || "Delete failed.");
+      }
+    } catch {
+      alert("Delete failed.");
+    } finally {
+      setDeletingPhoto(false);
+    }
+  };
   const m = selectedMember;
 
   const infoRow = (label, value) =>
@@ -76,15 +100,13 @@ function ProfileModal({
           }}
         >
           {/* Profile photo */}
-          <div
-            style={{ position: "relative", flexShrink: 0, cursor: "pointer" }}
-            onClick={() => setShowPhotoModal(true)}
-            title="Click to upload photo"
-          >
+          <div style={{ position: "relative", flexShrink: 0 }}>
             {m.photo_url ? (
               <img
                 src={m.photo_url}
                 alt={m.full_name}
+                onClick={() => setShowLightbox(true)}
+                title="Click to view full size"
                 style={{
                   width: "70px",
                   height: "70px",
@@ -92,27 +114,36 @@ function ProfileModal({
                   objectFit: "cover",
                   border: `3px solid ${theme.primary}`,
                   display: "block",
+                  cursor: "zoom-in",
                 }}
               />
             ) : (
               <div
+                onClick={() => setShowPhotoModal(true)}
+                title="Click to upload photo"
                 style={{
                   width: "70px",
                   height: "70px",
                   borderRadius: "50%",
                   backgroundColor: theme.bg,
-                  border: `3px solid ${theme.border}`,
+                  border: `3px dashed ${theme.border}`,
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
                   fontSize: "28px",
+                  cursor: "pointer",
                 }}
               >
                 👤
               </div>
             )}
-            {/* Camera overlay */}
-            <div
+            {/* Camera badge — always triggers upload */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowPhotoModal(true);
+              }}
+              title="Upload new photo"
               style={{
                 position: "absolute",
                 bottom: 0,
@@ -121,16 +152,89 @@ function ProfileModal({
                 height: "24px",
                 borderRadius: "50%",
                 backgroundColor: theme.primary,
+                border: `2px solid ${theme.surface}`,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                fontSize: "12px",
-                border: `2px solid ${theme.surface}`,
+                fontSize: "11px",
+                cursor: "pointer",
+                padding: 0,
               }}
             >
               📷
-            </div>
+            </button>
           </div>
+
+          {/* Lightbox */}
+          {showLightbox && m.photo_url && (
+            <div
+              onClick={() => setShowLightbox(false)}
+              style={{
+                position: "fixed",
+                inset: 0,
+                backgroundColor: "rgba(0,0,0,0.92)",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+                alignItems: "center",
+                zIndex: 1300,
+                cursor: "zoom-out",
+              }}
+            >
+              <img
+                src={m.photo_url}
+                alt={m.full_name}
+                onClick={(e) => e.stopPropagation()}
+                style={{
+                  maxWidth: "85vw",
+                  maxHeight: "78vh",
+                  borderRadius: "12px",
+                  objectFit: "contain",
+                  boxShadow: "0 0 60px rgba(0,0,0,0.8)",
+                }}
+              />
+              <div
+                style={{
+                  marginTop: "16px",
+                  color: "#fff",
+                  fontSize: "18px",
+                  fontWeight: "bold",
+                }}
+              >
+                {m.full_name}
+              </div>
+              <div
+                style={{
+                  display: "flex",
+                  gap: "12px",
+                  marginTop: "16px",
+                  alignItems: "center",
+                }}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <button
+                  onClick={handleDeletePhoto}
+                  disabled={deletingPhoto}
+                  style={{
+                    padding: "8px 20px",
+                    backgroundColor: "#ef4444",
+                    color: "#fff",
+                    border: "none",
+                    borderRadius: "8px",
+                    cursor: deletingPhoto ? "default" : "pointer",
+                    fontWeight: "bold",
+                    fontSize: "13px",
+                    opacity: deletingPhoto ? 0.6 : 1,
+                  }}
+                >
+                  {deletingPhoto ? "Deleting…" : "🗑️ Delete Photo"}
+                </button>
+                <span style={{ color: "rgba(255,255,255,0.35)", fontSize: "12px" }}>
+                  or click outside to close
+                </span>
+              </div>
+            </div>
+          )}
 
           <h2 style={{ margin: 0, flex: 1, fontSize: "18px" }}>{m.full_name}</h2>
 
