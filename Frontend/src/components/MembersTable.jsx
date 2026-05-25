@@ -54,11 +54,11 @@ function MembersTable({
           alignItems: "center",
         }}
       >
-        <h2 style={{ margin: 0, fontSize: "18px" }}>Member Roster</h2>
+        <h2 style={{ margin: 0, fontSize: "18px" }}>Client Directory</h2>
 
         <input
           type="text"
-          placeholder="🔍 Search members..."
+          placeholder="🔍 Search clients..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           style={{
@@ -84,7 +84,7 @@ function MembersTable({
       >
         <thead>
           <tr>
-            <th style={{ padding: "15px 20px" }}>Member Name</th>
+            <th style={{ padding: "15px 20px" }}>Client Name</th>
             <th style={{ padding: "15px 20px" }}>Plan</th>
             <th style={{ padding: "15px 20px" }}>Status</th>
             <th style={{ padding: "15px 20px", textAlign: "right" }}>
@@ -266,7 +266,7 @@ function MembersTable({
         <span>
           Showing {filteredMembers.length === 0 ? 0 : startIdx + 1}–
           {Math.min(startIdx + PAGE_SIZE, filteredMembers.length)} of{" "}
-          {filteredMembers.length} member{filteredMembers.length !== 1 ? "s" : ""}
+          {filteredMembers.length} {filteredMembers.length !== 1 ? "entries" : "entry"}
         </span>
 
         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
