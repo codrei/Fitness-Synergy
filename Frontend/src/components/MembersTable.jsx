@@ -95,11 +95,73 @@ function MembersTable({
 
         <tbody>
           {pageMembers.map((member) => {
-            const daysLeft = getDaysRemaining(member.expiration_date);
+            const isWalkIn = member.client_type === "Walk-in";
 
+            // — Walk-in row —
+            if (isWalkIn) {
+              return (
+                <tr
+                  key={member.member_id}
+                  style={{ borderBottom: `1px solid ${theme.border}` }}
+                >
+                  <td style={{ padding: "15px 20px", fontWeight: "bold" }}>
+                    <span>{member.full_name}</span>
+                    <span
+                      style={{
+                        marginLeft: "8px",
+                        backgroundColor: isDarkMode
+                          ? "rgba(99,102,241,0.18)"
+                          : "#ede9fe",
+                        color: "#7c3aed",
+                        padding: "2px 8px",
+                        borderRadius: "12px",
+                        fontSize: "11px",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      🚶 WALK-IN
+                    </span>
+                  </td>
+
+                  <td style={{ padding: "15px 20px" }}>
+                    {member.plan_name || "Walk-in / Daily Plan"}
+                  </td>
+
+                  <td style={{ padding: "15px 20px" }}>
+                    <span
+                      style={{
+                        backgroundColor: isDarkMode
+                          ? "rgba(99,102,241,0.14)"
+                          : "#ede9fe",
+                        color: "#7c3aed",
+                        padding: "6px 12px",
+                        borderRadius: "20px",
+                        fontWeight: "bold",
+                        fontSize: "12px",
+                      }}
+                    >
+                      {member.total_visits}x visit{member.total_visits !== 1 ? "s" : ""} · last {member.last_visit}
+                    </span>
+                  </td>
+
+                  <td
+                    style={{
+                      padding: "15px 20px",
+                      textAlign: "right",
+                      color: theme.textMuted,
+                      fontSize: "12px",
+                    }}
+                  >
+                    —
+                  </td>
+                </tr>
+              );
+            }
+
+            // — Member row —
+            const daysLeft = getDaysRemaining(member.expiration_date);
             const isExpired =
               member.status === "Expired" || daysLeft === "Expired";
-
             const isTimedIn = attendanceLogs.some(
               (log) => log.member_id === member.member_id,
             );
