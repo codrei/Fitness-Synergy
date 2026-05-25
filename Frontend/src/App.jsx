@@ -145,20 +145,29 @@ function App() {
         "get_plans",
         "get_stats",
       ];
+      const responses = await Promise.all(
+        endpoints.map((e) => apiFetch(`${e}.php`)),
+      );
+
+      if (responses.some((r) => r.status === 401)) {
+        localStorage.removeItem("fitness_synergy_token");
+        setIsLoggedIn(false);
+        return;
+      }
+
       const results = await Promise.all(
-        endpoints.map((e) =>
-          apiFetch(`${e}.php`).then((res) => {
-            if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-            return res.json();
-          }),
-        ),
+        responses.map((res) => {
+          if (!res.ok) throw new Error(`Server error: ${res.status}`);
+          return res.json();
+        }),
       );
       setMembers(results[0] || []);
       setAttendanceLogs(results[1] || []);
       setPlans(results[2] || []);
       setStats(results[3] || null);
     } catch (err) {
-      console.error("Fetch error (Server might be offline):", err);
+      showToast("Failed to load data. Check server connection.", "error");
+      console.error("Fetch error:", err);
     } finally {
       setIsLoading(false);
     }
