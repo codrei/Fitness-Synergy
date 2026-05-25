@@ -30,26 +30,33 @@ function Login({
   return (
     <div
       style={{
-        height: "100vh", // Full viewport height
-        width: "100vw", // Full viewport width
+        height: "100vh",
+        width: "100vw",
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
         backgroundColor: theme.bg,
         color: theme.text,
         fontFamily: "sans-serif",
-
-        // --- THIS IS THE KEY PART ---
-        backgroundImage: `url(${backgrounds[currentIndex]})`,
-        backgroundSize: "cover", // Scales the image to cover the entire area
-        backgroundPosition: "center", // Keeps the image centered
-        backgroundRepeat: "no-repeat", // Prevents the image from repeating
-        backgroundAttachment: "fixed", // Keeps background stable during scroll
-        // ----------------------------
-
-        transition: "background-image 1.5s ease-in-out",
+        position: "relative",
+        overflow: "hidden",
       }}
     >
+      {backgrounds.map((bg, i) => (
+        <div
+          key={i}
+          style={{
+            position: "absolute",
+            inset: 0,
+            backgroundImage: `url(${bg})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            backgroundRepeat: "no-repeat",
+            opacity: i === currentIndex ? 1 : 0,
+            transition: "opacity 1.5s ease-in-out",
+          }}
+        />
+      ))}
       <div
         style={{
           backgroundColor: theme.surface,
@@ -59,6 +66,8 @@ function Login({
           width: "350px",
           textAlign: "center",
           border: `1px solid ${theme.border}`,
+          position: "relative",
+          zIndex: 1,
         }}
       >
         <h1

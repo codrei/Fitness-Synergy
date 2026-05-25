@@ -2,6 +2,9 @@ import { useState, useEffect } from "react";
 import * as XLSX from "xlsx";
 import { MONTHS } from "../config";
 import { apiFetch } from "../api";
+
+const THIS_YEAR = new Date().getFullYear();
+const YEAR_OPTIONS = Array.from({ length: 5 }, (_, i) => THIS_YEAR - 2 + i);
 const fmtPHP = (n) =>
   `₱${parseFloat(n || 0).toLocaleString("en-PH", { minimumFractionDigits: 2 })}`;
 const calcAge = (dob) => {
@@ -564,7 +567,7 @@ export default function RevenueReport({ theme, activeTab }) {
         onChange={(e) => setYear(Number(e.target.value))}
         style={selectStyle}
       >
-        {[2024, 2025, 2026, 2027].map((y) => (
+        {YEAR_OPTIONS.map((y) => (
           <option key={y} value={y}>
             {y}
           </option>
@@ -686,7 +689,7 @@ export default function RevenueReport({ theme, activeTab }) {
               onChange={(e) => setYear(Number(e.target.value))}
               style={selectStyle}
             >
-              {[2024, 2025, 2026, 2027].map((y) => (
+              {YEAR_OPTIONS.map((y) => (
                 <option key={y} value={y}>
                   {y}
                 </option>
@@ -766,7 +769,7 @@ export default function RevenueReport({ theme, activeTab }) {
               onChange={(e) => setYear(Number(e.target.value))}
               style={selectStyle}
             >
-              {[2024, 2025, 2026, 2027].map((y) => (
+              {YEAR_OPTIONS.map((y) => (
                 <option key={y} value={y}>
                   {y}
                 </option>

@@ -8,6 +8,7 @@ import LiveFeed from "./components/LiveFeed";
 import AddEditModal from "./components/AddEditModal";
 import ProfileModal from "./components/ProfileModal";
 import TdeeModal from "./components/TdeeModal";
+import ConfirmModal from "./components/ConfirmModal";
 import bgTexture from "./assets/geomblue.png";
 import { apiFetch } from "./api";
 
@@ -73,6 +74,8 @@ function App() {
     message: "",
     type: "success",
   });
+  const [isLoading, setIsLoading] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState({ show: false, id: null, name: "" });
   const [showMemberModal, setShowMemberModal] = useState(false);
   const [showTdeeModal, setShowTdeeModal] = useState(false);
   const [currentView, setCurrentView] = useState("dashboard");
@@ -134,6 +137,7 @@ function App() {
   };
 
   const fetchData = async () => {
+    setIsLoading(true);
     try {
       const endpoints = [
         "get_members",
@@ -155,6 +159,8 @@ function App() {
       setStats(results[3] || null);
     } catch (err) {
       console.error("Fetch error (Server might be offline):", err);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -355,7 +361,26 @@ function App() {
         setCurrentView={setCurrentView}
       />
 
-      <main style={{ flex: 1, padding: "30px", overflowY: "auto" }}>
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+      <main style={{ flex: 1, padding: "30px", overflowY: "auto", position: "relative" }}>
+        {isLoading && (
+          <div style={{
+            position: "absolute", inset: 0, zIndex: 100,
+            display: "flex", flexDirection: "column",
+            justifyContent: "center", alignItems: "center", gap: "16px",
+            backgroundColor: "rgba(0,0,0,0.25)", backdropFilter: "blur(2px)",
+          }}>
+            <div style={{
+              width: "42px", height: "42px", borderRadius: "50%",
+              border: `4px solid ${theme.border}`,
+              borderTop: `4px solid ${theme.primary}`,
+              animation: "spin 0.75s linear infinite",
+            }} />
+            <span style={{ color: theme.text, fontWeight: "bold", fontSize: "14px" }}>
+              Loading data...
+            </span>
+          </div>
+        )}
         {currentView.startsWith("revenue") ? (
           <RevenueReport theme={theme} activeTab={currentView} />
         ) : (
@@ -428,14 +453,7 @@ function App() {
                   attendanceLogs={attendanceLogs}
                   viewProfile={viewProfile}
                   handleDelete={(id, name) => {
-                    if (window.confirm(`Delete ${name}?`)) {
-                      apiFetch("delete_member.php", {
-                        method: "POST",
-                        body: JSON.stringify({ member_id: id }),
-                      })
-                        .then(fetchData)
-                        .catch(() => showToast("Delete failed", "error"));
-                    }
+                    setDeleteConfirm({ show: true, id, name });
                   }}
                   startEditing={(m) => {
                     setEditingId(m.member_id);
@@ -508,6 +526,23 @@ function App() {
           tdeeData={tdeeData}
           setTdeeData={setTdeeData}
           tdeeResult={tdeeResult}
+        />
+      )}
+
+      {deleteConfirm.show && (
+        <ConfirmModal
+          theme={theme}
+          name={deleteConfirm.name}
+          onCancel={() => setDeleteConfirm({ show: false, id: null, name: "" })}
+          onConfirm={() => {
+            apiFetch("delete_member.php", {
+              method: "POST",
+              body: JSON.stringify({ member_id: deleteConfirm.id }),
+            })
+              .then(fetchData)
+              .catch(() => showToast("Delete failed", "error"));
+            setDeleteConfirm({ show: false, id: null, name: "" });
+          }}
         />
       )}
 
