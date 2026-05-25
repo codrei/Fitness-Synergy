@@ -67,7 +67,6 @@ try {
             plan_id           = :plan,
             start_date        = CURRENT_DATE(),
             expiration_date   = :exp,
-            status            = 'Active',
             is_installment    = :is_installment,
             installment_total = :installment_total
         WHERE member_id = :id
