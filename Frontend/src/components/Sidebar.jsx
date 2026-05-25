@@ -193,6 +193,13 @@ function Sidebar({
         >
           🎁 Promos
         </button>
+
+        <button
+          onClick={() => setCurrentView("expenses")}
+          style={navBtn("expenses")}
+        >
+          💸 Expenses
+        </button>
       </div>
 
       {/* TDEE always at bottom before logout */}

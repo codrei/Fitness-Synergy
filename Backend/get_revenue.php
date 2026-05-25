@@ -78,23 +78,42 @@ $yearly = $conn->query("
 ")->fetchAll(PDO::FETCH_ASSOC);
 
 // Overview totals
-$today    = (float) $conn->query("SELECT COALESCE(SUM(amount),0) FROM payments WHERE DATE(payment_date) = CURDATE()")->fetchColumn();
-$month_t  = (float) $conn->query("SELECT COALESCE(SUM(amount),0) FROM payments WHERE MONTH(payment_date) = MONTH(CURDATE()) AND YEAR(payment_date) = YEAR(CURDATE())")->fetchColumn();
-$year_t   = (float) $conn->query("SELECT COALESCE(SUM(amount),0) FROM payments WHERE YEAR(payment_date) = YEAR(CURDATE())")->fetchColumn();
-$all_time = (float) $conn->query("SELECT COALESCE(SUM(amount),0) FROM payments")->fetchColumn();
+$today     = (float) $conn->query("SELECT COALESCE(SUM(amount),0) FROM payments WHERE DATE(payment_date) = CURDATE()")->fetchColumn();
+$this_week = (float) $conn->query("SELECT COALESCE(SUM(amount),0) FROM payments WHERE YEARWEEK(payment_date, 1) = YEARWEEK(CURDATE(), 1)")->fetchColumn();
+$month_t   = (float) $conn->query("SELECT COALESCE(SUM(amount),0) FROM payments WHERE MONTH(payment_date) = MONTH(CURDATE()) AND YEAR(payment_date) = YEAR(CURDATE())")->fetchColumn();
+$year_t    = (float) $conn->query("SELECT COALESCE(SUM(amount),0) FROM payments WHERE YEAR(payment_date) = YEAR(CURDATE())")->fetchColumn();
+$all_time  = (float) $conn->query("SELECT COALESCE(SUM(amount),0) FROM payments")->fetchColumn();
+
+// Expenses for selected month/year (gracefully returns 0 if table doesn't exist)
+try {
+    $exp_stmt = $conn->prepare("SELECT COALESCE(SUM(amount),0) FROM expenses WHERE MONTH(expense_date) = :month AND YEAR(expense_date) = :year");
+    $exp_stmt->execute([':month' => $month, ':year' => $year]);
+    $selected_expenses = (float) $exp_stmt->fetchColumn();
+} catch (Exception $e) {
+    $selected_expenses = 0;
+}
+
+try {
+    $curr_expenses = (float) $conn->query("SELECT COALESCE(SUM(amount),0) FROM expenses WHERE MONTH(expense_date) = MONTH(CURDATE()) AND YEAR(expense_date) = YEAR(CURDATE())")->fetchColumn();
+} catch (Exception $e) {
+    $curr_expenses = 0;
+}
 
 echo json_encode([
-    'success'         => true,
-    'payments'        => $all_payments,
-    'member_payments' => $member_payments,
-    'walkin_payments' => $walkin_payments,
-    'monthly'         => $monthly,
-    'yearly'          => $yearly,
-    'total'           => array_sum(array_column($all_payments, 'amount')),
-    'overview'        => [
-        'today'      => $today,
-        'this_month' => $month_t,
-        'this_year'  => $year_t,
-        'all_time'   => $all_time,
+    'success'           => true,
+    'payments'          => $all_payments,
+    'member_payments'   => $member_payments,
+    'walkin_payments'   => $walkin_payments,
+    'monthly'           => $monthly,
+    'yearly'            => $yearly,
+    'total'             => array_sum(array_column($all_payments, 'amount')),
+    'selected_expenses' => $selected_expenses,
+    'overview'          => [
+        'today'               => $today,
+        'this_week'           => $this_week,
+        'this_month'          => $month_t,
+        'this_year'           => $year_t,
+        'all_time'            => $all_time,
+        'expenses_this_month' => $curr_expenses,
     ],
 ]);

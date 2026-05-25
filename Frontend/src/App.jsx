@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import RevenueReport from "./components/RevenueReport";
 import PlansManager from "./components/PlansManager";
 import PromosManager from "./components/PromosManager";
+import ExpensesManager from "./components/ExpensesManager";
 import Login from "./components/Login";
 import Sidebar from "./components/Sidebar";
 import StatsCards from "./components/StatsCards";
@@ -677,6 +678,8 @@ function App() {
           <PlansManager theme={theme} />
         ) : currentView === "promos" ? (
           <PromosManager theme={theme} />
+        ) : currentView === "expenses" ? (
+          <ExpensesManager theme={theme} />
         ) : (
           <>
             <header
