@@ -9,7 +9,29 @@ function ProfileModal({
   formatSafeDate,
   printReceipt,
   memberHistory,
+  onEditInfo,
 }) {
+  const m = selectedMember;
+
+  const infoRow = (label, value) =>
+    value ? (
+      <div style={{ marginBottom: "10px" }}>
+        <span
+          style={{
+            fontSize: "11px",
+            color: theme.textMuted,
+            textTransform: "uppercase",
+            fontWeight: "bold",
+            display: "block",
+            marginBottom: "2px",
+          }}
+        >
+          {label}
+        </span>
+        <span style={{ fontSize: "14px" }}>{value}</span>
+      </div>
+    ) : null;
+
   return (
     <div
       style={{
@@ -31,11 +53,14 @@ function ProfileModal({
           backgroundColor: theme.surface,
           padding: "30px",
           borderRadius: "12px",
-          width: "500px",
+          width: "560px",
+          maxHeight: "92vh",
+          overflowY: "auto",
           border: `1px solid ${theme.border}`,
           boxShadow: "0 10px 40px rgba(0,0,0,0.5)",
         }}
       >
+        {/* Header */}
         <div
           style={{
             display: "flex",
@@ -46,52 +71,128 @@ function ProfileModal({
             marginBottom: "20px",
           }}
         >
-          <h2 style={{ margin: 0 }}>👤 {selectedMember.full_name}</h2>
-          <button
-            onClick={closeProfile}
-            style={{
-              background: "none",
-              border: "none",
-              color: theme.textMuted,
-              fontSize: "20px",
-              cursor: "pointer",
-            }}
-          >
-            ❌
-          </button>
+          <h2 style={{ margin: 0 }}>👤 {m.full_name}</h2>
+          <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+            <button
+              onClick={() => onEditInfo(m)}
+              style={{
+                padding: "7px 14px",
+                backgroundColor: "#f59e0b",
+                color: "#fff",
+                border: "none",
+                borderRadius: "6px",
+                cursor: "pointer",
+                fontWeight: "bold",
+                fontSize: "13px",
+              }}
+            >
+              ✏️ Edit Info
+            </button>
+            <button
+              onClick={closeProfile}
+              style={{
+                background: "none",
+                border: "none",
+                color: theme.textMuted,
+                fontSize: "20px",
+                cursor: "pointer",
+              }}
+            >
+              ❌
+            </button>
+          </div>
         </div>
+
+        {/* Plan + visits summary */}
         <div
           style={{
             display: "flex",
-            justifyContent: "space-between",
+            gap: "12px",
+            marginBottom: "20px",
+            flexWrap: "wrap",
+          }}
+        >
+          <div
+            style={{
+              flex: 1,
+              backgroundColor: theme.bg,
+              padding: "10px 15px",
+              borderRadius: "8px",
+              border: `1px solid ${theme.border}`,
+              minWidth: "120px",
+            }}
+          >
+            <div style={{ fontSize: "11px", color: theme.textMuted, textTransform: "uppercase", marginBottom: "3px" }}>Current Plan</div>
+            <strong style={{ color: theme.primary, fontSize: "14px" }}>{m.plan_name || "—"}</strong>
+          </div>
+          <div
+            style={{
+              flex: 1,
+              backgroundColor: theme.bg,
+              padding: "10px 15px",
+              borderRadius: "8px",
+              border: `1px solid ${theme.border}`,
+              minWidth: "120px",
+            }}
+          >
+            <div style={{ fontSize: "11px", color: theme.textMuted, textTransform: "uppercase", marginBottom: "3px" }}>Expires</div>
+            <strong style={{ fontSize: "14px" }}>{m.expiration_date ? formatSafeDate(m.expiration_date) : "—"}</strong>
+          </div>
+          <div
+            style={{
+              flex: 1,
+              backgroundColor: theme.bg,
+              padding: "10px 15px",
+              borderRadius: "8px",
+              border: `1px solid ${theme.border}`,
+              minWidth: "100px",
+            }}
+          >
+            <div style={{ fontSize: "11px", color: theme.textMuted, textTransform: "uppercase", marginBottom: "3px" }}>Total Visits</div>
+            <strong style={{ fontSize: "14px" }}>{totalVisits}</strong>
+          </div>
+        </div>
+
+        {/* Personal info section */}
+        <div
+          style={{
+            backgroundColor: theme.bg,
+            borderRadius: "8px",
+            border: `1px solid ${theme.border}`,
+            padding: "16px",
             marginBottom: "20px",
           }}
         >
           <div
             style={{
-              backgroundColor: theme.bg,
-              padding: "10px 15px",
-              borderRadius: "8px",
-              border: `1px solid ${theme.border}`,
+              fontSize: "12px",
+              color: theme.textMuted,
+              textTransform: "uppercase",
+              fontWeight: "bold",
+              marginBottom: "14px",
             }}
           >
-            <strong>Plan:</strong>{" "}
-            <span style={{ color: theme.primary }}>
-              {selectedMember.plan_name}
-            </span>
+            🪪 Personal Information
           </div>
-          <div
-            style={{
-              backgroundColor: theme.bg,
-              padding: "10px 15px",
-              borderRadius: "8px",
-              border: `1px solid ${theme.border}`,
-            }}
-          >
-            <strong>Total Visits:</strong> {totalVisits}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 20px" }}>
+            {infoRow("Contact", m.contact_number)}
+            {infoRow("Date of Birth", m.dob ? formatSafeDate(m.dob) : null)}
+            {infoRow("Gender", m.gender)}
+            {infoRow("Occupation", m.occupation)}
+            {infoRow("Contract ID", m.contract_id)}
+            {infoRow("Discount", m.discount_type !== "None" ? `${m.discount_type} — ${m.discount_id || ""}` : null)}
+            {infoRow("Emergency Contact", m.emergency_contact_name)}
+            {infoRow("Emergency #", m.emergency_contact_number)}
           </div>
+          {m.address && (
+            <div style={{ marginTop: "6px" }}>
+              <span style={{ fontSize: "11px", color: theme.textMuted, textTransform: "uppercase", fontWeight: "bold", display: "block", marginBottom: "2px" }}>Address</span>
+              <span style={{ fontSize: "14px" }}>{m.address}</span>
+            </div>
+          )}
         </div>
 
+        {/* Billing history */}
         <h3
           style={{
             margin: "0 0 10px 0",
@@ -183,6 +284,7 @@ function ProfileModal({
           )}
         </div>
 
+        {/* Attendance history */}
         <h3
           style={{
             margin: "0 0 10px 0",

@@ -12,7 +12,8 @@ function MembersTable({
   handleTimeIn,
   attendanceLogs,
   viewProfile,
-  startEditing,
+  startRenewal,
+  convertWalkIn,
   handleDelete,
 }) {
   const [currentPage, setCurrentPage] = useState(1);
@@ -144,15 +145,22 @@ function MembersTable({
                     </span>
                   </td>
 
-                  <td
-                    style={{
-                      padding: "15px 20px",
-                      textAlign: "right",
-                      color: theme.textMuted,
-                      fontSize: "12px",
-                    }}
-                  >
-                    —
+                  <td style={{ padding: "15px 20px", textAlign: "right" }}>
+                    <button
+                      onClick={() => convertWalkIn(member)}
+                      style={{
+                        padding: "8px 12px",
+                        backgroundColor: "#7c3aed",
+                        color: "white",
+                        border: "none",
+                        borderRadius: "6px",
+                        cursor: "pointer",
+                        fontWeight: "bold",
+                        fontSize: "12px",
+                      }}
+                    >
+                      ➕ Convert to Member
+                    </button>
                   </td>
                 </tr>
               );
@@ -278,18 +286,20 @@ function MembersTable({
                   </button>
 
                   <button
-                    onClick={() => startEditing(member)}
+                    onClick={() => startRenewal(member)}
                     style={{
                       padding: "8px 12px",
-                      backgroundColor: "#f59e0b",
-                      color: "white",
+                      backgroundColor: theme.primary,
+                      color: theme.primaryText,
                       border: "none",
                       borderRadius: "6px",
                       cursor: "pointer",
+                      fontWeight: "bold",
                       marginRight: "8px",
+                      fontSize: "12px",
                     }}
                   >
-                    ✏️
+                    🔄 Renew
                   </button>
 
                   <button

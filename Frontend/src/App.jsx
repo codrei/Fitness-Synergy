@@ -8,6 +8,8 @@ import LiveFeed from "./components/LiveFeed";
 import AddEditModal from "./components/AddEditModal";
 import WalkInModal from "./components/WalkInModal";
 import ProfileModal from "./components/ProfileModal";
+import RenewalModal from "./components/RenewalModal";
+import EditInfoModal from "./components/EditInfoModal";
 import TdeeModal from "./components/TdeeModal";
 import ConfirmModal from "./components/ConfirmModal";
 import bgTexture from "./assets/geomblue.png";
@@ -18,6 +20,18 @@ const WALKIN_FORM_DEFAULT = {
   guestAge: "",
   guestContact: "",
   customPrice: "",
+  cashAmount: 0,
+  gcashAmount: 0,
+  mayaAmount: 0,
+  debitAmount: 0,
+  creditAmount: 0,
+  referenceNumber: "",
+};
+
+const RENEWAL_FORM_DEFAULT = {
+  planId: "",
+  customPrice: "",
+  bonusDays: 0,
   cashAmount: 0,
   gcashAmount: 0,
   mayaAmount: 0,
@@ -98,6 +112,12 @@ function App() {
   const [showTdeeModal, setShowTdeeModal] = useState(false);
   const [currentView, setCurrentView] = useState("dashboard");
   const [editingId, setEditingId] = useState(null);
+  const [showRenewalModal, setShowRenewalModal] = useState(false);
+  const [renewalMember, setRenewalMember] = useState(null);
+  const [renewalForm, setRenewalForm] = useState(RENEWAL_FORM_DEFAULT);
+  const [showEditInfoModal, setShowEditInfoModal] = useState(false);
+  const [editInfoMember, setEditInfoMember] = useState(null);
+  const [infoForm, setInfoForm] = useState({});
   const [memberForm, setMemberForm] = useState(MEMBER_FORM_DEFAULT);
   const [selectedMember, setSelectedMember] = useState(null);
   const [memberHistory, setMemberHistory] = useState({
@@ -341,6 +361,107 @@ function App() {
     }
   };
 
+  const startRenewal = (member) => {
+    setRenewalMember(member);
+    setRenewalForm({ ...RENEWAL_FORM_DEFAULT, planId: member.plan_id || "" });
+    setShowRenewalModal(true);
+  };
+
+  const handleRenewal = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await apiFetch("renew_member.php", {
+        method: "POST",
+        body: JSON.stringify({
+          member_id:        renewalMember.member_id,
+          plan_id:          renewalForm.planId,
+          custom_price:     renewalForm.customPrice,
+          bonus_days:       renewalForm.bonusDays,
+          cash_amount:      renewalForm.cashAmount,
+          gcash_amount:     renewalForm.gcashAmount,
+          maya_amount:      renewalForm.mayaAmount,
+          debit_amount:     renewalForm.debitAmount,
+          credit_amount:    renewalForm.creditAmount,
+          reference_number: renewalForm.referenceNumber,
+        }),
+      }).then((r) => r.json());
+
+      if (res.success) {
+        setShowRenewalModal(false);
+        setRenewalMember(null);
+        setRenewalForm(RENEWAL_FORM_DEFAULT);
+        fetchData();
+        showToast("Membership renewed!");
+      } else {
+        showToast(res.error || "Renewal failed", "error");
+      }
+    } catch {
+      showToast("Renewal failed", "error");
+    }
+  };
+
+  const openEditInfo = (member) => {
+    setEditInfoMember(member);
+    setInfoForm({
+      name:                   member.full_name || "",
+      contactNumber:          member.contact_number || "",
+      address:                member.address || "",
+      dob:                    member.dob || "",
+      gender:                 member.gender || "",
+      occupation:             member.occupation || "",
+      contractId:             member.contract_id || "",
+      emergencyContactName:   member.emergency_contact_name || "",
+      emergencyContactNumber: member.emergency_contact_number || "",
+      discountType:           member.discount_type || "None",
+      discountId:             member.discount_id || "",
+    });
+    setShowEditInfoModal(true);
+  };
+
+  const handleEditInfo = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await apiFetch("update_member_info.php", {
+        method: "POST",
+        body: JSON.stringify({
+          member_id:                editInfoMember.member_id,
+          full_name:                infoForm.name,
+          contact_number:           infoForm.contactNumber,
+          address:                  infoForm.address,
+          dob:                      infoForm.dob,
+          gender:                   infoForm.gender,
+          occupation:               infoForm.occupation,
+          contract_id:              infoForm.contractId,
+          emergency_contact_name:   infoForm.emergencyContactName,
+          emergency_contact_number: infoForm.emergencyContactNumber,
+          discount_type:            infoForm.discountType,
+          discount_id:              infoForm.discountId,
+        }),
+      }).then((r) => r.json());
+
+      if (res.success) {
+        setShowEditInfoModal(false);
+        setEditInfoMember(null);
+        fetchData();
+        showToast("Member info updated!");
+      } else {
+        showToast(res.error || "Update failed", "error");
+      }
+    } catch {
+      showToast("Update failed", "error");
+    }
+  };
+
+  const convertWalkIn = (walkin) => {
+    clearMemberForm();
+    setMemberForm((f) => ({
+      ...f,
+      name:          walkin.full_name || "",
+      contactNumber: walkin.contact_number || "",
+    }));
+    setShowMemberModal(true);
+  };
+
   const calculateTDEE = (e) => {
     e.preventDefault();
     const w =
@@ -567,33 +688,10 @@ function App() {
                   handleTimeIn={handleTimeIn}
                   attendanceLogs={attendanceLogs}
                   viewProfile={viewProfile}
+                  startRenewal={startRenewal}
+                  convertWalkIn={convertWalkIn}
                   handleDelete={(id, name) => {
                     setDeleteConfirm({ show: true, id, name });
-                  }}
-                  startEditing={(m) => {
-                    setEditingId(m.member_id);
-                    setMemberForm({
-                      name: m.full_name,
-                      plan: m.plan_id,
-                      bonusDays: 0,
-                      customPrice: "",
-                      address: m.address || "",
-                      contactNumber: m.contact_number || "",
-                      dob: m.dob || "",
-                      gender: m.gender || "",
-                      occupation: m.occupation || "",
-                      emergencyContactName: m.emergency_contact_name || "",
-                      emergencyContactNumber: m.emergency_contact_number || "",
-                      contractId: m.contract_id || "",
-                      discountType: m.discount_type || "None",
-                      discountId: m.discount_id || "",
-                      cashAmount: 0,
-                      gcashAmount: 0,
-                      mayaAmount: 0,
-                      debitAmount: 0,
-                      creditAmount: 0,
-                    });
-                    setShowMemberModal(true);
                   }}
                 />
               </div>
@@ -642,8 +740,41 @@ function App() {
           formatSafeDate={formatSafeDate}
           printReceipt={printReceipt}
           memberHistory={memberHistory.logs}
+          onEditInfo={(member) => {
+            setSelectedMember(null);
+            openEditInfo(member);
+          }}
         />
       )}
+      {showRenewalModal && renewalMember && (
+        <RenewalModal
+          theme={theme}
+          member={renewalMember}
+          plans={plans}
+          renewalForm={renewalForm}
+          setRenewalForm={setRenewalForm}
+          onSubmit={handleRenewal}
+          onClose={() => {
+            setShowRenewalModal(false);
+            setRenewalMember(null);
+            setRenewalForm(RENEWAL_FORM_DEFAULT);
+          }}
+        />
+      )}
+
+      {showEditInfoModal && editInfoMember && (
+        <EditInfoModal
+          theme={theme}
+          infoForm={infoForm}
+          setInfoForm={setInfoForm}
+          onSubmit={handleEditInfo}
+          onClose={() => {
+            setShowEditInfoModal(false);
+            setEditInfoMember(null);
+          }}
+        />
+      )}
+
       {showTdeeModal && (
         <TdeeModal
           theme={theme}
