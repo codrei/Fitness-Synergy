@@ -65,6 +65,7 @@ function StatsCards({ stats, theme, isDarkMode }) {
 
   return (
     <div
+      className="stats-grid"
       style={{
         display: "grid",
         gridTemplateColumns: "repeat(3, 1fr)",

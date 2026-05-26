@@ -49,8 +49,10 @@ function Sidebar({
 
   return (
     <div
+      className="app-sidebar"
       style={{
         width: "250px",
+        minWidth: "250px",
         backgroundColor: theme.sidebar,
         color: "white",
         display: "flex",
@@ -58,6 +60,8 @@ function Sidebar({
         padding: "20px",
         boxShadow: "2px 0 10px rgba(0,0,0,0.3)",
         zIndex: 10,
+        overflowY: "auto",
+        flexShrink: 0,
       }}
     >
       <div style={{ textAlign: "center", marginBottom: "30px" }}>

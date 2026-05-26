@@ -169,6 +169,10 @@ function App() {
     return () => clearInterval(timer);
   }, []);
 
+  useEffect(() => {
+    document.body.style.backgroundColor = isDarkMode ? "#050a14" : "#dce6f0";
+  }, [isDarkMode]);
+
   const showToast = (message, type = "success") => {
     setToast({ show: true, message, type });
     setTimeout(
@@ -734,7 +738,7 @@ function App() {
                   }}
                 />
               </div>
-              <div style={{ width: "350px", flexShrink: 0 }}>
+              <div className="live-feed-panel" style={{ width: "350px", flexShrink: 0 }}>
                 <LiveFeed
                   theme={theme}
                   isDarkMode={isDarkMode}
