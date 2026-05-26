@@ -16,6 +16,11 @@ try {
              + (SELECT COUNT(*) FROM payments WHERE customer_type = 'Walk-in' AND DATE(payment_date) = CURRENT_DATE())
     ")->fetchColumn();
     $stats['revenue'] = (float) $conn->query("SELECT COALESCE(SUM(amount), 0) FROM payments WHERE MONTH(payment_date) = MONTH(CURRENT_DATE()) AND YEAR(payment_date) = YEAR(CURRENT_DATE())")->fetchColumn();
+    $stats['total_walkins'] = (int) $conn->query("
+        SELECT COUNT(DISTINCT CONCAT(COALESCE(guest_contact,''), '|', COALESCE(guest_name,'')))
+        FROM payments WHERE customer_type = 'Walk-in'
+    ")->fetchColumn();
+    $stats['total_clients'] = $stats['total'] + $stats['total_walkins'];
 
     echo json_encode($stats);
 } catch(PDOException $e) {

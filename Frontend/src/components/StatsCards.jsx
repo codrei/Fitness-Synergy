@@ -1,62 +1,140 @@
 import React from "react";
 
 function StatsCards({ stats, theme, isDarkMode }) {
-  // Add fallback empty object if stats is null
-  const safeStats = stats || {};
+  const s = stats || {};
 
-  // Removed the Revenue card from this array
   const cards = [
-    { label: "Total Members", val: safeStats.total || "0", color: "#3b82f6" },
-    { label: "Active", val: safeStats.active || "0", color: theme.success },
-    { label: "Expired", val: safeStats.expired || "0", color: theme.danger },
+    {
+      label: "Total Clients",
+      val: s.total_clients ?? "—",
+      color: "#6366f1",
+      icon: "👥",
+      sub: "Members + Walk-ins",
+    },
+    {
+      label: "Total Members",
+      val: s.total ?? "0",
+      color: "#3b82f6",
+      icon: "🏋️",
+      sub: "Registered members",
+    },
+    {
+      label: "Walk-in Guests",
+      val: s.total_walkins ?? "0",
+      color: "#a855f7",
+      icon: "🚶",
+      sub: "Unique guests",
+    },
+    {
+      label: "Active",
+      val: s.active ?? "0",
+      color: "#22c55e",
+      icon: "✅",
+      sub: "Valid memberships",
+    },
+    {
+      label: "Expired",
+      val: s.expired ?? "0",
+      color: "#ef4444",
+      icon: "⚠️",
+      sub: "Needs renewal",
+    },
     {
       label: "Today's Visits",
-      val: safeStats.checkins || "0",
+      val: s.checkins ?? "0",
       color: "#f59e0b",
+      icon: "📍",
+      sub: "Check-ins today",
     },
   ];
 
+  const cardBase = {
+    borderRadius: "12px",
+    overflow: "hidden",
+    background: isDarkMode
+      ? "rgba(15, 23, 42, 0.72)"
+      : "rgba(255, 255, 255, 0.78)",
+    backdropFilter: "blur(14px)",
+    border: isDarkMode
+      ? "1px solid rgba(255,255,255,0.08)"
+      : "1px solid rgba(0,0,0,0.08)",
+    boxShadow: isDarkMode
+      ? "0 4px 20px rgba(0,0,0,0.3)"
+      : "0 4px 12px rgba(0,0,0,0.08)",
+  };
+
   return (
-    <div style={{ display: "flex", gap: "20px", marginBottom: "30px" }}>
-      {cards.map((s, i) => (
-        <div
-          key={i}
-          style={{
-            flex: 1,
-            backgroundColor: theme.surface,
-            padding: "20px",
-            borderRadius: "12px",
-            boxShadow: "0 4px 6px rgba(0,0,0,0.05)",
-            background:
-              isDarkMode
-                ? "rgba(15, 23, 42, 0.72)"
-                : "rgba(255, 255, 255, 0.78)",
-            backdropFilter: "blur(14px)",
-            border:
-              isDarkMode
-                ? "1px solid rgba(255,255,255,0.08)"
-                : "1px solid rgba(0,0,0,0.08)",
-          }}
-        >
+    <div
+      style={{
+        display: "grid",
+        gridTemplateColumns: "repeat(3, 1fr)",
+        gap: "16px",
+        marginBottom: "30px",
+      }}
+    >
+      {cards.map((card, i) => (
+        <div key={i} style={cardBase}>
           <div
             style={{
-              fontSize: "13px",
-              color: theme.textMuted,
-              fontWeight: "bold",
-              textTransform: "uppercase",
+              height: "3px",
+              background: `linear-gradient(90deg, ${card.color}, ${card.color}55)`,
             }}
-          >
-            {s.label}
-          </div>
-          <div
-            style={{
-              fontSize: "28px",
-              fontWeight: "900",
-              color: s.color,
-              marginTop: "8px",
-            }}
-          >
-            {s.val}
+          />
+          <div style={{ padding: "16px 20px 18px" }}>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                marginBottom: "10px",
+              }}
+            >
+              <span
+                style={{
+                  fontSize: "11px",
+                  color: theme.textMuted,
+                  fontWeight: "bold",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.6px",
+                }}
+              >
+                {card.label}
+              </span>
+              <span
+                style={{
+                  width: "32px",
+                  height: "32px",
+                  borderRadius: "8px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: "16px",
+                  backgroundColor: `${card.color}22`,
+                }}
+              >
+                {card.icon}
+              </span>
+            </div>
+            <div
+              style={{
+                fontSize: "34px",
+                fontWeight: "900",
+                color: card.color,
+                lineHeight: 1,
+              }}
+            >
+              {card.val}
+            </div>
+            <div
+              style={{
+                fontSize: "11px",
+                color: theme.textMuted,
+                marginTop: "6px",
+                opacity: 0.8,
+              }}
+            >
+              {card.sub}
+            </div>
           </div>
         </div>
       ))}
