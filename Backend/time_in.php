@@ -9,7 +9,7 @@ $data = json_decode(file_get_contents("php://input"));
 
 if (!empty($data->member_id)) {
     try {
-        $check_stmt = $conn->prepare("SELECT log_id FROM attendance WHERE member_id = :id AND DATE(time_in) = CURRENT_DATE() AND time_out IS NULL LIMIT 1");
+        $check_stmt = $conn->prepare("SELECT log_id FROM attendance WHERE member_id = :id AND DATE(time_in) = CURRENT_DATE() LIMIT 1");
         $check_stmt->execute([':id' => $data->member_id]);
 
         if ($check_stmt->rowCount() > 0) {
