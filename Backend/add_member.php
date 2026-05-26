@@ -18,17 +18,12 @@ if (!empty($data->full_name)) {
         $bonus_days   = !empty($data->bonus_days) ? (int)$data->bonus_days : 0;
         $custom_price = !empty($data->custom_price) ? (float)$data->custom_price : null; 
 
-        // PAYMENT METHOD BREAKDOWN
-        $cash_amount          = !empty($data->cash_amount)          ? (float)$data->cash_amount          : 0;
-        $gcash_amount         = !empty($data->gcash_amount)         ? (float)$data->gcash_amount         : 0;
-        $maya_amount          = !empty($data->maya_amount)          ? (float)$data->maya_amount          : 0;
-        $bank_transfer_amount = !empty($data->bank_transfer_amount) ? (float)$data->bank_transfer_amount : 0;
-        $debit_amount         = !empty($data->debit_amount)         ? (float)$data->debit_amount         : 0;
-        $credit_amount        = !empty($data->credit_amount)        ? (float)$data->credit_amount        : 0;
-        $reference_number     = !empty($data->reference_number)     ? $data->reference_number            : null;
-        $is_installment       = !empty($data->is_installment)       ? 1                                  : 0;
-        $installment_total    = !empty($data->installment_total)    ? (float)$data->installment_total    : 0;
-        $actual_paid          = $cash_amount + $gcash_amount + $maya_amount + $bank_transfer_amount + $debit_amount + $credit_amount;
+        // PAYMENT METHOD
+        $payment_method    = !empty($data->payment_method)    ? $data->payment_method                                        : 'Cash';
+        $payment_amount    = isset($data->payment_amount) && $data->payment_amount !== '' ? (float)$data->payment_amount : null;
+        $reference_number  = !empty($data->reference_number)  ? $data->reference_number                                      : null;
+        $is_installment    = !empty($data->is_installment)    ? 1                                                             : 0;
+        $installment_total = !empty($data->installment_total) ? (float)$data->installment_total                               : 0;
 
         // Fetch base duration days from the chosen plan tier
         $planQuery = $conn->prepare("SELECT duration_days FROM plans WHERE plan_id = :plan");
@@ -113,24 +108,17 @@ if (!empty($data->full_name)) {
         $paymentQuery = $conn->prepare("
             INSERT INTO payments
                 (member_id, customer_type, amount, payment_date, plan_id,
-                 cash_amount, gcash_amount, maya_amount, bank_transfer_amount,
-                 debit_amount, credit_amount, reference_number)
+                 payment_method, reference_number)
             VALUES
                 (:member_id, 'Member', :amount, CURRENT_DATE(), :plan_id,
-                 :cash, :gcash, :maya, :bank,
-                 :debit, :credit, :reference)
+                 :payment_method, :reference)
         ");
         $paymentQuery->execute([
-            ':member_id' => $new_member_id,
-            ':amount'    => ($is_installment && $actual_paid > 0) ? $actual_paid : $custom_price,
-            ':plan_id'   => $plan_id,
-            ':cash'      => $cash_amount,
-            ':gcash'     => $gcash_amount,
-            ':maya'      => $maya_amount,
-            ':bank'      => $bank_transfer_amount,
-            ':debit'     => $debit_amount,
-            ':credit'    => $credit_amount,
-            ':reference' => $reference_number,
+            ':member_id'      => $new_member_id,
+            ':amount'         => ($is_installment && $payment_amount !== null) ? $payment_amount : $custom_price,
+            ':plan_id'        => $plan_id,
+            ':payment_method' => $payment_method,
+            ':reference'      => $reference_number,
         ]);
         }
 

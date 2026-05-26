@@ -24,14 +24,6 @@ function WalkInModal({ theme, onClose, handleWalkInSubmit, walkInForm, setWalkIn
     boxSizing: "border-box",
   };
 
-  const total = (
-    parseFloat(walkInForm.cashAmount || 0) +
-    parseFloat(walkInForm.gcashAmount || 0) +
-    parseFloat(walkInForm.mayaAmount || 0) +
-    parseFloat(walkInForm.bankTransferAmount || 0) +
-    parseFloat(walkInForm.debitAmount || 0) +
-    parseFloat(walkInForm.creditAmount || 0)
-  ).toLocaleString("en-PH", { minimumFractionDigits: 2 });
 
   return (
     <div
@@ -150,7 +142,7 @@ function WalkInModal({ theme, onClose, handleWalkInSubmit, walkInForm, setWalkIn
               padding: "20px",
               display: "flex",
               flexDirection: "column",
-              gap: "18px",
+              gap: "15px",
               margin: "5px 0",
             }}
           >
@@ -165,102 +157,20 @@ function WalkInModal({ theme, onClose, handleWalkInSubmit, walkInForm, setWalkIn
               💳 PAYMENT DETAILS
             </legend>
 
-            <div
-              style={{
-                background: theme.bg,
-                borderRadius: 8,
-                padding: "12px 16px",
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                border: `1px solid ${theme.border}`,
-              }}
-            >
-              <span style={{ color: theme.textMuted, fontSize: 13 }}>Total Payment</span>
-              <span style={{ color: theme.primary, fontWeight: "bold", fontSize: 18 }}>
-                ₱{total}
-              </span>
-            </div>
-
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px" }}>
-              <div>
-                <label style={labelStyle}>💵 Cash</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  value={walkInForm.cashAmount}
-                  onChange={(e) => update("cashAmount", e.target.value)}
-                  placeholder="0.00"
-                  style={inputStyle}
-                />
-              </div>
-              <div>
-                <label style={labelStyle}>📱 GCash</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  value={walkInForm.gcashAmount}
-                  onChange={(e) => update("gcashAmount", e.target.value)}
-                  placeholder="0.00"
-                  style={inputStyle}
-                />
-              </div>
-            </div>
-
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px" }}>
-              <div>
-                <label style={labelStyle}>🟢 Maya</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  value={walkInForm.mayaAmount}
-                  onChange={(e) => update("mayaAmount", e.target.value)}
-                  placeholder="0.00"
-                  style={inputStyle}
-                />
-              </div>
-              <div>
-                <label style={labelStyle}>🏦 Bank Transfer</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  value={walkInForm.bankTransferAmount}
-                  onChange={(e) => update("bankTransferAmount", e.target.value)}
-                  placeholder="0.00"
-                  style={inputStyle}
-                />
-              </div>
-            </div>
-
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px" }}>
-              <div>
-                <label style={labelStyle}>💳 Debit Card</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  value={walkInForm.debitAmount}
-                  onChange={(e) => update("debitAmount", e.target.value)}
-                  placeholder="0.00"
-                  style={inputStyle}
-                />
-              </div>
-              <div>
-                <label style={labelStyle}>💳 Credit Card</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  value={walkInForm.creditAmount}
-                  onChange={(e) => update("creditAmount", e.target.value)}
-                  placeholder="0.00"
-                  style={inputStyle}
-                />
-              </div>
+            <div>
+              <label style={labelStyle}>💳 Payment Method</label>
+              <select
+                value={walkInForm.paymentMethod}
+                onChange={(e) => update("paymentMethod", e.target.value)}
+                style={inputStyle}
+              >
+                <option value="Cash">💵 Cash</option>
+                <option value="GCash">📱 GCash</option>
+                <option value="Maya">🟢 Maya</option>
+                <option value="Bank Transfer">🏦 Bank Transfer</option>
+                <option value="Debit Card">💳 Debit Card</option>
+                <option value="Credit Card">💳 Credit Card</option>
+              </select>
             </div>
 
             <div>

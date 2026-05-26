@@ -26,12 +26,7 @@ const WALKIN_FORM_DEFAULT = {
   guestContact: "",
   guestAddress: "",
   customPrice: "",
-  cashAmount: 0,
-  gcashAmount: 0,
-  mayaAmount: 0,
-  bankTransferAmount: 0,
-  debitAmount: 0,
-  creditAmount: 0,
+  paymentMethod: "Cash",
   referenceNumber: "",
 };
 
@@ -41,12 +36,8 @@ const RENEWAL_FORM_DEFAULT = {
   bonusDays: 0,
   isInstallment: false,
   installmentTotal: "",
-  cashAmount: 0,
-  gcashAmount: 0,
-  mayaAmount: 0,
-  bankTransferAmount: 0,
-  debitAmount: 0,
-  creditAmount: 0,
+  paymentMethod: "Cash",
+  paymentAmount: "",
   referenceNumber: "",
 };
 
@@ -69,12 +60,8 @@ const MEMBER_FORM_DEFAULT = {
   discountId: "",
   discountIdType: "",
   discountSchoolName: "",
-  cashAmount: 0,
-  gcashAmount: 0,
-  mayaAmount: 0,
-  bankTransferAmount: 0,
-  debitAmount: 0,
-  creditAmount: 0,
+  paymentMethod: "Cash",
+  paymentAmount: "",
   referenceNumber: "",
 };
 
@@ -289,18 +276,13 @@ function App() {
       const res = await apiFetch("add_walkin.php", {
         method: "POST",
         body: JSON.stringify({
-          guest_name:           walkInForm.guestName,
-          guest_age:            walkInForm.guestAge,
-          guest_contact:        walkInForm.guestContact,
-          guest_address:        walkInForm.guestAddress,
-          custom_price:         walkInForm.customPrice,
-          cash_amount:          walkInForm.cashAmount,
-          gcash_amount:         walkInForm.gcashAmount,
-          maya_amount:          walkInForm.mayaAmount,
-          bank_transfer_amount: walkInForm.bankTransferAmount,
-          debit_amount:         walkInForm.debitAmount,
-          credit_amount:        walkInForm.creditAmount,
-          reference_number:     walkInForm.referenceNumber,
+          guest_name:       walkInForm.guestName,
+          guest_age:        walkInForm.guestAge,
+          guest_contact:    walkInForm.guestContact,
+          guest_address:    walkInForm.guestAddress,
+          custom_price:     walkInForm.customPrice,
+          payment_method:   walkInForm.paymentMethod,
+          reference_number: walkInForm.referenceNumber,
         }),
       }).then((r) => r.json());
 
@@ -347,12 +329,8 @@ function App() {
           discount_id:              memberForm.discountId,
           discount_id_type:         memberForm.discountIdType,
           discount_school_name:     memberForm.discountSchoolName,
-          cash_amount:              memberForm.cashAmount,
-          gcash_amount:             memberForm.gcashAmount,
-          maya_amount:              memberForm.mayaAmount,
-          bank_transfer_amount:     memberForm.bankTransferAmount,
-          debit_amount:             memberForm.debitAmount,
-          credit_amount:            memberForm.creditAmount,
+          payment_method:           memberForm.paymentMethod,
+          payment_amount:           memberForm.paymentAmount,
           reference_number:         memberForm.referenceNumber,
           ...(editingId && { member_id: editingId }),
         }),
@@ -400,19 +378,15 @@ function App() {
       const res = await apiFetch("renew_member.php", {
         method: "POST",
         body: JSON.stringify({
-          member_id:            renewalMember.member_id,
-          plan_id:              renewalForm.planId,
-          custom_price:         renewalForm.customPrice,
-          bonus_days:           renewalForm.bonusDays,
-          is_installment:       renewalForm.isInstallment ? 1 : 0,
-          installment_total:    renewalForm.installmentTotal,
-          cash_amount:          renewalForm.cashAmount,
-          gcash_amount:         renewalForm.gcashAmount,
-          maya_amount:          renewalForm.mayaAmount,
-          bank_transfer_amount: renewalForm.bankTransferAmount,
-          debit_amount:         renewalForm.debitAmount,
-          credit_amount:        renewalForm.creditAmount,
-          reference_number:     renewalForm.referenceNumber,
+          member_id:         renewalMember.member_id,
+          plan_id:           renewalForm.planId,
+          custom_price:      renewalForm.customPrice,
+          bonus_days:        renewalForm.bonusDays,
+          is_installment:    renewalForm.isInstallment ? 1 : 0,
+          installment_total: renewalForm.installmentTotal,
+          payment_method:    renewalForm.paymentMethod,
+          payment_amount:    renewalForm.paymentAmount,
+          reference_number:  renewalForm.referenceNumber,
         }),
       }).then((r) => r.json());
 
@@ -530,17 +504,9 @@ function App() {
   };
 
   const printReceipt = (payment, member) => {
-    const rows = [
-      ["Cash",          payment.cash_amount],
-      ["GCash",         payment.gcash_amount],
-      ["Maya",          payment.maya_amount],
-      ["Bank Transfer", payment.bank_transfer_amount],
-      ["Debit Card",    payment.debit_amount],
-      ["Credit Card",   payment.credit_amount],
-    ]
-      .filter(([, v]) => parseFloat(v) > 0)
-      .map(([label, val]) => `<tr><td>${label}</td><td>₱${parseFloat(val).toLocaleString("en-PH", { minimumFractionDigits: 2 })}</td></tr>`)
-      .join("");
+    const rows = payment.payment_method
+      ? `<tr><td>${payment.payment_method}</td><td>₱${parseFloat(payment.amount).toLocaleString("en-PH", { minimumFractionDigits: 2 })}</td></tr>`
+      : "";
 
     const printedAt = new Date();
     const html = `<!DOCTYPE html><html><head><title>Receipt</title>

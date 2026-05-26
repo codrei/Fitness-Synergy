@@ -10,9 +10,7 @@ if (isset($_GET['id'])) {
     try {
         $query = $conn->prepare("
             SELECT p.payment_id, p.amount, p.payment_date,
-                   p.cash_amount, p.gcash_amount, p.maya_amount,
-                   p.bank_transfer_amount, p.debit_amount, p.credit_amount,
-                   p.reference_number, pl.plan_name
+                   p.payment_method, p.reference_number, pl.plan_name
             FROM payments p
             LEFT JOIN plans pl ON p.plan_id = pl.plan_id
             WHERE p.member_id = :id

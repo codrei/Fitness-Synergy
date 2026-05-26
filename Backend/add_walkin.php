@@ -19,13 +19,8 @@ try {
     $guest_address = !empty($data->guest_address)   ? trim($data->guest_address)  : null;
     $custom_price  = !empty($data->custom_price)    ? (float)$data->custom_price  : null;
 
-    $cash_amount          = !empty($data->cash_amount)          ? (float)$data->cash_amount          : 0;
-    $gcash_amount         = !empty($data->gcash_amount)         ? (float)$data->gcash_amount         : 0;
-    $maya_amount          = !empty($data->maya_amount)          ? (float)$data->maya_amount          : 0;
-    $bank_transfer_amount = !empty($data->bank_transfer_amount) ? (float)$data->bank_transfer_amount : 0;
-    $debit_amount         = !empty($data->debit_amount)         ? (float)$data->debit_amount         : 0;
-    $credit_amount        = !empty($data->credit_amount)        ? (float)$data->credit_amount        : 0;
-    $reference_number     = !empty($data->reference_number)     ? $data->reference_number            : null;
+    $payment_method   = !empty($data->payment_method)   ? $data->payment_method   : 'Cash';
+    $reference_number = !empty($data->reference_number) ? $data->reference_number : null;
 
     if ($custom_price === null) {
         $priceQuery = $conn->prepare("SELECT price FROM plans WHERE plan_id = 1");
@@ -36,27 +31,20 @@ try {
     $stmt = $conn->prepare("
         INSERT INTO payments
             (member_id, customer_type, guest_name, guest_age, guest_contact, guest_address,
-             plan_id, amount, cash_amount, gcash_amount, maya_amount, bank_transfer_amount,
-             debit_amount, credit_amount, reference_number, payment_date)
+             plan_id, amount, payment_method, reference_number, payment_date)
         VALUES
             (NULL, 'Walk-in', :guest_name, :guest_age, :guest_contact, :guest_address,
-             :plan_id, :amount, :cash, :gcash, :maya, :bank,
-             :debit, :credit, :reference, CURRENT_DATE())
+             :plan_id, :amount, :payment_method, :reference, CURRENT_DATE())
     ");
     $stmt->execute([
-        ':guest_name'    => $data->guest_name,
-        ':guest_age'     => $guest_age,
-        ':guest_contact' => $guest_contact,
-        ':guest_address' => $guest_address,
-        ':plan_id'       => $plan_id,
-        ':amount'        => $custom_price,
-        ':cash'          => $cash_amount,
-        ':gcash'         => $gcash_amount,
-        ':maya'          => $maya_amount,
-        ':bank'          => $bank_transfer_amount,
-        ':debit'         => $debit_amount,
-        ':credit'        => $credit_amount,
-        ':reference'     => $reference_number,
+        ':guest_name'     => $data->guest_name,
+        ':guest_age'      => $guest_age,
+        ':guest_contact'  => $guest_contact,
+        ':guest_address'  => $guest_address,
+        ':plan_id'        => $plan_id,
+        ':amount'         => $custom_price,
+        ':payment_method' => $payment_method,
+        ':reference'      => $reference_number,
     ]);
 
     // Check visit count only if contact number was provided

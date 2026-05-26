@@ -21,26 +21,22 @@ try {
         exit;
     }
 
+    $payment_method   = !empty($data->payment_method)   ? $data->payment_method   : 'Cash';
+    $reference_number = !empty($data->reference_number) ? $data->reference_number : null;
+
     $conn->prepare("
         INSERT INTO payments
             (member_id, customer_type, amount, payment_date, plan_id,
-             cash_amount, gcash_amount, maya_amount, bank_transfer_amount,
-             debit_amount, credit_amount, reference_number)
+             payment_method, reference_number)
         VALUES
             (:member_id, 'Member', :amount, CURRENT_DATE(), :plan_id,
-             :cash, :gcash, :maya, :bank,
-             :debit, :credit, :reference)
+             :payment_method, :reference)
     ")->execute([
-        ':member_id' => (int)$data->member_id,
-        ':amount'    => (float)$data->amount,
-        ':plan_id'   => $m['plan_id'],
-        ':cash'      => !empty($data->cash_amount)          ? (float)$data->cash_amount          : 0,
-        ':gcash'     => !empty($data->gcash_amount)         ? (float)$data->gcash_amount         : 0,
-        ':maya'      => !empty($data->maya_amount)          ? (float)$data->maya_amount          : 0,
-        ':bank'      => !empty($data->bank_transfer_amount) ? (float)$data->bank_transfer_amount : 0,
-        ':debit'     => !empty($data->debit_amount)         ? (float)$data->debit_amount         : 0,
-        ':credit'    => !empty($data->credit_amount)        ? (float)$data->credit_amount        : 0,
-        ':reference' => !empty($data->reference_number)     ? $data->reference_number            : null,
+        ':member_id'      => (int)$data->member_id,
+        ':amount'         => (float)$data->amount,
+        ':plan_id'        => $m['plan_id'],
+        ':payment_method' => $payment_method,
+        ':reference'      => $reference_number,
     ]);
 
     echo json_encode(["success" => true, "message" => "Installment payment recorded."]);

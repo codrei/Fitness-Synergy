@@ -17,9 +17,7 @@ $stmt = $conn->prepare("
         m.full_name, m.dob, m.discount_type,
         TIMESTAMPDIFF(YEAR, m.dob, CURDATE()) as age,
         pl.plan_name,
-        p.amount, p.cash_amount, p.gcash_amount, p.maya_amount,
-        p.bank_transfer_amount, p.debit_amount, p.credit_amount,
-        p.payment_method, p.reference_number,
+        p.amount, p.payment_method, p.reference_number,
         'Member' as customer_type
     FROM payments p
     LEFT JOIN members m ON p.member_id = m.member_id
@@ -39,9 +37,7 @@ $stmt2 = $conn->prepare("
         NULL as dob,
         CASE WHEN p.guest_age >= 60 THEN 'Senior' ELSE 'None' END as discount_type,
         pl.plan_name,
-        p.amount, p.cash_amount, p.gcash_amount, p.maya_amount,
-        p.bank_transfer_amount, p.debit_amount, p.credit_amount,
-        NULL as payment_method, p.reference_number,
+        p.amount, p.payment_method, p.reference_number,
         'Walk-in' as customer_type
     FROM payments p
     LEFT JOIN plans pl ON p.plan_id = pl.plan_id
@@ -84,6 +80,17 @@ $month_t   = (float) $conn->query("SELECT COALESCE(SUM(amount),0) FROM payments 
 $year_t    = (float) $conn->query("SELECT COALESCE(SUM(amount),0) FROM payments WHERE YEAR(payment_date) = YEAR(CURDATE())")->fetchColumn();
 $all_time  = (float) $conn->query("SELECT COALESCE(SUM(amount),0) FROM payments")->fetchColumn();
 
+// Payment method breakdown for selected month/year
+$method_stmt = $conn->prepare("
+    SELECT payment_method, SUM(amount) as total, COUNT(*) as count
+    FROM payments
+    WHERE MONTH(payment_date) = :month AND YEAR(payment_date) = :year
+    GROUP BY payment_method
+    ORDER BY total DESC
+");
+$method_stmt->execute([':month' => $month, ':year' => $year]);
+$method_breakdown = $method_stmt->fetchAll(PDO::FETCH_ASSOC);
+
 // Expenses for selected month/year (gracefully returns 0 if table doesn't exist)
 try {
     $exp_stmt = $conn->prepare("SELECT COALESCE(SUM(amount),0) FROM expenses WHERE MONTH(expense_date) = :month AND YEAR(expense_date) = :year");
@@ -106,6 +113,7 @@ echo json_encode([
     'walkin_payments'   => $walkin_payments,
     'monthly'           => $monthly,
     'yearly'            => $yearly,
+    'method_breakdown'  => $method_breakdown,
     'total'             => array_sum(array_column($all_payments, 'amount')),
     'selected_expenses' => $selected_expenses,
     'overview'          => [

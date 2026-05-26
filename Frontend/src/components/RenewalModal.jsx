@@ -8,14 +8,6 @@ function RenewalModal({ theme, member, plans, promos = [], renewalForm, setRenew
   const selectedPlanObj = membershipPlans.find((p) => String(p.plan_id) === String(renewalForm.planId));
   const isLongTermPlan = selectedPlanObj ? parseInt(selectedPlanObj.duration_days, 10) > 1 : false;
 
-  const total = (
-    parseFloat(renewalForm.cashAmount || 0) +
-    parseFloat(renewalForm.gcashAmount || 0) +
-    parseFloat(renewalForm.mayaAmount || 0) +
-    parseFloat(renewalForm.bankTransferAmount || 0) +
-    parseFloat(renewalForm.debitAmount || 0) +
-    parseFloat(renewalForm.creditAmount || 0)
-  ).toLocaleString("en-PH", { minimumFractionDigits: 2 });
 
   const labelStyle = {
     fontSize: "12px",
@@ -193,7 +185,7 @@ function RenewalModal({ theme, member, plans, promos = [], renewalForm, setRenew
               padding: "20px",
               display: "flex",
               flexDirection: "column",
-              gap: "18px",
+              gap: "15px",
               margin: "5px 0",
             }}
           >
@@ -208,103 +200,37 @@ function RenewalModal({ theme, member, plans, promos = [], renewalForm, setRenew
               💳 PAYMENT DETAILS
             </legend>
 
-            <div
-              style={{
-                background: theme.bg,
-                borderRadius: 8,
-                padding: "12px 16px",
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                border: `1px solid ${theme.border}`,
-              }}
-            >
-              <span style={{ color: theme.textMuted, fontSize: 13 }}>Total Payment</span>
-              <span style={{ color: theme.primary, fontWeight: "bold", fontSize: 18 }}>
-                ₱{total}
-              </span>
+            <div>
+              <label style={labelStyle}>💳 Payment Method</label>
+              <select
+                value={renewalForm.paymentMethod}
+                onChange={(e) => update("paymentMethod", e.target.value)}
+                style={inputStyle}
+              >
+                <option value="Cash">💵 Cash</option>
+                <option value="GCash">📱 GCash</option>
+                <option value="Maya">🟢 Maya</option>
+                <option value="Bank Transfer">🏦 Bank Transfer</option>
+                <option value="Debit Card">💳 Debit Card</option>
+                <option value="Credit Card">💳 Credit Card</option>
+              </select>
             </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px" }}>
+            {renewalForm.isInstallment && (
               <div>
-                <label style={labelStyle}>💵 Cash</label>
+                <label style={labelStyle}>💰 Downpayment Amount (₱)</label>
                 <input
                   type="number"
                   step="0.01"
                   min="0"
-                  value={renewalForm.cashAmount}
-                  onChange={(e) => update("cashAmount", e.target.value)}
-                  placeholder="0.00"
+                  required
+                  value={renewalForm.paymentAmount}
+                  onChange={(e) => update("paymentAmount", e.target.value)}
+                  placeholder="Amount paid today..."
                   style={inputStyle}
                 />
               </div>
-              <div>
-                <label style={labelStyle}>📱 GCash</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  value={renewalForm.gcashAmount}
-                  onChange={(e) => update("gcashAmount", e.target.value)}
-                  placeholder="0.00"
-                  style={inputStyle}
-                />
-              </div>
-            </div>
-
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px" }}>
-              <div>
-                <label style={labelStyle}>🟢 Maya</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  value={renewalForm.mayaAmount}
-                  onChange={(e) => update("mayaAmount", e.target.value)}
-                  placeholder="0.00"
-                  style={inputStyle}
-                />
-              </div>
-              <div>
-                <label style={labelStyle}>🏦 Bank Transfer</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  value={renewalForm.bankTransferAmount}
-                  onChange={(e) => update("bankTransferAmount", e.target.value)}
-                  placeholder="0.00"
-                  style={inputStyle}
-                />
-              </div>
-            </div>
-
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px" }}>
-              <div>
-                <label style={labelStyle}>💳 Debit Card</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  value={renewalForm.debitAmount}
-                  onChange={(e) => update("debitAmount", e.target.value)}
-                  placeholder="0.00"
-                  style={inputStyle}
-                />
-              </div>
-              <div>
-                <label style={labelStyle}>💳 Credit Card</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  value={renewalForm.creditAmount}
-                  onChange={(e) => update("creditAmount", e.target.value)}
-                  placeholder="0.00"
-                  style={inputStyle}
-                />
-              </div>
-            </div>
+            )}
 
             <div>
               <label style={labelStyle}>🔖 Reference Number</label>

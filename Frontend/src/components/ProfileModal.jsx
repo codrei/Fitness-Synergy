@@ -464,6 +464,11 @@ function ProfileModal({
                   <span style={{ color: theme.textMuted, marginLeft: "10px" }}>
                     {formatSafeDate(payment.payment_date)}
                   </span>
+                  {payment.payment_method && (
+                    <span style={{ color: theme.textMuted, marginLeft: "8px", fontSize: "12px" }}>
+                      · {payment.payment_method}
+                    </span>
+                  )}
                   {i === 0 && (
                     <span
                       style={{

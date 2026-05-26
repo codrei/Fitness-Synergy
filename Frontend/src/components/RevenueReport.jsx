@@ -144,12 +144,7 @@ function PaymentTable({ payments, theme }) {
               "Senior?",
               "Type",
               "Plan",
-              "Cash",
-              "GCash",
-              "Maya",
-              "Bank Transfer",
-              "Debit",
-              "Credit",
+              "Payment Method",
               "Total",
               "Reference",
             ].map((h) => (
@@ -266,64 +261,7 @@ function PaymentTable({ payments, theme }) {
                     fontSize: 12,
                   }}
                 >
-                  {parseFloat(p.cash_amount || 0) > 0
-                    ? fmtPHP(p.cash_amount)
-                    : "-"}
-                </td>
-                <td
-                  style={{
-                    padding: "10px 12px",
-                    color: theme.text,
-                    fontSize: 12,
-                  }}
-                >
-                  {parseFloat(p.gcash_amount || 0) > 0
-                    ? fmtPHP(p.gcash_amount)
-                    : "-"}
-                </td>
-                <td
-                  style={{
-                    padding: "10px 12px",
-                    color: theme.text,
-                    fontSize: 12,
-                  }}
-                >
-                  {parseFloat(p.maya_amount || 0) > 0
-                    ? fmtPHP(p.maya_amount)
-                    : "-"}
-                </td>
-                <td
-                  style={{
-                    padding: "10px 12px",
-                    color: theme.text,
-                    fontSize: 12,
-                  }}
-                >
-                  {parseFloat(p.bank_transfer_amount || 0) > 0
-                    ? fmtPHP(p.bank_transfer_amount)
-                    : "-"}
-                </td>
-                <td
-                  style={{
-                    padding: "10px 12px",
-                    color: theme.text,
-                    fontSize: 12,
-                  }}
-                >
-                  {parseFloat(p.debit_amount || 0) > 0
-                    ? fmtPHP(p.debit_amount)
-                    : "-"}
-                </td>
-                <td
-                  style={{
-                    padding: "10px 12px",
-                    color: theme.text,
-                    fontSize: 12,
-                  }}
-                >
-                  {parseFloat(p.credit_amount || 0) > 0
-                    ? fmtPHP(p.credit_amount)
-                    : "-"}
+                  {p.payment_method || "—"}
                 </td>
                 <td
                   style={{
@@ -398,23 +336,7 @@ export default function RevenueReport({ theme, activeTab }) {
       ["FITNESS SYNERGY LIPA - GYM SYSTEM"],
       [`${sheetName} — ${monthName} ${year}`],
       [],
-      [
-        "#",
-        "Date",
-        "Name",
-        "Age",
-        "Senior?",
-        "Type",
-        "Plan",
-        "Cash",
-        "GCash",
-        "Maya",
-        "Bank Transfer",
-        "Debit",
-        "Credit",
-        "Total",
-        "Reference",
-      ],
+      ["#", "Date", "Name", "Age", "Senior?", "Type", "Plan", "Payment Method", "Total", "Reference"],
       ...rows.map((p, i) => {
         const age = p.age ?? calcAge(p.dob);
         const senior = isSenior(age, p.discount_type);
@@ -426,34 +348,13 @@ export default function RevenueReport({ theme, activeTab }) {
           senior ? "Yes" : "No",
           p.customer_type || "Member",
           p.plan_name || "-",
-          parseFloat(p.cash_amount || 0),
-          parseFloat(p.gcash_amount || 0),
-          parseFloat(p.maya_amount || 0),
-          parseFloat(p.bank_transfer_amount || 0),
-          parseFloat(p.debit_amount || 0),
-          parseFloat(p.credit_amount || 0),
+          p.payment_method || "Cash",
           parseFloat(p.amount || 0),
           p.reference_number || "-",
         ];
       }),
       [],
-      [
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "TOTAL",
-        rows.reduce((s, p) => s + parseFloat(p.cash_amount || 0), 0),
-        rows.reduce((s, p) => s + parseFloat(p.gcash_amount || 0), 0),
-        rows.reduce((s, p) => s + parseFloat(p.maya_amount || 0), 0),
-        rows.reduce((s, p) => s + parseFloat(p.bank_transfer_amount || 0), 0),
-        rows.reduce((s, p) => s + parseFloat(p.debit_amount || 0), 0),
-        rows.reduce((s, p) => s + parseFloat(p.credit_amount || 0), 0),
-        rows.reduce((s, p) => s + parseFloat(p.amount || 0), 0),
-        "",
-      ],
+      ["", "", "", "", "", "", "TOTAL", "", rows.reduce((s, p) => s + parseFloat(p.amount || 0), 0), ""],
     ];
     const ws = XLSX.utils.aoa_to_sheet(wsData);
     ws["!cols"] = [
@@ -464,12 +365,7 @@ export default function RevenueReport({ theme, activeTab }) {
       { wch: 8 },
       { wch: 9 },
       { wch: 24 },
-      { wch: 12 },
-      { wch: 12 },
-      { wch: 12 },
-      { wch: 14 },
-      { wch: 12 },
-      { wch: 12 },
+      { wch: 16 },
       { wch: 14 },
       { wch: 18 },
     ];
@@ -500,17 +396,12 @@ export default function RevenueReport({ theme, activeTab }) {
       <div class="badge">TOTAL REVENUE: ₱${total.toLocaleString("en-PH", { minimumFractionDigits: 2 })}</div>
       <table><thead><tr>
         <th>#</th><th>Date</th><th>Name</th><th>Age</th><th>Senior?</th>
-        <th>Type</th><th>Plan</th><th>Cash</th><th>GCash</th><th>Maya</th>
-        <th>Bank Transfer</th><th>Debit</th><th>Credit</th><th>Total</th><th>Reference</th>
+        <th>Type</th><th>Plan</th><th>Payment Method</th><th>Total</th><th>Reference</th>
       </tr></thead><tbody>
       ${rows
         .map((p, i) => {
           const age = p.age ?? calcAge(p.dob);
           const senior = isSenior(age, p.discount_type);
-          const fmt = (n) =>
-            parseFloat(n || 0) > 0
-              ? `₱${parseFloat(n || 0).toLocaleString("en-PH", { minimumFractionDigits: 2 })}`
-              : "-";
           return `<tr>
           <td>${i + 1}</td><td>${p.payment_date || ""}</td>
           <td>${p.full_name || "Guest"}</td>
@@ -518,10 +409,7 @@ export default function RevenueReport({ theme, activeTab }) {
           <td class="${senior ? "senior" : ""}">${senior ? "✓ Yes" : "No"}</td>
           <td class="${p.customer_type === "Walk-in" ? "walkin" : ""}">${p.customer_type || "Member"}</td>
           <td>${p.plan_name || "-"}</td>
-          <td>${fmt(p.cash_amount)}</td><td>${fmt(p.gcash_amount)}</td>
-          <td>${fmt(p.maya_amount)}</td><td>${fmt(p.bank_transfer_amount)}</td>
-          <td>${fmt(p.debit_amount)}</td>
-          <td>${fmt(p.credit_amount)}</td>
+          <td>${p.payment_method || "Cash"}</td>
           <td><strong>₱${parseFloat(p.amount || 0).toLocaleString("en-PH", { minimumFractionDigits: 2 })}</strong></td>
           <td>${p.reference_number || "-"}</td>
         </tr>`;
@@ -529,12 +417,6 @@ export default function RevenueReport({ theme, activeTab }) {
         .join("")}
       <tr class="total-row">
         <td colspan="8" style="text-align:right">TOTAL:</td>
-        <td>₱${rows.reduce((s, p) => s + parseFloat(p.cash_amount || 0), 0).toLocaleString("en-PH", { minimumFractionDigits: 2 })}</td>
-        <td>₱${rows.reduce((s, p) => s + parseFloat(p.gcash_amount || 0), 0).toLocaleString("en-PH", { minimumFractionDigits: 2 })}</td>
-        <td>₱${rows.reduce((s, p) => s + parseFloat(p.maya_amount || 0), 0).toLocaleString("en-PH", { minimumFractionDigits: 2 })}</td>
-        <td>₱${rows.reduce((s, p) => s + parseFloat(p.bank_transfer_amount || 0), 0).toLocaleString("en-PH", { minimumFractionDigits: 2 })}</td>
-        <td>₱${rows.reduce((s, p) => s + parseFloat(p.debit_amount || 0), 0).toLocaleString("en-PH", { minimumFractionDigits: 2 })}</td>
-        <td>₱${rows.reduce((s, p) => s + parseFloat(p.credit_amount || 0), 0).toLocaleString("en-PH", { minimumFractionDigits: 2 })}</td>
         <td><strong>₱${total.toLocaleString("en-PH", { minimumFractionDigits: 2 })}</strong></td>
         <td></td>
       </tr>
@@ -551,16 +433,13 @@ export default function RevenueReport({ theme, activeTab }) {
     const total = rows.reduce((s, p) => s + parseFloat(p.amount || 0), 0);
     const memRows = rows.filter((p) => p.customer_type === "Member");
     const wiRows = rows.filter((p) => p.customer_type === "Walk-in");
-    const methods = [
-      ["Cash", "cash_amount"],
-      ["GCash", "gcash_amount"],
-      ["Maya", "maya_amount"],
-      ["Bank Transfer", "bank_transfer_amount"],
-      ["Debit", "debit_amount"],
-      ["Credit", "credit_amount"],
-    ]
-      .map(([label, key]) => [label, rows.reduce((s, p) => s + parseFloat(p[key] || 0), 0)])
-      .filter(([, v]) => v > 0);
+    const methods = Object.entries(
+      rows.reduce((acc, p) => {
+        const m = p.payment_method || "Cash";
+        acc[m] = (acc[m] || 0) + parseFloat(p.amount || 0);
+        return acc;
+      }, {})
+    ).filter(([, v]) => v > 0);
     const dateLabel = new Date(date + "T00:00:00").toLocaleDateString("en-PH", {
       weekday: "long", year: "numeric", month: "long", day: "numeric",
     });
@@ -672,60 +551,26 @@ export default function RevenueReport({ theme, activeTab }) {
     </div>
   );
 
-  const totalCard = (rows, label) => (
-    <div
-      style={{ display: "flex", gap: 16, flexWrap: "wrap", marginBottom: 24 }}
-    >
-      <StatCard
-        label={label}
-        value={fmtPHP(rows.reduce((s, p) => s + parseFloat(p.amount || 0), 0))}
-        sub={`${rows.length} transaction(s)`}
-        theme={theme}
-      />
-      <StatCard
-        label="Cash"
-        value={fmtPHP(
-          rows.reduce((s, p) => s + parseFloat(p.cash_amount || 0), 0),
-        )}
-        theme={theme}
-      />
-      <StatCard
-        label="GCash"
-        value={fmtPHP(
-          rows.reduce((s, p) => s + parseFloat(p.gcash_amount || 0), 0),
-        )}
-        theme={theme}
-      />
-      <StatCard
-        label="Maya"
-        value={fmtPHP(
-          rows.reduce((s, p) => s + parseFloat(p.maya_amount || 0), 0),
-        )}
-        theme={theme}
-      />
-      <StatCard
-        label="Bank Transfer"
-        value={fmtPHP(
-          rows.reduce((s, p) => s + parseFloat(p.bank_transfer_amount || 0), 0),
-        )}
-        theme={theme}
-      />
-      <StatCard
-        label="Debit"
-        value={fmtPHP(
-          rows.reduce((s, p) => s + parseFloat(p.debit_amount || 0), 0),
-        )}
-        theme={theme}
-      />
-      <StatCard
-        label="Credit"
-        value={fmtPHP(
-          rows.reduce((s, p) => s + parseFloat(p.credit_amount || 0), 0),
-        )}
-        theme={theme}
-      />
-    </div>
-  );
+  const totalCard = (rows, label) => {
+    const methodTotals = rows.reduce((acc, p) => {
+      const m = p.payment_method || "Cash";
+      acc[m] = (acc[m] || 0) + parseFloat(p.amount || 0);
+      return acc;
+    }, {});
+    return (
+      <div style={{ display: "flex", gap: 16, flexWrap: "wrap", marginBottom: 24 }}>
+        <StatCard
+          label={label}
+          value={fmtPHP(rows.reduce((s, p) => s + parseFloat(p.amount || 0), 0))}
+          sub={`${rows.length} transaction(s)`}
+          theme={theme}
+        />
+        {Object.entries(methodTotals).map(([method, total]) => (
+          <StatCard key={method} label={method} value={fmtPHP(total)} theme={theme} />
+        ))}
+      </div>
+    );
+  };
 
   // OVERVIEW
   if (activeTab === "revenue-overview") {
@@ -924,16 +769,13 @@ export default function RevenueReport({ theme, activeTab }) {
         {/* Daily Summary Card — shown when a specific date is selected */}
         {dayFilter && (() => {
           const dayTotal = filteredRows.reduce((s, p) => s + parseFloat(p.amount || 0), 0);
-          const methodBreakdown = [
-            ["💵 Cash", "cash_amount"],
-            ["📱 GCash", "gcash_amount"],
-            ["🟢 Maya", "maya_amount"],
-            ["🏦 Bank Transfer", "bank_transfer_amount"],
-            ["💳 Debit", "debit_amount"],
-            ["💳 Credit", "credit_amount"],
-          ]
-            .map(([label, key]) => [label, filteredRows.reduce((s, p) => s + parseFloat(p[key] || 0), 0)])
-            .filter(([, v]) => v > 0);
+          const methodBreakdown = Object.entries(
+            filteredRows.reduce((acc, p) => {
+              const m = p.payment_method || "Cash";
+              acc[m] = (acc[m] || 0) + parseFloat(p.amount || 0);
+              return acc;
+            }, {})
+          ).filter(([, v]) => v > 0);
           return (
             <div style={{ background: theme.surface, border: `2px solid ${theme.primary}`, borderRadius: 12, padding: 24, marginBottom: 24 }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20 }}>

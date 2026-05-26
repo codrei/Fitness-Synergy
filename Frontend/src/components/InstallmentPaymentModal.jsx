@@ -3,8 +3,8 @@ import { apiFetch } from "../api";
 
 function InstallmentPaymentModal({ theme, member, paymentHistory, onSuccess, onClose }) {
   const [form, setForm] = useState({
-    cashAmount: 0, gcashAmount: 0, mayaAmount: 0,
-    bankTransferAmount: 0, debitAmount: 0, creditAmount: 0,
+    paymentMethod: "Cash",
+    amount: "",
     referenceNumber: "",
   });
   const [error, setError] = useState("");
@@ -19,32 +19,21 @@ function InstallmentPaymentModal({ theme, member, paymentHistory, onSuccess, onC
   const installmentTotal = parseFloat(member.installment_total || 0);
   const outstanding = Math.max(0, installmentTotal - totalPaid);
 
-  const thisPayment =
-    parseFloat(form.cashAmount || 0) +
-    parseFloat(form.gcashAmount || 0) +
-    parseFloat(form.mayaAmount || 0) +
-    parseFloat(form.bankTransferAmount || 0) +
-    parseFloat(form.debitAmount || 0) +
-    parseFloat(form.creditAmount || 0);
+  const thisPayment = parseFloat(form.amount || 0);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-    if (thisPayment <= 0) { setError("Enter at least one payment amount."); return; }
+    if (thisPayment <= 0) { setError("Enter a payment amount greater than zero."); return; }
     setSaving(true);
     try {
       const res = await apiFetch("add_installment_payment.php", {
         method: "POST",
         body: JSON.stringify({
-          member_id:            member.member_id,
-          amount:               thisPayment,
-          cash_amount:          parseFloat(form.cashAmount || 0),
-          gcash_amount:         parseFloat(form.gcashAmount || 0),
-          maya_amount:          parseFloat(form.mayaAmount || 0),
-          bank_transfer_amount: parseFloat(form.bankTransferAmount || 0),
-          debit_amount:         parseFloat(form.debitAmount || 0),
-          credit_amount:        parseFloat(form.creditAmount || 0),
-          reference_number:     form.referenceNumber || null,
+          member_id:        member.member_id,
+          amount:           thisPayment,
+          payment_method:   form.paymentMethod,
+          reference_number: form.referenceNumber || null,
         }),
       }).then((r) => r.json());
       if (res.success) onSuccess();
@@ -107,32 +96,19 @@ function InstallmentPaymentModal({ theme, member, paymentHistory, onSuccess, onC
         <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
             <div>
-              <label style={labelStyle}>💵 Cash</label>
-              <input type="number" step="0.01" min="0" value={form.cashAmount} onChange={(e) => update("cashAmount", e.target.value)} placeholder="0.00" style={inputStyle} />
+              <label style={labelStyle}>💳 Payment Method</label>
+              <select value={form.paymentMethod} onChange={(e) => update("paymentMethod", e.target.value)} style={inputStyle}>
+                <option value="Cash">💵 Cash</option>
+                <option value="GCash">📱 GCash</option>
+                <option value="Maya">🟢 Maya</option>
+                <option value="Bank Transfer">🏦 Bank Transfer</option>
+                <option value="Debit Card">💳 Debit Card</option>
+                <option value="Credit Card">💳 Credit Card</option>
+              </select>
             </div>
             <div>
-              <label style={labelStyle}>📱 GCash</label>
-              <input type="number" step="0.01" min="0" value={form.gcashAmount} onChange={(e) => update("gcashAmount", e.target.value)} placeholder="0.00" style={inputStyle} />
-            </div>
-          </div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
-            <div>
-              <label style={labelStyle}>🟢 Maya</label>
-              <input type="number" step="0.01" min="0" value={form.mayaAmount} onChange={(e) => update("mayaAmount", e.target.value)} placeholder="0.00" style={inputStyle} />
-            </div>
-            <div>
-              <label style={labelStyle}>🏦 Bank Transfer</label>
-              <input type="number" step="0.01" min="0" value={form.bankTransferAmount} onChange={(e) => update("bankTransferAmount", e.target.value)} placeholder="0.00" style={inputStyle} />
-            </div>
-          </div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
-            <div>
-              <label style={labelStyle}>💳 Debit Card</label>
-              <input type="number" step="0.01" min="0" value={form.debitAmount} onChange={(e) => update("debitAmount", e.target.value)} placeholder="0.00" style={inputStyle} />
-            </div>
-            <div>
-              <label style={labelStyle}>💳 Credit Card</label>
-              <input type="number" step="0.01" min="0" value={form.creditAmount} onChange={(e) => update("creditAmount", e.target.value)} placeholder="0.00" style={inputStyle} />
+              <label style={labelStyle}>💵 Amount (₱)</label>
+              <input type="number" step="0.01" min="0" required value={form.amount} onChange={(e) => update("amount", e.target.value)} placeholder="0.00" style={inputStyle} />
             </div>
           </div>
           <div>

@@ -42,14 +42,6 @@ function AddEditModal({
     transition: "border-color 0.2s ease",
   };
 
-  const total = (
-    parseFloat(memberForm.cashAmount || 0) +
-    parseFloat(memberForm.gcashAmount || 0) +
-    parseFloat(memberForm.mayaAmount || 0) +
-    parseFloat(memberForm.bankTransferAmount || 0) +
-    parseFloat(memberForm.debitAmount || 0) +
-    parseFloat(memberForm.creditAmount || 0)
-  ).toLocaleString("en-PH", { minimumFractionDigits: 2 });
 
   return (
     <div
@@ -455,163 +447,73 @@ function AddEditModal({
             </fieldset>
           )}
 
-          <fieldset
-            style={{
-              border: `1px dashed ${theme.border}`,
-              borderRadius: "8px",
-              padding: "20px",
-              display: "flex",
-              flexDirection: "column",
-              gap: "18px",
-              margin: "5px 0",
-            }}
-          >
-            <legend
+          {!editingId && (
+            <fieldset
               style={{
-                color: theme.primary,
-                fontWeight: "bold",
-                fontSize: "12px",
-                padding: "0 8px",
-              }}
-            >
-              💳 PAYMENT DETAILS
-            </legend>
-
-            <div
-              style={{
-                background: theme.bg,
-                borderRadius: 8,
-                padding: "12px 16px",
+                border: `1px dashed ${theme.border}`,
+                borderRadius: "8px",
+                padding: "20px",
                 display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                border: `1px solid ${theme.border}`,
+                flexDirection: "column",
+                gap: "15px",
+                margin: "5px 0",
               }}
             >
-              <span style={{ color: theme.textMuted, fontSize: 13 }}>
-                Total Payment
-              </span>
-              <span
+              <legend
                 style={{
                   color: theme.primary,
                   fontWeight: "bold",
-                  fontSize: 18,
+                  fontSize: "12px",
+                  padding: "0 8px",
                 }}
               >
-                ₱{total}
-              </span>
-            </div>
+                💳 PAYMENT DETAILS
+              </legend>
 
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "1fr 1fr",
-                gap: "15px",
-              }}
-            >
               <div>
-                <label style={labelStyle}>💵 Cash</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  value={memberForm.cashAmount}
-                  onChange={(e) => update("cashAmount", e.target.value)}
-                  placeholder="0.00"
+                <label style={labelStyle}>💳 Payment Method</label>
+                <select
+                  value={memberForm.paymentMethod}
+                  onChange={(e) => update("paymentMethod", e.target.value)}
                   style={inputStyle}
-                />
+                >
+                  <option value="Cash">💵 Cash</option>
+                  <option value="GCash">📱 GCash</option>
+                  <option value="Maya">🟢 Maya</option>
+                  <option value="Bank Transfer">🏦 Bank Transfer</option>
+                  <option value="Debit Card">💳 Debit Card</option>
+                  <option value="Credit Card">💳 Credit Card</option>
+                </select>
               </div>
-              <div>
-                <label style={labelStyle}>📱 GCash</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  value={memberForm.gcashAmount}
-                  onChange={(e) => update("gcashAmount", e.target.value)}
-                  placeholder="0.00"
-                  style={inputStyle}
-                />
-              </div>
-            </div>
 
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "1fr 1fr",
-                gap: "15px",
-              }}
-            >
-              <div>
-                <label style={labelStyle}>🟢 Maya</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  value={memberForm.mayaAmount}
-                  onChange={(e) => update("mayaAmount", e.target.value)}
-                  placeholder="0.00"
-                  style={inputStyle}
-                />
-              </div>
-              <div>
-                <label style={labelStyle}>🏦 Bank Transfer</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  value={memberForm.bankTransferAmount}
-                  onChange={(e) => update("bankTransferAmount", e.target.value)}
-                  placeholder="0.00"
-                  style={inputStyle}
-                />
-              </div>
-            </div>
+              {memberForm.isInstallment && (
+                <div>
+                  <label style={labelStyle}>💰 Downpayment Amount (₱)</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    required
+                    value={memberForm.paymentAmount}
+                    onChange={(e) => update("paymentAmount", e.target.value)}
+                    placeholder="Amount paid today..."
+                    style={inputStyle}
+                  />
+                </div>
+              )}
 
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "1fr 1fr",
-                gap: "15px",
-              }}
-            >
               <div>
-                <label style={labelStyle}>💳 Debit Card</label>
+                <label style={labelStyle}>🔖 Reference Number</label>
                 <input
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  value={memberForm.debitAmount}
-                  onChange={(e) => update("debitAmount", e.target.value)}
-                  placeholder="0.00"
+                  type="text"
+                  value={memberForm.referenceNumber}
+                  onChange={(e) => update("referenceNumber", e.target.value)}
+                  placeholder="e.g., GCash ref #"
                   style={inputStyle}
                 />
               </div>
-              <div>
-                <label style={labelStyle}>💳 Credit Card</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  value={memberForm.creditAmount}
-                  onChange={(e) => update("creditAmount", e.target.value)}
-                  placeholder="0.00"
-                  style={inputStyle}
-                />
-              </div>
-            </div>
-
-            <div>
-              <label style={labelStyle}>🔖 Reference Number</label>
-              <input
-                type="text"
-                value={memberForm.referenceNumber}
-                onChange={(e) => update("referenceNumber", e.target.value)}
-                placeholder="e.g., GCash ref #"
-                style={inputStyle}
-              />
-            </div>
-          </fieldset>
+            </fieldset>
+          )}
 
           <button
             type="submit"
