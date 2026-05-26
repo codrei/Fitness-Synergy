@@ -12,6 +12,7 @@ function Sidebar({
   currentView,
   setCurrentView,
 }) {
+  const [registerOpen, setRegisterOpen] = useState(false);
   const [revenueOpen, setRevenueOpen] = useState(
     currentView.startsWith("revenue"),
   );
@@ -107,20 +108,37 @@ function Sidebar({
           overflowY: "auto",
         }}
       >
-        <button onClick={openAddModal} style={navBtn("none")}>
-          ➕ Register Member
-        </button>
-
-        <button onClick={openWalkInModal} style={navBtn("none")}>
-          🚶 Walk-in Guest
-        </button>
-
         <button
           onClick={() => setCurrentView("dashboard")}
           style={navBtn("dashboard")}
         >
           📊 Dashboard
         </button>
+
+        {/* Register expandable */}
+        <button
+          onClick={() => setRegisterOpen(!registerOpen)}
+          style={{
+            ...navBtn("none"),
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          <span>➕ Register</span>
+          <span style={{ fontSize: 11 }}>{registerOpen ? "▲" : "▼"}</span>
+        </button>
+
+        {registerOpen && (
+          <div style={{ display: "flex", flexDirection: "column", gap: "2px", marginBottom: "4px" }}>
+            <button onClick={openAddModal} style={subBtn("_never_")}>
+              👤 Membership
+            </button>
+            <button onClick={openWalkInModal} style={subBtn("_never_")}>
+              🚶 Walk-in Guest
+            </button>
+          </div>
+        )}
 
         {/* Revenue Report expandable */}
         <button
