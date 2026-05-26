@@ -87,6 +87,8 @@ function RenewalModal({ theme, member, plans, promos = [], renewalForm, setRenew
                   ...f,
                   planId: id,
                   customPrice: matched ? matched.price : f.customPrice,
+                  promoId: "",
+                  bonusDays: 0,
                 }));
               }}
               required
@@ -107,17 +109,39 @@ function RenewalModal({ theme, member, plans, promos = [], renewalForm, setRenew
             <div>
               <label style={labelStyle}>🎁 Apply Promo (Optional)</label>
               <select
-                defaultValue=""
+                value={renewalForm.promoId || ""}
                 onChange={(e) => {
-                  const p = promos.find((pr) => String(pr.promo_id) === e.target.value);
-                  update("bonusDays", p ? p.bonus_days : 0);
+                  const id = e.target.value;
+                  const p = promos.find((pr) => String(pr.promo_id) === id);
+                  if (!p) {
+                    setRenewalForm((f) => ({ ...f, promoId: "", bonusDays: 0, customPrice: selectedPlanObj ? selectedPlanObj.price : f.customPrice }));
+                    return;
+                  }
+                  const basePrice = parseFloat(selectedPlanObj?.price || 0);
+                  const discount = parseFloat(p.discount_amount || 0);
+                  setRenewalForm((f) => ({
+                    ...f,
+                    promoId: id,
+                    bonusDays: p.bonus_days,
+                    customPrice: p.is_free == 1
+                      ? "0"
+                      : discount > 0
+                        ? String(Math.max(0, basePrice - discount))
+                        : selectedPlanObj ? selectedPlanObj.price : f.customPrice,
+                  }));
                 }}
                 style={inputStyle}
               >
                 <option value="">— No Promo —</option>
                 {promos.map((p) => (
                   <option key={p.promo_id} value={p.promo_id}>
-                    {p.promo_name} (+{p.bonus_days} days)
+                    {p.is_free == 1
+                      ? `${p.promo_name} (FREE)`
+                      : parseInt(p.bonus_days) > 0 && parseFloat(p.discount_amount) > 0
+                        ? `${p.promo_name} (+${p.bonus_days} days, ₱${p.discount_amount} off)`
+                        : parseInt(p.bonus_days) > 0
+                          ? `${p.promo_name} (+${p.bonus_days} days)`
+                          : `${p.promo_name} (₱${p.discount_amount} off)`}
                   </option>
                 ))}
               </select>

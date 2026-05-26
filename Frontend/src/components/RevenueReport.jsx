@@ -305,7 +305,7 @@ export default function RevenueReport({ theme, activeTab }) {
   const [loading, setLoading] = useState(false);
   const [month, setMonth] = useState(new Date().getMonth() + 1);
   const [year, setYear] = useState(new Date().getFullYear());
-  const [dayFilter, setDayFilter] = useState("");
+  const [dayFilter, setDayFilter] = useState(new Date().toISOString().slice(0, 10));
   const [weeklyTarget, setWeeklyTarget] = useState(() =>
     parseFloat(localStorage.getItem("fitness_synergy_weekly_target") || "0")
   );
@@ -324,6 +324,16 @@ export default function RevenueReport({ theme, activeTab }) {
   }, []);
   const [editingTarget, setEditingTarget] = useState(false);
   const [targetInput, setTargetInput] = useState("");
+
+  useEffect(() => {
+    if (activeTab === "revenue-daily") {
+      const t = new Date().toISOString().slice(0, 10);
+      const [y, m] = t.split("-");
+      setDayFilter(t);
+      setYear(Number(y));
+      setMonth(Number(m));
+    }
+  }, [activeTab]);
 
   const fetchAll = async () => {
     setLoading(true);

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { apiFetch } from "../api";
 
-const EMPTY = { promo_name: "", bonus_days: "", description: "" };
+const EMPTY = { promo_name: "", bonus_days: "0", discount_amount: "", is_free: false, description: "" };
 
 function PromosManager({ theme }) {
   const [promos, setPromos] = useState([]);
@@ -18,7 +18,7 @@ function PromosManager({ theme }) {
   useEffect(() => { load(); }, []);
 
   const openAdd  = ()     => setModal({ mode: "add",  form: { ...EMPTY } });
-  const openEdit = (p)    => setModal({ mode: "edit", form: { promo_id: p.promo_id, promo_name: p.promo_name, bonus_days: p.bonus_days, description: p.description || "" } });
+  const openEdit = (p)    => setModal({ mode: "edit", form: { promo_id: p.promo_id, promo_name: p.promo_name, bonus_days: p.bonus_days, discount_amount: p.discount_amount || "", is_free: p.is_free == 1, description: p.description || "" } });
   const closeModal = ()   => { setModal(null); setError(""); };
 
   const handleSave = async (e) => {
@@ -36,11 +36,13 @@ function PromosManager({ theme }) {
     const res = await apiFetch("update_promo.php", {
       method: "POST",
       body: JSON.stringify({
-        promo_id:    promo.promo_id,
-        promo_name:  promo.promo_name,
-        bonus_days:  promo.bonus_days,
-        description: promo.description || "",
-        is_active:   promo.is_active == 1 ? 0 : 1,
+        promo_id:        promo.promo_id,
+        promo_name:      promo.promo_name,
+        bonus_days:      promo.bonus_days,
+        discount_amount: promo.discount_amount || 0,
+        is_free:         promo.is_free || 0,
+        description:     promo.description || "",
+        is_active:       promo.is_active == 1 ? 0 : 1,
       }),
     }).then((r) => r.json());
     setToggling(null);
@@ -86,7 +88,7 @@ function PromosManager({ theme }) {
         <table style={{ width: "100%", borderCollapse: "collapse" }}>
           <thead>
             <tr style={{ background: theme.sidebar }}>
-              {["Promo Name", "Bonus Days", "Description", "Status", ""].map((h) => (
+              {["Promo Name", "Benefits", "Description", "Status", ""].map((h) => (
                 <th key={h} style={{ padding: "13px 20px", textAlign: "left", color: theme.textMuted, fontSize: "12px", textTransform: "uppercase" }}>{h}</th>
               ))}
             </tr>
@@ -98,8 +100,19 @@ function PromosManager({ theme }) {
             {promos.map((promo, i) => (
               <tr key={promo.promo_id} style={{ borderTop: `1px solid ${theme.border}`, background: i % 2 !== 0 ? `${theme.border}22` : "transparent" }}>
                 <td style={{ padding: "14px 20px", fontWeight: "bold" }}>{promo.promo_name}</td>
-                <td style={{ padding: "14px 20px", color: theme.primary, fontWeight: "bold" }}>
-                  +{promo.bonus_days} day{promo.bonus_days != 1 ? "s" : ""}
+                <td style={{ padding: "14px 20px" }}>
+                  {promo.is_free == 1 ? (
+                    <span style={{ backgroundColor: "#22c55e22", color: "#22c55e", padding: "3px 10px", borderRadius: "12px", fontSize: "12px", fontWeight: "bold", border: "1px solid #22c55e" }}>
+                      🎁 FREE
+                    </span>
+                  ) : (
+                    <span style={{ color: theme.primary, fontWeight: "bold", fontSize: "13px" }}>
+                      {parseInt(promo.bonus_days) > 0 && <span>+{promo.bonus_days} day{promo.bonus_days != 1 ? "s" : ""}</span>}
+                      {parseInt(promo.bonus_days) > 0 && parseFloat(promo.discount_amount) > 0 && <span style={{ color: theme.textMuted }}> · </span>}
+                      {parseFloat(promo.discount_amount) > 0 && <span style={{ color: "#f59e0b" }}>₱{parseFloat(promo.discount_amount).toLocaleString()} off</span>}
+                      {parseInt(promo.bonus_days) === 0 && parseFloat(promo.discount_amount) === 0 && <span style={{ color: theme.textMuted }}>—</span>}
+                    </span>
+                  )}
                 </td>
                 <td style={{ padding: "14px 20px", color: theme.textMuted, fontSize: "13px" }}>
                   {promo.description || "—"}
@@ -170,10 +183,32 @@ function PromosManager({ theme }) {
                   placeholder="e.g., New Year Promo" style={inputStyle}
                 />
               </div>
-              <div>
-                <label style={labelStyle}>Bonus Days</label>
+
+              <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", fontSize: "13px", fontWeight: "bold", color: theme.text }}>
                 <input
-                  type="number" min="1" required value={modal.form.bonus_days}
+                  type="checkbox"
+                  checked={modal.form.is_free || false}
+                  onChange={(e) => setModal((m) => ({ ...m, form: { ...m.form, is_free: e.target.checked, discount_amount: e.target.checked ? "" : m.form.discount_amount } }))}
+                  style={{ width: "16px", height: "16px" }}
+                />
+                🎁 Free Promo — no payment required
+              </label>
+
+              {!modal.form.is_free && (
+                <div>
+                  <label style={labelStyle}>Discount Amount (₱) — optional</label>
+                  <input
+                    type="number" min="0" step="0.01" value={modal.form.discount_amount}
+                    onChange={(e) => setModal((m) => ({ ...m, form: { ...m.form, discount_amount: e.target.value } }))}
+                    placeholder="e.g., 100.00 — deducted from plan price" style={inputStyle}
+                  />
+                </div>
+              )}
+
+              <div>
+                <label style={labelStyle}>Bonus Days{modal.form.is_free ? " (Optional)" : ""}</label>
+                <input
+                  type="number" min="0" value={modal.form.bonus_days}
                   onChange={(e) => setModal((m) => ({ ...m, form: { ...m.form, bonus_days: e.target.value } }))}
                   placeholder="e.g., 15" style={inputStyle}
                 />

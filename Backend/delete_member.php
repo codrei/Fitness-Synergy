@@ -11,6 +11,23 @@ $id = isset($data->member_id) ? (int)$data->member_id : 0;
 
 if ($id > 0) {
     try {
+        // Block delete if member has outstanding installment balance
+        $mStmt = $conn->prepare("SELECT is_installment, installment_total, start_date FROM members WHERE member_id = :id");
+        $mStmt->execute([':id' => $id]);
+        $m = $mStmt->fetch(PDO::FETCH_ASSOC);
+        if ($m && $m['is_installment'] == 1 && (float)$m['installment_total'] > 0) {
+            $paidStmt = $conn->prepare("SELECT COALESCE(SUM(amount), 0) FROM payments WHERE member_id = :id AND customer_type = 'Member' AND payment_date >= :start");
+            $paidStmt->execute([':id' => $id, ':start' => $m['start_date']]);
+            $outstanding = (float)$m['installment_total'] - (float)$paidStmt->fetchColumn();
+            if ($outstanding > 0.01) {
+                echo json_encode([
+                    "success" => false,
+                    "error"   => "Cannot delete — this member has an outstanding installment balance of ₱" . number_format($outstanding, 2) . ". Please settle the full balance before deleting."
+                ]);
+                exit;
+            }
+        }
+
         $conn->beginTransaction();
 
         $clearLogs = $conn->prepare("DELETE FROM attendance WHERE member_id = :id");

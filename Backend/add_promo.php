@@ -13,12 +13,14 @@ if (empty($data->promo_name)) {
 
 try {
     $conn->prepare("
-        INSERT INTO promos (promo_name, bonus_days, description, is_active)
-        VALUES (:name, :days, :desc, 1)
+        INSERT INTO promos (promo_name, bonus_days, discount_amount, is_free, description, is_active)
+        VALUES (:name, :days, :discount, :is_free, :desc, 1)
     ")->execute([
-        ':name' => trim($data->promo_name),
-        ':days' => isset($data->bonus_days) ? (int)$data->bonus_days : 0,
-        ':desc' => !empty($data->description) ? trim($data->description) : null,
+        ':name'     => trim($data->promo_name),
+        ':days'     => isset($data->bonus_days)      ? (int)$data->bonus_days              : 0,
+        ':discount' => isset($data->discount_amount) ? (float)$data->discount_amount       : 0,
+        ':is_free'  => !empty($data->is_free)        ? 1                                   : 0,
+        ':desc'     => !empty($data->description)    ? trim($data->description)            : null,
     ]);
     echo json_encode(["success" => true, "promo_id" => $conn->lastInsertId()]);
 } catch (PDOException $e) {

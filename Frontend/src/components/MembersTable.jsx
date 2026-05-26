@@ -87,7 +87,7 @@ function MembersTable({
       >
         <thead>
           <tr>
-            <th style={{ padding: "15px 20px" }}>Client Name</th>
+            <th style={{ padding: "15px 20px" }}>Name</th>
             <th style={{ padding: "15px 20px" }}>Plan</th>
             <th style={{ padding: "15px 20px" }}>Status</th>
             <th style={{ padding: "15px 20px", textAlign: "right" }}>

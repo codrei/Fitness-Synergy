@@ -22,6 +22,22 @@ try {
     $payment_method   = !empty($data->payment_method)   ? $data->payment_method   : 'Cash';
     $reference_number = !empty($data->reference_number) ? $data->reference_number : null;
 
+    // Block same-day duplicate walk-in for same name + contact
+    if (!empty($guest_contact)) {
+        $todayCheck = $conn->prepare("
+            SELECT COUNT(*) FROM payments
+            WHERE customer_type = 'Walk-in'
+              AND guest_contact = :contact
+              AND guest_name    = :name
+              AND DATE(payment_date) = CURRENT_DATE()
+        ");
+        $todayCheck->execute([':contact' => $guest_contact, ':name' => $data->guest_name]);
+        if ((int)$todayCheck->fetchColumn() > 0) {
+            echo json_encode(["success" => false, "error" => trim($data->guest_name) . " has already walked in today."]);
+            exit;
+        }
+    }
+
     if ($custom_price === null) {
         $priceQuery = $conn->prepare("SELECT price FROM plans WHERE plan_id = 1");
         $priceQuery->execute();

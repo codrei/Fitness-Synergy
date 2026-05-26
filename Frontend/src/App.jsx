@@ -32,6 +32,7 @@ const WALKIN_FORM_DEFAULT = {
 
 const RENEWAL_FORM_DEFAULT = {
   planId: "",
+  promoId: "",
   customPrice: "",
   bonusDays: 0,
   isInstallment: false,
@@ -44,6 +45,7 @@ const RENEWAL_FORM_DEFAULT = {
 const MEMBER_FORM_DEFAULT = {
   name: "",
   plan: "",
+  promoId: "",
   bonusDays: 0,
   customPrice: "",
   isInstallment: false,
@@ -472,6 +474,11 @@ function App() {
   };
 
   const walkInAgain = (walkin) => {
+    const today = new Date().toISOString().slice(0, 10);
+    if (walkin.last_visit === today) {
+      showToast(`${walkin.full_name} has already walked in today.`, "error");
+      return;
+    }
     setWalkInForm({
       ...WALKIN_FORM_DEFAULT,
       guestName:    walkin.full_name || "",
