@@ -14,10 +14,14 @@ try {
 
     $walkins = $conn->query("
         SELECT
-            CONCAT('wi_', COALESCE(guest_contact, CAST(MIN(payment_id) AS CHAR))) AS member_id,
+            CASE
+                WHEN guest_contact IS NOT NULL
+                THEN CONCAT('wi_', MD5(CONCAT(guest_contact, '|', COALESCE(guest_name, ''))))
+                ELSE CONCAT('wi_', CAST(MIN(payment_id) AS CHAR))
+            END AS member_id,
             guest_name AS full_name,
             guest_contact AS contact_number,
-            pl.plan_name,
+            MAX(pl.plan_name) AS plan_name,
             NULL AS expiration_date,
             NULL AS status,
             'Walk-in' AS client_type,
@@ -26,7 +30,7 @@ try {
         FROM payments p
         LEFT JOIN plans pl ON p.plan_id = pl.plan_id
         WHERE p.customer_type = 'Walk-in'
-        GROUP BY COALESCE(guest_contact, CAST(payment_id AS CHAR)), guest_name, p.plan_id, pl.plan_name
+        GROUP BY COALESCE(guest_contact, CAST(payment_id AS CHAR)), guest_name
         ORDER BY last_visit DESC
     ")->fetchAll(PDO::FETCH_ASSOC);
 
