@@ -7,23 +7,32 @@ require_once 'auth_check.php';
 requireAuth();
 $data = json_decode(file_get_contents("php://input"));
 
-if (isset($data->member_id)) {
+$id = isset($data->member_id) ? (int)$data->member_id : 0;
+
+if ($id > 0) {
     try {
         $conn->beginTransaction();
 
         $clearLogs = $conn->prepare("DELETE FROM attendance WHERE member_id = :id");
-        $clearLogs->execute([':id' => $data->member_id]);
+        $clearLogs->execute([':id' => $id]);
 
         $clearPayments = $conn->prepare("DELETE FROM payments WHERE member_id = :id");
-        $clearPayments->execute([':id' => $data->member_id]);
+        $clearPayments->execute([':id' => $id]);
 
         $deleteMember = $conn->prepare("DELETE FROM members WHERE member_id = :id");
-        $deleteMember->execute([':id' => $data->member_id]);
+        $deleteMember->execute([':id' => $id]);
 
-        $conn->commit();
-        echo json_encode(["success" => true, "message" => "Member deleted!"]);
+        if ($deleteMember->rowCount() === 0) {
+            $conn->rollBack();
+            echo json_encode(["success" => false, "error" => "Member not found."]);
+        } else {
+            $conn->commit();
+            echo json_encode(["success" => true, "message" => "Member deleted!"]);
+        }
     } catch (PDOException $e) {
         $conn->rollBack();
-        echo json_encode(["success" => false, "error" => $e->getMessage()]);
+        echo json_encode(["success" => false, "error" => "Delete failed."]);
     }
+} else {
+    echo json_encode(["success" => false, "error" => "Invalid member ID."]);
 }

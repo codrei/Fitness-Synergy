@@ -11,9 +11,6 @@ if (!empty($data->full_name)) {
     try {
         $plan_id = !empty($data->plan_id) ? (int)$data->plan_id : 1;
         
-        // FIX: Safely grab editing_id from frontend payload to prevent undefined variable errors
-        $editingId = !empty($data->editing_id) ? $data->editing_id : null;
-        
         // PROMO FLEXIBILITY: Catch custom price and bonus days from React frontend
         $bonus_days   = !empty($data->bonus_days) ? (int)$data->bonus_days : 0;
         $custom_price = !empty($data->custom_price) ? (float)$data->custom_price : null; 

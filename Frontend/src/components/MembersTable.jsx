@@ -161,7 +161,7 @@ function MembersTable({
                         fontSize: "12px",
                       }}
                     >
-                      {member.total_visits}x visit{member.total_visits !== 1 ? "s" : ""} · last {member.last_visit}
+                      {member.total_visits}x visit{member.total_visits !== 1 ? "s" : ""} · last {member.last_visit ? new Date(member.last_visit + "T00:00:00").toLocaleDateString("en-PH", { month: "short", day: "numeric", year: "numeric" }) : "—"}
                     </span>
                   </td>
 
@@ -307,13 +307,9 @@ function MembersTable({
                 >
                   <button
                     onClick={() => {
-                      if (isExpired) {
-                        showToast("⛔ Membership expired — use 🔄 Renew to reactivate.", "error");
-                      } else if (!isTimedIn) {
-                        confirmTimeIn(member);
-                      }
+                      if (!isExpired && !isTimedIn) confirmTimeIn(member);
                     }}
-                    disabled={isTimedIn}
+                    disabled={isExpired || isTimedIn}
                     title={isExpired ? "Membership expired — please renew first" : ""}
                     style={{
                       padding: "8px 12px",

@@ -10,6 +10,10 @@ $data = json_decode(file_get_contents("php://input"));
 if (!empty($data->member_id) && !empty($data->full_name)) {
     try {
         $plan_id = !empty($data->plan_id) ? (int)$data->plan_id : 1;
+        if ($plan_id === 1) {
+            echo json_encode(["success" => false, "error" => "Walk-in plan cannot be assigned to a registered member."]);
+            exit;
+        }
         
         // PROMO FLEXIBILITY: Read manual changes from the form edit submission
         $bonus_days   = !empty($data->bonus_days) ? (int)$data->bonus_days : 0;

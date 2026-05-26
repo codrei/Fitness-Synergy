@@ -13,7 +13,7 @@ try {
         JOIN members ON attendance.member_id = members.member_id
         WHERE DATE(attendance.time_in) = CURRENT_DATE()
         UNION ALL
-        SELECT NULL, guest_name, COALESCE(created_at, NOW()), 'Walk-in'
+        SELECT NULL AS member_id, guest_name AS full_name, COALESCE(created_at, NOW()) AS time_in, 'Walk-in' AS type
         FROM payments
         WHERE customer_type = 'Walk-in' AND DATE(payment_date) = CURRENT_DATE()
         ORDER BY time_in DESC

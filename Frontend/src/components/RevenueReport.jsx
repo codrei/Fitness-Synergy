@@ -309,6 +309,19 @@ export default function RevenueReport({ theme, activeTab }) {
   const [weeklyTarget, setWeeklyTarget] = useState(() =>
     parseFloat(localStorage.getItem("fitness_synergy_weekly_target") || "0")
   );
+
+  useEffect(() => {
+    apiFetch("get_setting.php?key=weekly_target")
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.value !== null) {
+          const v = parseFloat(d.value) || 0;
+          setWeeklyTarget(v);
+          localStorage.setItem("fitness_synergy_weekly_target", String(v));
+        }
+      })
+      .catch(() => {});
+  }, []);
   const [editingTarget, setEditingTarget] = useState(false);
   const [targetInput, setTargetInput] = useState("");
 
@@ -701,6 +714,10 @@ export default function RevenueReport({ theme, activeTab }) {
                     setWeeklyTarget(v);
                     localStorage.setItem("fitness_synergy_weekly_target", String(v));
                     setEditingTarget(false);
+                    apiFetch("save_setting.php", {
+                      method: "POST",
+                      body: JSON.stringify({ key: "weekly_target", value: String(v) }),
+                    }).catch(() => {});
                   }}
                   style={{ background: theme.primary, color: theme.primaryText, border: "none", padding: "6px 14px", borderRadius: 6, cursor: "pointer", fontSize: 12, fontWeight: "bold" }}
                 >

@@ -1,5 +1,3 @@
-import react from "react";
-
 function LiveFeed({ theme, isDarkMode, attendanceLogs }) {
   return (
     <div
@@ -9,13 +7,7 @@ function LiveFeed({ theme, isDarkMode, attendanceLogs }) {
           isDarkMode
             ? "rgba(15, 23, 42, 0.72)"
             : "rgba(255, 255, 255, 0.78)",
-
         backdropFilter: "blur(14px)",
-
-        border:
-          isDarkMode
-            ? "1px solid rgba(255,255,255,0.08)"
-            : "1px solid rgba(0,0,0,0.08)",
         borderRadius: "12px",
         border: `1px solid ${theme.border}`,
         boxShadow: "0 4px 6px rgba(0,0,0,0.05)",

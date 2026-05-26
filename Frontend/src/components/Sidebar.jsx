@@ -3,6 +3,7 @@ import logo from "../assets/logo.jpg";
 
 function Sidebar({
   theme,
+  isDarkMode,
   toggleTheme,
   handleLogout,
   openAddModal,
@@ -237,7 +238,7 @@ function Sidebar({
             cursor: "pointer",
           }}
         >
-          {theme.bg === "#081018" ? "☀️ Switch to Light" : "🌙 Switch to Dark"}
+          {isDarkMode ? "☀️ Switch to Light" : "🌙 Switch to Dark"}
         </button>
         <button
           onClick={handleLogout}

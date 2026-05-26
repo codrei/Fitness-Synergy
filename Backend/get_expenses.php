@@ -5,8 +5,13 @@ require_once 'db.php';
 require_once 'auth_check.php';
 requireAuth();
 
-$month = $_GET['month'] ?? date('m');
-$year  = $_GET['year']  ?? date('Y');
+$month = (int)($_GET['month'] ?? date('m'));
+$year  = (int)($_GET['year']  ?? date('Y'));
+if ($month < 1 || $month > 12 || $year < 2000 || $year > 2099) {
+    http_response_code(400);
+    echo json_encode(["error" => "Invalid month or year."]);
+    exit;
+}
 
 $stmt = $conn->prepare("
     SELECT expense_id, category, description, amount, expense_date, created_at
