@@ -76,11 +76,12 @@ export default function ExpensesManager({ theme }) {
 
   const handleDelete = async (id) => {
     if (!window.confirm("Delete this expense? This cannot be undone.")) return;
-    await apiFetch("delete_expense.php", {
+    const res = await apiFetch("delete_expense.php", {
       method: "POST",
       body: JSON.stringify({ expense_id: id }),
-    });
-    load();
+    }).then((r) => r.json());
+    if (res.success) load();
+    else alert(res.error || "Delete failed.");
   };
 
   const selectStyle = {

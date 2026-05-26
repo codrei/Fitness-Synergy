@@ -35,10 +35,10 @@ if (!empty($data->member_id) && !empty($data->full_name)) {
             $pStmt->execute([':p' => $plan_id]);
             $base_duration = (int)$pStmt->fetchColumn();
 
-            $startDate = date('Y-m-d');
-            $baseDate = (strtotime($currentMember['expiration_date']) >= strtotime($startDate)) 
-                ? new DateTime($currentMember['expiration_date']) 
-                : new DateTime($startDate);
+            // Do NOT reset start_date — preserves the installment cycle filter in ProfileModal
+            $baseDate = (strtotime($currentMember['expiration_date']) >= strtotime(date('Y-m-d')))
+                ? new DateTime($currentMember['expiration_date'])
+                : new DateTime();
 
             $total_days = $base_duration + $bonus_days;
             $baseDate->modify("+$total_days days");

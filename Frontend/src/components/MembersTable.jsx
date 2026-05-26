@@ -207,7 +207,7 @@ function MembersTable({
             const isExpired =
               member.status === "Expired" || daysLeft === "Expired";
             const isTimedIn = attendanceLogs.some(
-              (log) => log.member_id === member.member_id,
+              (log) => String(log.member_id) === String(member.member_id),
             );
 
             const statusBg = isExpired

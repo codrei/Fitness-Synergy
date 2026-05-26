@@ -34,11 +34,7 @@ if (!empty($data->full_name)) {
         $total_days = $base_duration + $bonus_days;
 
         // Calculate dynamic promotional expiration date
-        if ($total_days <= 1) {
-            $expirationDate = date('Y-m-d');
-        } else {
-            $expirationDate = date('Y-m-d', strtotime("+$total_days days"));
-        }
+        $expirationDate = date('Y-m-d', strtotime("+$total_days days"));
 
         // Sanitize incoming fields, mapping missing parameters to NULL
         $address                  = !empty($data->address)                   ? $data->address                   : null;
@@ -54,11 +50,7 @@ if (!empty($data->full_name)) {
         $discount_id_type         = !empty($data->discount_id_type)          ? $data->discount_id_type          : null;
         $discount_school_name     = !empty($data->discount_school_name)      ? $data->discount_school_name      : null;
 
-        // Auto-generate contract ID in FS-XXXXXX format
-        $maxStmt = $conn->query("SELECT MAX(CAST(REPLACE(contract_id, 'FS-', '') AS UNSIGNED)) FROM members WHERE contract_id REGEXP '^FS-[0-9]+$'");
-        $maxNum  = (int)$maxStmt->fetchColumn();
-        $contract_id = 'FS-' . str_pad($maxNum + 1, 6, '0', STR_PAD_LEFT);
-
+        // Auto-generate contract ID in FS-XXXXXX format, retrying up to 3× on duplicate
         $query = $conn->prepare("
             INSERT INTO members (
                 full_name, address, contact_number, dob, gender, occupation, facebook,
@@ -73,30 +65,44 @@ if (!empty($data->full_name)) {
             )
         ");
 
-        $query->execute([
-            ':name'                 => $data->full_name,
-            ':address'              => $address,
-            ':contact_number'       => $contact_number,
-            ':dob'                  => $dob,
-            ':gender'               => $gender,
-            ':occupation'           => $occupation,
-            ':facebook'             => $facebook,
-            ':emergency_name'       => $emergency_contact_name,
-            ':emergency_number'     => $emergency_contact_number,
-            ':contract_id'          => $contract_id,
-            ':discount_type'        => $discount_type,
-            ':discount_id'          => $discount_id,
-            ':discount_id_type'     => $discount_id_type,
-            ':discount_school_name' => $discount_school_name,
-            ':plan'                 => $plan_id,
-            ':expiration'           => $expirationDate,
-            ':is_installment'       => $is_installment,
-            ':installment_total'    => $installment_total,
-        ]);
+        $contract_id   = null;
+        $new_member_id = null;
+        for ($attempt = 0; $attempt < 3; $attempt++) {
+            $maxStmt     = $conn->query("SELECT MAX(CAST(REPLACE(contract_id, 'FS-', '') AS UNSIGNED)) FROM members WHERE contract_id REGEXP '^FS-[0-9]+$'");
+            $contract_id = 'FS-' . str_pad((int)$maxStmt->fetchColumn() + 1, 6, '0', STR_PAD_LEFT);
+            try {
+                $query->execute([
+                    ':name'                 => $data->full_name,
+                    ':address'              => $address,
+                    ':contact_number'       => $contact_number,
+                    ':dob'                  => $dob,
+                    ':gender'               => $gender,
+                    ':occupation'           => $occupation,
+                    ':facebook'             => $facebook,
+                    ':emergency_name'       => $emergency_contact_name,
+                    ':emergency_number'     => $emergency_contact_number,
+                    ':contract_id'          => $contract_id,
+                    ':discount_type'        => $discount_type,
+                    ':discount_id'          => $discount_id,
+                    ':discount_id_type'     => $discount_id_type,
+                    ':discount_school_name' => $discount_school_name,
+                    ':plan'                 => $plan_id,
+                    ':expiration'           => $expirationDate,
+                    ':is_installment'       => $is_installment,
+                    ':installment_total'    => $installment_total,
+                ]);
+                $new_member_id = $conn->lastInsertId();
+                break;
+            } catch (PDOException $idEx) {
+                if ($attempt < 2 && isset($idEx->errorInfo[1]) && $idEx->errorInfo[1] == 1062) {
+                    continue;
+                }
+                throw $idEx;
+            }
+        }
 
         // === NEW BILLING TRACKING RECORD INSIDE PAYMENTS TABLE ===
-        if (!$editingId) { // Only log payments for new member registrations
-            $new_member_id = $conn->lastInsertId();
+        if ($new_member_id) {
 
             // Fallback to default base price from database if custom price was left blank
             if ($custom_price === null) {

@@ -89,7 +89,9 @@ function LiveFeed({ theme, isDarkMode, attendanceLogs }) {
                 </span>
               </div>
               <span style={{ color: theme.textMuted, fontSize: "11px" }}>
-                Timed in at {new Date(log.time_in).toLocaleTimeString()}
+                {log.time_in
+                  ? `Timed in at ${new Date(log.time_in).toLocaleTimeString()}`
+                  : "Registered today"}
               </span>
             </div>
           ))

@@ -13,7 +13,7 @@ try {
         JOIN members ON attendance.member_id = members.member_id
         WHERE DATE(attendance.time_in) = CURRENT_DATE()
         UNION ALL
-        SELECT NULL, guest_name, created_at, 'Walk-in'
+        SELECT NULL, guest_name, COALESCE(created_at, NOW()), 'Walk-in'
         FROM payments
         WHERE customer_type = 'Walk-in' AND DATE(payment_date) = CURRENT_DATE()
         ORDER BY time_in DESC
@@ -22,5 +22,5 @@ try {
     echo json_encode($query->fetchAll(PDO::FETCH_ASSOC));
 } catch (PDOException $e) {
     http_response_code(500);
-    echo json_encode(["error" => $e->getMessage()]);
+    echo json_encode(["error" => "Failed to load attendance."]);
 }

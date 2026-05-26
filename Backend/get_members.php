@@ -36,5 +36,6 @@ try {
 
     echo json_encode(array_merge($members, $walkins));
 } catch (PDOException $e) {
-    echo json_encode(["error" => "Database error: " . $e->getMessage()]);
+    http_response_code(500);
+    echo json_encode(["error" => "Failed to load members."]);
 }

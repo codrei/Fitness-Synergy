@@ -849,14 +849,18 @@ function App() {
           theme={theme}
           name={deleteConfirm.name}
           onCancel={() => setDeleteConfirm({ show: false, id: null, name: "" })}
-          onConfirm={() => {
-            apiFetch("delete_member.php", {
-              method: "POST",
-              body: JSON.stringify({ member_id: deleteConfirm.id }),
-            })
-              .then(fetchData)
-              .catch(() => showToast("Delete failed", "error"));
-            setDeleteConfirm({ show: false, id: null, name: "" });
+          onConfirm={async () => {
+            try {
+              const res = await apiFetch("delete_member.php", {
+                method: "POST",
+                body: JSON.stringify({ member_id: deleteConfirm.id }),
+              }).then((r) => r.json());
+              setDeleteConfirm({ show: false, id: null, name: "" });
+              if (res.success) fetchData();
+              else showToast(res.error || "Delete failed", "error");
+            } catch {
+              showToast("Delete failed. Check your connection.", "error");
+            }
           }}
         />
       )}

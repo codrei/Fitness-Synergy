@@ -534,6 +534,63 @@ export default function RevenueReport({ theme, activeTab }) {
     </div>
   );
 
+  const exportMonthlyExcel = (rows, yr) => {
+    const wsData = [
+      ["FITNESS SYNERGY LIPA - GYM SYSTEM"],
+      [`Monthly Earnings — ${yr}`],
+      [],
+      ["Month", "Total Revenue (₱)", "Transactions"],
+      ...rows.map((r) => [r.month_name, parseFloat(r.total || 0), parseInt(r.count || 0)]),
+      [],
+      ["TOTAL",
+        rows.reduce((s, r) => s + parseFloat(r.total || 0), 0),
+        rows.reduce((s, r) => s + parseInt(r.count || 0), 0)],
+    ];
+    const ws = XLSX.utils.aoa_to_sheet(wsData);
+    ws["!cols"] = [{ wch: 14 }, { wch: 22 }, { wch: 14 }];
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Monthly Earnings");
+    XLSX.writeFile(wb, `Monthly_Earnings_${yr}.xlsx`);
+  };
+
+  const exportMonthlyPDF = (rows, yr) => {
+    const grandTotal = rows.reduce((s, r) => s + parseFloat(r.total || 0), 0);
+    const grandCount = rows.reduce((s, r) => s + parseInt(r.count || 0), 0);
+    const win = window.open("", "_blank");
+    win.document.write(`
+      <html><head><title>Monthly Earnings ${yr}</title>
+      <style>
+        body{font-family:Arial,sans-serif;padding:24px;color:#111;font-size:12px}
+        h1{font-size:18px;margin:0}h2{font-size:13px;color:#555;margin:4px 0 16px}
+        table{width:100%;border-collapse:collapse;margin-top:10px}
+        th{background:#0d1b2a;color:white;padding:8px 6px;text-align:left}
+        td{padding:7px 6px;border-bottom:1px solid #ddd}
+        tr:nth-child(even){background:#f9f9f9}
+        .total-row{font-weight:bold;background:#e8f5e9}
+        .badge{margin:12px 0;padding:10px 16px;background:#0d1b2a;color:white;display:inline-block;border-radius:6px}
+      </style></head><body>
+      <h1>FITNESS SYNERGY LIPA — GYM SYSTEM</h1>
+      <h2>Monthly Earnings — ${yr}</h2>
+      <div class="badge">ANNUAL TOTAL: ₱${grandTotal.toLocaleString("en-PH", { minimumFractionDigits: 2 })}</div>
+      <table><thead><tr>
+        <th>Month</th><th>Total Revenue (₱)</th><th>Transactions</th>
+      </tr></thead><tbody>
+      ${rows.map((r) => `<tr>
+        <td>${r.month_name}</td>
+        <td><strong>₱${parseFloat(r.total || 0).toLocaleString("en-PH", { minimumFractionDigits: 2 })}</strong></td>
+        <td>${r.count || 0}</td>
+      </tr>`).join("")}
+      <tr class="total-row">
+        <td>TOTAL</td>
+        <td><strong>₱${grandTotal.toLocaleString("en-PH", { minimumFractionDigits: 2 })}</strong></td>
+        <td>${grandCount}</td>
+      </tr>
+      </tbody></table></body></html>
+    `);
+    win.document.close();
+    setTimeout(() => { win.print(); win.close(); }, 500);
+  };
+
   const exportBtns = (rows, title, filename) => (
     <div style={{ display: "flex", gap: 8 }}>
       <button
@@ -874,11 +931,10 @@ export default function RevenueReport({ theme, activeTab }) {
                 </option>
               ))}
             </select>
-            {exportBtns(
-              data.payments || [],
-              `Monthly ${year}`,
-              `Monthly_${year}.xlsx`,
-            )}
+            <div style={{ display: "flex", gap: 8 }}>
+              <button onClick={() => exportMonthlyPDF(data.monthly || [], year)} style={btnStyle("#c62828")}>📄 PDF</button>
+              <button onClick={() => exportMonthlyExcel(data.monthly || [], year)} style={btnStyle("#1d6f42")}>📊 Excel</button>
+            </div>
           </div>
         </div>
         <div
