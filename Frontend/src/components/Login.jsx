@@ -50,7 +50,7 @@ function Login({
             inset: 0,
             backgroundImage: `url(${bg})`,
             backgroundSize: "cover",
-            backgroundPosition: "center",
+            backgroundPosition: "top center",
             backgroundRepeat: "no-repeat",
             opacity: i === currentIndex ? 1 : 0,
             transition: "opacity 1.5s ease-in-out",
