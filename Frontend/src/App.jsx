@@ -247,7 +247,7 @@ function App() {
     } catch (err) {
       setLoginForm((prev) => ({
         ...prev,
-        error: "Cannot connect to local server (Port 8080).",
+        error: "Cannot connect to server. Please check your internet connection.",
       }));
     }
   };

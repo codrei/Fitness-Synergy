@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 
 function AddEditModal({
   theme,
@@ -11,8 +11,14 @@ function AddEditModal({
   memberForm,
   setMemberForm,
 }) {
+  const [submitting, setSubmitting] = useState(false);
   const update = (field, value) =>
     setMemberForm((f) => ({ ...f, [field]: value }));
+
+  const onSubmit = async (e) => {
+    setSubmitting(true);
+    try { await handleSubmit(e); } finally { setSubmitting(false); }
+  };
 
   const selectedPlanObj = plans.find(
     (p) => String(p.plan_id) === String(memberForm.plan),
@@ -105,7 +111,7 @@ function AddEditModal({
         </div>
 
         <form
-          onSubmit={handleSubmit}
+          onSubmit={onSubmit}
           style={{
             display: "flex",
             flexDirection: "column",
@@ -149,7 +155,7 @@ function AddEditModal({
                 defaultValue=""
                 onChange={(e) => {
                   const p = promos.find((pr) => String(pr.promo_id) === e.target.value);
-                  if (p) update("bonusDays", p.bonus_days);
+                  update("bonusDays", p ? p.bonus_days : 0);
                 }}
                 style={inputStyle}
               >
@@ -517,20 +523,24 @@ function AddEditModal({
 
           <button
             type="submit"
+            disabled={submitting}
             style={{
               padding: "16px",
               backgroundColor: theme.primary,
               color: theme.primaryText,
               border: "none",
               borderRadius: "6px",
-              cursor: "pointer",
+              cursor: submitting ? "default" : "pointer",
               fontWeight: "bold",
               marginTop: "auto",
               fontSize: "14px",
               letterSpacing: "0.5px",
+              opacity: submitting ? 0.7 : 1,
             }}
           >
-            {editingId
+            {submitting
+              ? "Saving…"
+              : editingId
               ? "💾 Save Changes & Update"
               : "🚀 Complete Registration Process"}
           </button>

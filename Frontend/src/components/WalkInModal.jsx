@@ -1,8 +1,14 @@
-import React from "react";
+import React, { useState } from "react";
 
 function WalkInModal({ theme, onClose, handleWalkInSubmit, walkInForm, setWalkInForm }) {
+  const [submitting, setSubmitting] = useState(false);
   const update = (field, value) =>
     setWalkInForm((f) => ({ ...f, [field]: value }));
+
+  const onSubmit = async (e) => {
+    setSubmitting(true);
+    try { await handleWalkInSubmit(e); } finally { setSubmitting(false); }
+  };
 
   const labelStyle = {
     fontSize: "12px",
@@ -73,7 +79,7 @@ function WalkInModal({ theme, onClose, handleWalkInSubmit, walkInForm, setWalkIn
         </div>
 
         <form
-          onSubmit={handleWalkInSubmit}
+          onSubmit={onSubmit}
           style={{ display: "flex", flexDirection: "column", gap: "18px", flex: 1 }}
         >
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px" }}>
@@ -187,20 +193,22 @@ function WalkInModal({ theme, onClose, handleWalkInSubmit, walkInForm, setWalkIn
 
           <button
             type="submit"
+            disabled={submitting}
             style={{
               padding: "16px",
               backgroundColor: theme.primary,
               color: theme.primaryText,
               border: "none",
               borderRadius: "6px",
-              cursor: "pointer",
+              cursor: submitting ? "default" : "pointer",
               fontWeight: "bold",
               marginTop: "auto",
               fontSize: "14px",
               letterSpacing: "0.5px",
+              opacity: submitting ? 0.7 : 1,
             }}
           >
-            🚶 Complete Walk-in Registration
+            {submitting ? "Saving…" : "🚶 Complete Walk-in Registration"}
           </button>
         </form>
       </div>

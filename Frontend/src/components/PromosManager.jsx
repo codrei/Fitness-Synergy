@@ -35,7 +35,13 @@ function PromosManager({ theme }) {
     setToggling(promo.promo_id);
     const res = await apiFetch("update_promo.php", {
       method: "POST",
-      body: JSON.stringify({ promo_id: promo.promo_id, is_active: promo.is_active == 1 ? 0 : 1 }),
+      body: JSON.stringify({
+        promo_id:    promo.promo_id,
+        promo_name:  promo.promo_name,
+        bonus_days:  promo.bonus_days,
+        description: promo.description || "",
+        is_active:   promo.is_active == 1 ? 0 : 1,
+      }),
     }).then((r) => r.json());
     setToggling(null);
     if (res.success) load();

@@ -19,6 +19,8 @@ function ProfileModal({
   const [showLightbox, setShowLightbox] = useState(false);
   const [deletingPhoto, setDeletingPhoto] = useState(false);
 
+  const m = selectedMember;
+
   const handleDeletePhoto = async () => {
     if (!window.confirm("Remove this profile photo?")) return;
     setDeletingPhoto(true);
@@ -39,7 +41,6 @@ function ProfileModal({
       setDeletingPhoto(false);
     }
   };
-  const m = selectedMember;
 
   const paymentsInCycle = paymentHistory.filter((p) =>
     !m.start_date || new Date(p.payment_date) >= new Date(m.start_date)

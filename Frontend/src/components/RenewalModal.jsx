@@ -110,7 +110,7 @@ function RenewalModal({ theme, member, plans, promos = [], renewalForm, setRenew
                 defaultValue=""
                 onChange={(e) => {
                   const p = promos.find((pr) => String(pr.promo_id) === e.target.value);
-                  if (p) update("bonusDays", p.bonus_days);
+                  update("bonusDays", p ? p.bonus_days : 0);
                 }}
                 style={inputStyle}
               >

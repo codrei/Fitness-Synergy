@@ -55,52 +55,61 @@ if (!empty($data->member_id) && !empty($data->full_name)) {
         }
 
         // Sanitize incoming fields mapping missing parameters to NULL
-        $address                  = !empty($data->address) ? $data->address : null;
-        $contact_number           = !empty($data->contact_number) ? $data->contact_number : null;
-        $dob                      = !empty($data->dob) ? $data->dob : null;
-        $gender                   = !empty($data->gender) ? $data->gender : null;
-        $occupation               = !empty($data->occupation) ? $data->occupation : null;
-        $emergency_contact_name   = !empty($data->emergency_contact_name) ? $data->emergency_contact_name : null;
-        $emergency_contact_number = !empty($data->emergency_contact_number) ? $data->emergency_contact_number : null;
-        $contract_id              = !empty($data->contract_id) ? $data->contract_id : null;
-        $discount_type            = !empty($data->discount_type) ? $data->discount_type : 'None';
-        $discount_id              = !empty($data->discount_id) ? $data->discount_id : null;
+        $address                  = !empty($data->address)                   ? $data->address                   : null;
+        $contact_number           = !empty($data->contact_number)            ? $data->contact_number            : null;
+        $dob                      = !empty($data->dob)                       ? $data->dob                       : null;
+        $gender                   = !empty($data->gender)                    ? $data->gender                    : null;
+        $occupation               = !empty($data->occupation)                ? $data->occupation                : null;
+        $facebook                 = !empty($data->facebook)                  ? $data->facebook                  : null;
+        $emergency_contact_name   = !empty($data->emergency_contact_name)    ? $data->emergency_contact_name    : null;
+        $emergency_contact_number = !empty($data->emergency_contact_number)  ? $data->emergency_contact_number  : null;
+        $contract_id              = !empty($data->contract_id)               ? $data->contract_id               : null;
+        $discount_type            = !empty($data->discount_type)             ? $data->discount_type             : 'None';
+        $discount_id              = !empty($data->discount_id)               ? $data->discount_id               : null;
+        $discount_id_type         = !empty($data->discount_id_type)          ? $data->discount_id_type          : null;
+        $discount_school_name     = !empty($data->discount_school_name)      ? $data->discount_school_name      : null;
 
         $query = $conn->prepare("
-            UPDATE members SET 
-                full_name = :name, 
-                address = :address,
-                contact_number = :contact_number,
-                dob = :dob,
-                gender = :gender,
-                occupation = :occupation,
-                emergency_contact_name = :emergency_name,
+            UPDATE members SET
+                full_name                = :name,
+                address                  = :address,
+                contact_number           = :contact_number,
+                dob                      = :dob,
+                gender                   = :gender,
+                occupation               = :occupation,
+                facebook                 = :facebook,
+                emergency_contact_name   = :emergency_name,
                 emergency_contact_number = :emergency_number,
-                contract_id = :contract_id,
-                discount_type = :discount_type,
-                discount_id = :discount_id,
-                plan_id = :plan, 
-                start_date = :start, 
-                expiration_date = :exp 
+                contract_id              = :contract_id,
+                discount_type            = :discount_type,
+                discount_id              = :discount_id,
+                discount_id_type         = :discount_id_type,
+                discount_school_name     = :discount_school_name,
+                plan_id                  = :plan,
+                start_date               = :start,
+                expiration_date          = :exp
             WHERE member_id = :id
         ");
-        
+
         $query->execute([
-            ':name'             => $data->full_name, 
-            ':address'          => $address,
-            ':contact_number'   => $contact_number,
-            ':dob'              => $dob,
-            ':gender'           => $gender,
-            ':occupation'       => $occupation,
-            ':emergency_name'   => $emergency_contact_name,
-            ':emergency_number' => $emergency_contact_number,
-            ':contract_id'      => $contract_id,
-            ':discount_type'    => $discount_type,
-            ':discount_id'      => $discount_id,
-            ':plan'             => $plan_id, 
-            ':start'            => $startDate,
-            ':exp'              => $expirationDate, 
-            ':id'               => $data->member_id
+            ':name'                 => $data->full_name,
+            ':address'              => $address,
+            ':contact_number'       => $contact_number,
+            ':dob'                  => $dob,
+            ':gender'               => $gender,
+            ':occupation'           => $occupation,
+            ':facebook'             => $facebook,
+            ':emergency_name'       => $emergency_contact_name,
+            ':emergency_number'     => $emergency_contact_number,
+            ':contract_id'          => $contract_id,
+            ':discount_type'        => $discount_type,
+            ':discount_id'          => $discount_id,
+            ':discount_id_type'     => $discount_id_type,
+            ':discount_school_name' => $discount_school_name,
+            ':plan'                 => $plan_id,
+            ':start'                => $startDate,
+            ':exp'                  => $expirationDate,
+            ':id'                   => $data->member_id
         ]);
 
         echo json_encode(["success" => true, "message" => "Member status and customized duration updated!"]);
