@@ -39,6 +39,7 @@ if (!empty($data->full_name)) {
         $dob                      = !empty($data->dob)                       ? $data->dob                       : null;
         $gender                   = !empty($data->gender)                    ? $data->gender                    : null;
         $occupation               = !empty($data->occupation)                ? $data->occupation                : null;
+        $age                      = isset($data->age) && $data->age !== ''    ? (int)$data->age                  : null;
         $facebook                 = !empty($data->facebook)                  ? $data->facebook                  : null;
         $emergency_contact_name   = !empty($data->emergency_contact_name)   ? $data->emergency_contact_name    : null;
         $emergency_contact_number = !empty($data->emergency_contact_number) ? $data->emergency_contact_number  : null;
@@ -50,12 +51,12 @@ if (!empty($data->full_name)) {
         // Auto-generate contract ID in FS-XXXXXX format, retrying up to 3× on duplicate
         $query = $conn->prepare("
             INSERT INTO members (
-                full_name, address, contact_number, dob, gender, occupation, facebook,
+                full_name, address, contact_number, dob, age, gender, occupation, facebook,
                 emergency_contact_name, emergency_contact_number, contract_id,
                 discount_type, discount_id, discount_id_type, discount_school_name,
                 plan_id, start_date, expiration_date, is_installment, installment_total
             ) VALUES (
-                :name, :address, :contact_number, :dob, :gender, :occupation, :facebook,
+                :name, :address, :contact_number, :dob, :age, :gender, :occupation, :facebook,
                 :emergency_name, :emergency_number, :contract_id,
                 :discount_type, :discount_id, :discount_id_type, :discount_school_name,
                 :plan, CURRENT_DATE(), :expiration, :is_installment, :installment_total
@@ -73,6 +74,7 @@ if (!empty($data->full_name)) {
                     ':address'              => $address,
                     ':contact_number'       => $contact_number,
                     ':dob'                  => $dob,
+                    ':age'                  => $age,
                     ':gender'               => $gender,
                     ':occupation'           => $occupation,
                     ':facebook'             => $facebook,

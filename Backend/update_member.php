@@ -62,6 +62,7 @@ if (!empty($data->member_id) && !empty($data->full_name)) {
         $address                  = !empty($data->address)                   ? $data->address                   : null;
         $contact_number           = !empty($data->contact_number)            ? $data->contact_number            : null;
         $dob                      = !empty($data->dob)                       ? $data->dob                       : null;
+        $age                      = isset($data->age) && $data->age !== ''   ? (int)$data->age                  : null;
         $gender                   = !empty($data->gender)                    ? $data->gender                    : null;
         $occupation               = !empty($data->occupation)                ? $data->occupation                : null;
         $facebook                 = !empty($data->facebook)                  ? $data->facebook                  : null;
@@ -79,6 +80,7 @@ if (!empty($data->member_id) && !empty($data->full_name)) {
                 address                  = :address,
                 contact_number           = :contact_number,
                 dob                      = :dob,
+                age                      = :age,
                 gender                   = :gender,
                 occupation               = :occupation,
                 facebook                 = :facebook,
@@ -100,6 +102,7 @@ if (!empty($data->member_id) && !empty($data->full_name)) {
             ':address'              => $address,
             ':contact_number'       => $contact_number,
             ':dob'                  => $dob,
+            ':age'                  => $age,
             ':gender'               => $gender,
             ':occupation'           => $occupation,
             ':facebook'             => $facebook,

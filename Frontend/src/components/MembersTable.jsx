@@ -276,7 +276,14 @@ function MembersTable({
                         👤
                       </div>
                     )}
-                    <span style={{ fontWeight: "bold" }}>{member.full_name}</span>
+                    <div>
+                      <span style={{ fontWeight: "bold" }}>{member.full_name}</span>
+                      {member.age && (
+                        <div style={{ fontSize: "11px", color: theme.textMuted, marginTop: "2px" }}>
+                          Age {member.age}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </td>
 

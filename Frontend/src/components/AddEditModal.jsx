@@ -203,7 +203,7 @@ function AddEditModal({
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "1fr 1fr",
+              gridTemplateColumns: "2fr 1fr 1fr",
               gap: "15px",
             }}
           >
@@ -224,6 +224,18 @@ function AddEditModal({
                 value={memberForm.contactNumber}
                 onChange={(e) => update("contactNumber", e.target.value)}
                 placeholder="e.g., 0917XXXXXXX"
+                style={inputStyle}
+              />
+            </div>
+            <div>
+              <label style={labelStyle}>Age</label>
+              <input
+                type="number"
+                min="1"
+                max="120"
+                value={memberForm.age}
+                onChange={(e) => update("age", e.target.value)}
+                placeholder="e.g., 25"
                 style={inputStyle}
               />
             </div>

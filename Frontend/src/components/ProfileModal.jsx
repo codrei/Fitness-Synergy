@@ -400,6 +400,7 @@ function ProfileModal({
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 20px" }}>
             {infoRow("Contact", m.contact_number)}
+            {infoRow("Age", m.age ? `${m.age} years old` : null)}
             {infoRow("Date of Birth", m.dob ? formatSafeDate(m.dob) : null)}
             {infoRow("Gender", m.gender)}
             {infoRow("Occupation", m.occupation)}

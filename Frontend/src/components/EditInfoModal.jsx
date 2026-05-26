@@ -138,6 +138,18 @@ function EditInfoModal({ theme, infoForm, setInfoForm, onSubmit, onClose }) {
 
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px" }}>
             <div>
+              <label style={labelStyle}>Age</label>
+              <input
+                type="number"
+                min="1"
+                max="120"
+                value={infoForm.age}
+                onChange={(e) => update("age", e.target.value)}
+                placeholder="e.g., 25"
+                style={inputStyle}
+              />
+            </div>
+            <div>
               <label style={labelStyle}>Occupation</label>
               <input
                 type="text"
@@ -147,6 +159,9 @@ function EditInfoModal({ theme, infoForm, setInfoForm, onSubmit, onClose }) {
                 style={inputStyle}
               />
             </div>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px" }}>
             <div>
               <label style={labelStyle}>Contract ID #</label>
               <input
