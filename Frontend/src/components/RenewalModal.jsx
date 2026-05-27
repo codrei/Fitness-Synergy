@@ -1,13 +1,26 @@
 import React from "react";
 
-function RenewalModal({ theme, member, plans, promos = [], renewalForm, setRenewalForm, onSubmit, onClose }) {
-  const update = (field, value) => setRenewalForm((f) => ({ ...f, [field]: value }));
+function RenewalModal({
+  theme,
+  member,
+  plans,
+  promos = [],
+  renewalForm,
+  setRenewalForm,
+  onSubmit,
+  onClose,
+}) {
+  const update = (field, value) =>
+    setRenewalForm((f) => ({ ...f, [field]: value }));
 
   const membershipPlans = plans.filter((p) => String(p.plan_id) !== "1");
 
-  const selectedPlanObj = membershipPlans.find((p) => String(p.plan_id) === String(renewalForm.planId));
-  const isLongTermPlan = selectedPlanObj ? parseInt(selectedPlanObj.duration_days, 10) > 1 : false;
-
+  const selectedPlanObj = membershipPlans.find(
+    (p) => String(p.plan_id) === String(renewalForm.planId),
+  );
+  const isLongTermPlan = selectedPlanObj
+    ? parseInt(selectedPlanObj.duration_days, 10) > 1
+    : false;
 
   const labelStyle = {
     fontSize: "12px",
@@ -65,24 +78,40 @@ function RenewalModal({ theme, member, plans, promos = [], renewalForm, setRenew
           <h2 style={{ margin: 0, fontSize: "20px" }}>🔄 Renew Membership</h2>
           <button
             onClick={onClose}
-            style={{ background: "none", border: "none", fontSize: "20px", cursor: "pointer" }}
+            style={{
+              background: "none",
+              border: "none",
+              fontSize: "20px",
+              cursor: "pointer",
+            }}
           >
             ❌
           </button>
         </div>
-        <p style={{ margin: "0 0 22px 0", color: theme.textMuted, fontSize: "14px" }}>
+        <p
+          style={{
+            margin: "0 0 22px 0",
+            color: theme.textMuted,
+            fontSize: "14px",
+          }}
+        >
           Renewing for:{" "}
           <strong style={{ color: theme.text }}>{member.full_name}</strong>
         </p>
 
-        <form onSubmit={onSubmit} style={{ display: "flex", flexDirection: "column", gap: "18px" }}>
+        <form
+          onSubmit={onSubmit}
+          style={{ display: "flex", flexDirection: "column", gap: "18px" }}
+        >
           <div>
             <label style={labelStyle}>Membership Plan</label>
             <select
               value={renewalForm.planId}
               onChange={(e) => {
                 const id = e.target.value;
-                const matched = membershipPlans.find((p) => String(p.plan_id) === id);
+                const matched = membershipPlans.find(
+                  (p) => String(p.plan_id) === id,
+                );
                 setRenewalForm((f) => ({
                   ...f,
                   planId: id,
@@ -114,7 +143,14 @@ function RenewalModal({ theme, member, plans, promos = [], renewalForm, setRenew
                   const id = e.target.value;
                   const p = promos.find((pr) => String(pr.promo_id) === id);
                   if (!p) {
-                    setRenewalForm((f) => ({ ...f, promoId: "", bonusDays: 0, customPrice: selectedPlanObj ? selectedPlanObj.price : f.customPrice }));
+                    setRenewalForm((f) => ({
+                      ...f,
+                      promoId: "",
+                      bonusDays: 0,
+                      customPrice: selectedPlanObj
+                        ? selectedPlanObj.price
+                        : f.customPrice,
+                    }));
                     return;
                   }
                   const basePrice = parseFloat(selectedPlanObj?.price || 0);
@@ -123,11 +159,14 @@ function RenewalModal({ theme, member, plans, promos = [], renewalForm, setRenew
                     ...f,
                     promoId: id,
                     bonusDays: p.bonus_days,
-                    customPrice: p.is_free == 1
-                      ? "0"
-                      : discount > 0
-                        ? String(Math.max(0, basePrice - discount))
-                        : selectedPlanObj ? selectedPlanObj.price : f.customPrice,
+                    customPrice:
+                      p.is_free == 1
+                        ? "0"
+                        : discount > 0
+                          ? String(Math.max(0, basePrice - discount))
+                          : selectedPlanObj
+                            ? selectedPlanObj.price
+                            : f.customPrice,
                   }));
                 }}
                 style={inputStyle}
@@ -137,7 +176,8 @@ function RenewalModal({ theme, member, plans, promos = [], renewalForm, setRenew
                   <option key={p.promo_id} value={p.promo_id}>
                     {p.is_free == 1
                       ? `${p.promo_name} (FREE)`
-                      : parseInt(p.bonus_days) > 0 && parseFloat(p.discount_amount) > 0
+                      : parseInt(p.bonus_days) > 0 &&
+                          parseFloat(p.discount_amount) > 0
                         ? `${p.promo_name} (+${p.bonus_days} days, ₱${p.discount_amount} off)`
                         : parseInt(p.bonus_days) > 0
                           ? `${p.promo_name} (+${p.bonus_days} days)`
@@ -148,7 +188,13 @@ function RenewalModal({ theme, member, plans, promos = [], renewalForm, setRenew
             </div>
           )}
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px" }}>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: "15px",
+            }}
+          >
             <div>
               <label style={labelStyle}>Custom Price Override (₱)</label>
               <input
@@ -174,8 +220,23 @@ function RenewalModal({ theme, member, plans, promos = [], renewalForm, setRenew
           </div>
 
           {isLongTermPlan && (
-            <div style={{ borderTop: `1px dashed ${theme.border}`, paddingTop: "16px" }}>
-              <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", fontSize: "13px", fontWeight: "bold", color: theme.text }}>
+            <div
+              style={{
+                borderTop: `1px dashed ${theme.border}`,
+                paddingTop: "16px",
+              }}
+            >
+              <label
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  cursor: "pointer",
+                  fontSize: "13px",
+                  fontWeight: "bold",
+                  color: theme.text,
+                }}
+              >
                 <input
                   type="checkbox"
                   checked={renewalForm.isInstallment || false}

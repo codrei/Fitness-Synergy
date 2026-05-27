@@ -17,8 +17,10 @@ import TimeInConfirmModal from "./components/TimeInConfirmModal";
 import InstallmentPaymentModal from "./components/InstallmentPaymentModal";
 import TdeeModal from "./components/TdeeModal";
 import ConfirmModal from "./components/ConfirmModal";
+import AdminSettingsModal from "./components/AdminSettingsModal"; // 1. IMPORT NEW MODAL
 import bgTexture from "./assets/geomblue.png";
 import { apiFetch } from "./api";
+import AttendanceReport from "./components/AttendanceReport";
 
 const WALKIN_FORM_DEFAULT = {
   guestName: "",
@@ -30,7 +32,7 @@ const WALKIN_FORM_DEFAULT = {
   referenceNumber: "",
 };
 
-const RENEWAL_FORM_DEFAULT = {
+const RRENEWAL_FORM_DEFAULT = {
   planId: "",
   promoId: "",
   customPrice: "",
@@ -97,7 +99,8 @@ function App() {
   const [plans, setPlans] = useState([]);
   const [promos, setPromos] = useState([]);
   const [stats, setStats] = useState(null);
-  const [installmentPaymentMember, setInstallmentPaymentMember] = useState(null);
+  const [installmentPaymentMember, setInstallmentPaymentMember] =
+    useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(
     !!localStorage.getItem("fitness_synergy_token"),
@@ -111,17 +114,26 @@ function App() {
     type: "success",
   });
   const [isLoading, setIsLoading] = useState(false);
-  const [deleteConfirm, setDeleteConfirm] = useState({ show: false, id: null, name: "" });
+  const [deleteConfirm, setDeleteConfirm] = useState({
+    show: false,
+    id: null,
+    name: "",
+  });
   const [showMemberModal, setShowMemberModal] = useState(false);
   const [showWalkInModal, setShowWalkInModal] = useState(false);
   const [walkInForm, setWalkInForm] = useState(WALKIN_FORM_DEFAULT);
-  const [walkInRecommend, setWalkInRecommend] = useState({ show: false, name: "", visits: 0 });
+  const [walkInRecommend, setWalkInRecommend] = useState({
+    show: false,
+    name: "",
+    visits: 0,
+  });
   const [showTdeeModal, setShowTdeeModal] = useState(false);
+  const [showAdminSettingsModal, setShowAdminSettingsModal] = useState(false); // 2. STATE FOR MODAL
   const [currentView, setCurrentView] = useState("dashboard");
   const [editingId, setEditingId] = useState(null);
   const [showRenewalModal, setShowRenewalModal] = useState(false);
   const [renewalMember, setRenewalMember] = useState(null);
-  const [renewalForm, setRenewalForm] = useState(RENEWAL_FORM_DEFAULT);
+  const [renewalForm, setRenewalForm] = useState(RRENEWAL_FORM_DEFAULT);
   const [showEditInfoModal, setShowEditInfoModal] = useState(false);
   const [editInfoMember, setEditInfoMember] = useState(null);
   const [infoForm, setInfoForm] = useState({});
@@ -254,7 +266,8 @@ function App() {
     } catch (err) {
       setLoginForm((prev) => ({
         ...prev,
-        error: "Cannot connect to server. Please check your internet connection.",
+        error:
+          "Cannot connect to server. Please check your internet connection.",
       }));
     }
   };
@@ -283,12 +296,12 @@ function App() {
       const res = await apiFetch("add_walkin.php", {
         method: "POST",
         body: JSON.stringify({
-          guest_name:       walkInForm.guestName,
-          guest_age:        walkInForm.guestAge,
-          guest_contact:    walkInForm.guestContact,
-          guest_address:    walkInForm.guestAddress,
-          custom_price:     walkInForm.customPrice,
-          payment_method:   walkInForm.paymentMethod,
+          guest_name: walkInForm.guestName,
+          guest_age: walkInForm.guestAge,
+          guest_contact: walkInForm.guestContact,
+          guest_address: walkInForm.guestAddress,
+          custom_price: walkInForm.customPrice,
+          payment_method: walkInForm.paymentMethod,
           reference_number: walkInForm.referenceNumber,
         }),
       }).then((r) => r.json());
@@ -299,7 +312,11 @@ function App() {
         fetchData();
         showToast("Walk-in registered!");
         if (res.recommend_membership) {
-          setWalkInRecommend({ show: true, name: res.guest_name, visits: res.visit_count });
+          setWalkInRecommend({
+            show: true,
+            name: res.guest_name,
+            visits: res.visit_count,
+          });
         }
       } else {
         showToast(res.error || "Walk-in registration failed", "error");
@@ -318,28 +335,28 @@ function App() {
       const res = await apiFetch(`${target}.php`, {
         method: "POST",
         body: JSON.stringify({
-          full_name:                memberForm.name,
-          plan_id:                  memberForm.plan,
-          bonus_days:               memberForm.bonusDays,
-          custom_price:             memberForm.customPrice,
-          is_installment:           memberForm.isInstallment ? 1 : 0,
-          installment_total:        memberForm.installmentTotal,
-          address:                  memberForm.address,
-          contact_number:           memberForm.contactNumber,
-          facebook:                 memberForm.facebook,
-          dob:                      memberForm.dob,
-          age:                      memberForm.age !== "" ? parseInt(memberForm.age) : null,
-          gender:                   memberForm.gender,
-          occupation:               memberForm.occupation,
-          emergency_contact_name:   memberForm.emergencyContactName,
+          full_name: memberForm.name,
+          plan_id: memberForm.plan,
+          bonus_days: memberForm.bonusDays,
+          custom_price: memberForm.customPrice,
+          is_installment: memberForm.isInstallment ? 1 : 0,
+          installment_total: memberForm.installmentTotal,
+          address: memberForm.address,
+          contact_number: memberForm.contactNumber,
+          facebook: memberForm.facebook,
+          dob: memberForm.dob,
+          age: memberForm.age !== "" ? parseInt(memberForm.age) : null,
+          gender: memberForm.gender,
+          occupation: memberForm.occupation,
+          emergency_contact_name: memberForm.emergencyContactName,
           emergency_contact_number: memberForm.emergencyContactNumber,
-          discount_type:            memberForm.discountType,
-          discount_id:              memberForm.discountId,
-          discount_id_type:         memberForm.discountIdType,
-          discount_school_name:     memberForm.discountSchoolName,
-          payment_method:           memberForm.paymentMethod,
-          payment_amount:           memberForm.paymentAmount,
-          reference_number:         memberForm.referenceNumber,
+          discount_type: memberForm.discountType,
+          discount_id: memberForm.discountId,
+          discount_id_type: memberForm.discountIdType,
+          discount_school_name: memberForm.discountSchoolName,
+          payment_method: memberForm.paymentMethod,
+          payment_amount: memberForm.paymentAmount,
+          reference_number: memberForm.referenceNumber,
           ...(editingId && { member_id: editingId }),
         }),
       }).then((r) => r.json());
@@ -361,8 +378,12 @@ function App() {
     setSelectedMember(member);
     try {
       const [att, pay] = await Promise.all([
-        apiFetch(`get_member_attendance.php?id=${member.member_id}`).then((r) => r.json()),
-        apiFetch(`get_member_payments.php?id=${member.member_id}`).then((r) => r.json()),
+        apiFetch(`get_member_attendance.php?id=${member.member_id}`).then((r) =>
+          r.json(),
+        ),
+        apiFetch(`get_member_payments.php?id=${member.member_id}`).then((r) =>
+          r.json(),
+        ),
       ]);
       setMemberHistory({
         logs: att.logs || [],
@@ -376,7 +397,7 @@ function App() {
 
   const startRenewal = (member) => {
     setRenewalMember(member);
-    setRenewalForm({ ...RENEWAL_FORM_DEFAULT, planId: member.plan_id || "" });
+    setRenewalForm({ ...RRENEWAL_FORM_DEFAULT, planId: member.plan_id || "" });
     setShowRenewalModal(true);
   };
 
@@ -386,22 +407,22 @@ function App() {
       const res = await apiFetch("renew_member.php", {
         method: "POST",
         body: JSON.stringify({
-          member_id:         renewalMember.member_id,
-          plan_id:           renewalForm.planId,
-          custom_price:      renewalForm.customPrice,
-          bonus_days:        renewalForm.bonusDays,
-          is_installment:    renewalForm.isInstallment ? 1 : 0,
+          member_id: renewalMember.member_id,
+          plan_id: renewalForm.planId,
+          custom_price: renewalForm.customPrice,
+          bonus_days: renewalForm.bonusDays,
+          is_installment: renewalForm.isInstallment ? 1 : 0,
           installment_total: renewalForm.installmentTotal,
-          payment_method:    renewalForm.paymentMethod,
-          payment_amount:    renewalForm.paymentAmount,
-          reference_number:  renewalForm.referenceNumber,
+          payment_method: renewalForm.paymentMethod,
+          payment_amount: renewalForm.paymentAmount,
+          reference_number: renewalForm.referenceNumber,
         }),
       }).then((r) => r.json());
 
       if (res.success) {
         setShowRenewalModal(false);
         setRenewalMember(null);
-        setRenewalForm(RENEWAL_FORM_DEFAULT);
+        setRenewalForm(RRENEWAL_FORM_DEFAULT);
         fetchData();
         showToast("Membership renewed!");
       } else {
@@ -421,21 +442,21 @@ function App() {
   const openEditInfo = (member) => {
     setEditInfoMember(member);
     setInfoForm({
-      name:                   member.full_name || "",
-      contactNumber:          member.contact_number || "",
-      address:                member.address || "",
-      facebook:               member.facebook || "",
-      dob:                    member.dob || "",
-      age:                    member.age || "",
-      gender:                 member.gender || "",
-      occupation:             member.occupation || "",
-      contractId:             member.contract_id || "",
-      emergencyContactName:   member.emergency_contact_name || "",
+      name: member.full_name || "",
+      contactNumber: member.contact_number || "",
+      address: member.address || "",
+      facebook: member.facebook || "",
+      dob: member.dob || "",
+      age: member.age || "",
+      gender: member.gender || "",
+      occupation: member.occupation || "",
+      contractId: member.contract_id || "",
+      emergencyContactName: member.emergency_contact_name || "",
       emergencyContactNumber: member.emergency_contact_number || "",
-      discountType:           member.discount_type || "None",
-      discountId:             member.discount_id || "",
-      discountIdType:         member.discount_id_type || "",
-      discountSchoolName:     member.discount_school_name || "",
+      discountType: member.discount_type || "None",
+      discountId: member.discount_id || "",
+      discountIdType: member.discount_id_type || "",
+      discountSchoolName: member.discount_school_name || "",
     });
     setShowEditInfoModal(true);
   };
@@ -446,21 +467,21 @@ function App() {
       const res = await apiFetch("update_member_info.php", {
         method: "POST",
         body: JSON.stringify({
-          member_id:                editInfoMember.member_id,
-          full_name:                infoForm.name,
-          contact_number:           infoForm.contactNumber,
-          address:                  infoForm.address,
-          facebook:                 infoForm.facebook,
-          dob:                      infoForm.dob,
-          age:                      infoForm.age !== "" ? parseInt(infoForm.age) : null,
-          gender:                   infoForm.gender,
-          occupation:               infoForm.occupation,
-          emergency_contact_name:   infoForm.emergencyContactName,
+          member_id: editInfoMember.member_id,
+          full_name: infoForm.name,
+          contact_number: infoForm.contactNumber,
+          address: infoForm.address,
+          facebook: infoForm.facebook,
+          dob: infoForm.dob,
+          age: infoForm.age !== "" ? parseInt(infoForm.age) : null,
+          gender: infoForm.gender,
+          occupation: infoForm.occupation,
+          emergency_contact_name: infoForm.emergencyContactName,
           emergency_contact_number: infoForm.emergencyContactNumber,
-          discount_type:            infoForm.discountType,
-          discount_id:              infoForm.discountId,
-          discount_id_type:         infoForm.discountIdType,
-          discount_school_name:     infoForm.discountSchoolName,
+          discount_type: infoForm.discountType,
+          discount_id: infoForm.discountId,
+          discount_id_type: infoForm.discountIdType,
+          discount_school_name: infoForm.discountSchoolName,
         }),
       }).then((r) => r.json());
 
@@ -485,7 +506,7 @@ function App() {
     }
     setWalkInForm({
       ...WALKIN_FORM_DEFAULT,
-      guestName:    walkin.full_name || "",
+      guestName: walkin.full_name || "",
       guestContact: walkin.contact_number || "",
     });
     setShowWalkInModal(true);
@@ -495,7 +516,7 @@ function App() {
     clearMemberForm();
     setMemberForm((f) => ({
       ...f,
-      name:          walkin.full_name || "",
+      name: walkin.full_name || "",
       contactNumber: walkin.contact_number || "",
     }));
     setShowMemberModal(true);
@@ -629,32 +650,60 @@ function App() {
           setShowWalkInModal(true);
         }}
         setShowTdeeModal={setShowTdeeModal}
+        openAdminModal={() => setShowAdminSettingsModal(true)} // 3. INJECT OPEN ACTION INTO SIDEBAR
         currentView={currentView}
         setCurrentView={setCurrentView}
       />
 
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-      <main style={{ flex: 1, padding: "30px", overflowY: "auto", position: "relative" }}>
+      <main
+        style={{
+          flex: 1,
+          padding: "30px",
+          overflowY: "auto",
+          position: "relative",
+        }}
+      >
         {isLoading && (
-          <div style={{
-            position: "absolute", inset: 0, zIndex: 100,
-            display: "flex", flexDirection: "column",
-            justifyContent: "center", alignItems: "center", gap: "16px",
-            backgroundColor: "rgba(0,0,0,0.25)", backdropFilter: "blur(2px)",
-          }}>
-            <div style={{
-              width: "42px", height: "42px", borderRadius: "50%",
-              border: `4px solid ${theme.border}`,
-              borderTop: `4px solid ${theme.primary}`,
-              animation: "spin 0.75s linear infinite",
-            }} />
-            <span style={{ color: theme.text, fontWeight: "bold", fontSize: "14px" }}>
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              zIndex: 100,
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              alignItems: "center",
+              gap: "16px",
+              backgroundColor: "rgba(0,0,0,0.25)",
+              backdropFilter: "blur(2px)",
+            }}
+          >
+            <div
+              style={{
+                width: "42px",
+                height: "42px",
+                borderRadius: "50%",
+                border: `4px solid ${theme.border}`,
+                borderTop: `4px solid ${theme.primary}`,
+                animation: "spin 0.75s linear infinite",
+              }}
+            />
+            <span
+              style={{
+                color: theme.text,
+                fontWeight: "bold",
+                fontSize: "14px",
+              }}
+            >
               Loading data...
             </span>
           </div>
         )}
         {currentView.startsWith("revenue") ? (
           <RevenueReport theme={theme} activeTab={currentView} />
+        ) : currentView === "attendance-report" ? (
+          <AttendanceReport theme={theme} isDarkMode={isDarkMode} />
         ) : currentView === "plans" ? (
           <PlansManager theme={theme} />
         ) : currentView === "promos" ? (
@@ -718,7 +767,11 @@ function App() {
                   gap: "20px",
                 }}
               >
-                <StatsCards stats={stats} theme={theme} isDarkMode={isDarkMode} />
+                <StatsCards
+                  stats={stats}
+                  theme={theme}
+                  isDarkMode={isDarkMode}
+                />
                 <MembersTable
                   theme={theme}
                   isDarkMode={isDarkMode}
@@ -738,7 +791,10 @@ function App() {
                   }}
                 />
               </div>
-              <div className="live-feed-panel" style={{ width: "350px", flexShrink: 0 }}>
+              <div
+                className="live-feed-panel"
+                style={{ width: "350px", flexShrink: 0 }}
+              >
                 <LiveFeed
                   theme={theme}
                   isDarkMode={isDarkMode}
@@ -805,7 +861,9 @@ function App() {
             setSelectedMember((m) => ({ ...m, photo_url: url }));
             fetchData();
           }}
-          onAddInstallmentPayment={(member) => setInstallmentPaymentMember(member)}
+          onAddInstallmentPayment={(member) =>
+            setInstallmentPaymentMember(member)
+          }
         />
       )}
 
@@ -830,7 +888,7 @@ function App() {
           onClose={() => {
             setShowRenewalModal(false);
             setRenewalMember(null);
-            setRenewalForm(RENEWAL_FORM_DEFAULT);
+            setRenewalForm(RRENEWAL_FORM_DEFAULT);
           }}
         />
       )}
@@ -859,6 +917,15 @@ function App() {
         />
       )}
 
+      {/* 4. RENDER NEW ADMIN SETTINGS MODAL AT THE BOTTOM */}
+      {showAdminSettingsModal && (
+        <AdminSettingsModal
+          theme={theme}
+          onClose={() => setShowAdminSettingsModal(false)}
+          showToast={showToast}
+        />
+      )}
+
       {deleteConfirm.show && (
         <ConfirmModal
           theme={theme}
@@ -881,77 +948,92 @@ function App() {
       )}
 
       {walkInRecommend.show && (
-        <div style={{
-          position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.7)",
-          display: "flex", justifyContent: "center", alignItems: "center",
-          zIndex: 2000, backdropFilter: "blur(4px)",
-        }}>
-          <div style={{
-            backgroundColor: theme.surface, borderRadius: "16px",
-            padding: "36px", width: "420px", textAlign: "center",
-            border: `1px solid ${theme.border}`,
-            boxShadow: "0 20px 60px rgba(0,0,0,0.5)",
-          }}>
-            <div style={{ fontSize: "48px", marginBottom: "12px" }}>🏆</div>
-            <h2 style={{ margin: "0 0 10px", fontSize: "20px", color: theme.primary }}>
-              Loyal Walk-in Guest!
-            </h2>
-            <p style={{ color: theme.text, margin: "0 0 6px", fontSize: "15px" }}>
-              Si <strong>{walkInRecommend.name}</strong> ay bumisita na ng{" "}
-              <strong style={{ color: theme.primary }}>{walkInRecommend.visits}x</strong> sa gym!
-            </p>
-            <p style={{ color: theme.textMuted, fontSize: "13px", margin: "0 0 28px" }}>
-              Consider mo na siyang i-offer ng membership plan para makatipid siya at makapag-enjoy ng full benefits.
-            </p>
-            <div style={{ display: "flex", gap: "12px", justifyContent: "center" }}>
-              <button
-                onClick={() => {
-                  const name = walkInRecommend.name;
-                  setWalkInRecommend({ show: false, name: "", visits: 0 });
-                  clearMemberForm();
-                  setMemberForm((f) => ({ ...f, name }));
-                  setShowMemberModal(true);
-                }}
-                style={{
-                  padding: "12px 22px", backgroundColor: theme.primary,
-                  color: theme.primaryText, border: "none", borderRadius: "8px",
-                  cursor: "pointer", fontWeight: "bold", fontSize: "14px",
-                }}
-              >
-                ➕ Register as Member
-              </button>
-              <button
-                onClick={() => setWalkInRecommend({ show: false, name: "", visits: 0 })}
-                style={{
-                  padding: "12px 22px", backgroundColor: "transparent",
-                  color: theme.textMuted, border: `1px solid ${theme.border}`,
-                  borderRadius: "8px", cursor: "pointer", fontSize: "14px",
-                }}
-              >
-                Maybe Later
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {toast.show && (
         <div
           style={{
             position: "fixed",
-            bottom: "30px",
-            right: "30px",
-            backgroundColor:
-              toast.type === "error" ? theme.danger : theme.success,
-            color: "white",
-            padding: "16px 24px",
-            borderRadius: "8px",
-            boxShadow: "0 10px 25px rgba(0,0,0,0.4)",
-            zIndex: 99999,
-            fontWeight: "bold",
+            inset: 0,
+            backgroundColor: "rgba(0,0,0,0.7)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 2000,
+            backdropFilter: "blur(4px)",
           }}
         >
-          {toast.message}
+          <div
+            style={{
+              backgroundColor: theme.surface,
+              borderRadius: "16px",
+              padding: "36px",
+              width: "420px",
+              textAlign: "center",
+              border: `1px solid ${theme.border}`,
+              boxShadow: "0 20px 60px rgba(0,0,0,0.5)",
+            }}
+          >
+            <div style={{ fontSize: "48px", marginBottom: "12px" }}>🏆</div>
+            <h2
+              style={{
+                margin: "0 0 10px",
+                fontSize: "20px",
+                color: theme.primary,
+              }}
+            >
+              Loyal Walk-in Guest!
+            </h2>
+            <p
+              style={{ color: theme.text, margin: "0 0 6px", fontSize: "15px" }}
+            >
+              Si <strong>{walkInRecommend.name}</strong> ay bumisita na ng{" "}
+              <strong>{walkInRecommend.visits}</strong> beses bilang walk-in.
+            </p>
+            <p
+              style={{
+                color: theme.textMuted,
+                margin: "0 0 24px",
+                fontSize: "13px",
+              }}
+            >
+              Alukin siyang kumuha ng Regular Membership para makatipid!
+            </p>
+            <div style={{ display: "flex", gap: "12px" }}>
+              <button
+                onClick={() => {
+                  setWalkInRecommend({ show: false, name: "", visits: 0 });
+                  clearMemberForm();
+                  setMemberForm((f) => ({ ...f, name: walkInRecommend.name }));
+                  setShowMemberModal(true);
+                }}
+                style={{
+                  flex: 1,
+                  padding: "12px",
+                  border: "none",
+                  borderRadius: "8px",
+                  backgroundColor: theme.primary,
+                  color: theme.primaryText,
+                  fontWeight: "bold",
+                  cursor: "pointer",
+                }}
+              >
+                Gawan ng Membership
+              </button>
+              <button
+                onClick={() =>
+                  setWalkInRecommend({ show: false, name: "", visits: 0 })
+                }
+                style={{
+                  padding: "12px 20px",
+                  border: `1px solid ${theme.border}`,
+                  borderRadius: "8px",
+                  backgroundColor: "transparent",
+                  color: theme.text,
+                  cursor: "pointer",
+                }}
+              >
+                Sige mamaya na
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

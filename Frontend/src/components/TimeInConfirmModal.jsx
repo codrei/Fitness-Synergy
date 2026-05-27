@@ -1,12 +1,32 @@
 import React from "react";
 
-function TimeInConfirmModal({ theme, member, getDaysRemaining, onConfirm, onClose }) {
-  const daysLeft  = getDaysRemaining(member.expiration_date);
+function TimeInConfirmModal({
+  theme,
+  member,
+  getDaysRemaining,
+  onConfirm,
+  onClose,
+}) {
+  const daysLeft = getDaysRemaining(member.expiration_date);
   const isExpired = member.status === "Expired" || daysLeft === "Expired";
 
-  const statusBg    = isExpired ? "rgba(255,82,82,0.15)"   : daysLeft === "Expires Today" ? "rgba(245,158,11,0.15)" : "rgba(0,230,118,0.12)";
-  const statusColor = isExpired ? "#ff5252" : daysLeft === "Expires Today" ? "#f59e0b" : "#00c853";
-  const statusLabel = isExpired ? "❌ EXPIRED" : daysLeft === "Expires Today" ? "⚠️ EXPIRES TODAY" : daysLeft === "No Expiration" ? "✅ NO EXPIRATION" : `✅ ${daysLeft}`;
+  const statusBg = isExpired
+    ? "rgba(255,82,82,0.15)"
+    : daysLeft === "Expires Today"
+      ? "rgba(245,158,11,0.15)"
+      : "rgba(0,230,118,0.12)";
+  const statusColor = isExpired
+    ? "#ff5252"
+    : daysLeft === "Expires Today"
+      ? "#f59e0b"
+      : "#00c853";
+  const statusLabel = isExpired
+    ? "❌ EXPIRED"
+    : daysLeft === "Expires Today"
+      ? "⚠️ EXPIRES TODAY"
+      : daysLeft === "No Expiration"
+        ? "✅ NO EXPIRATION"
+        : `✅ ${daysLeft}`;
 
   return (
     <div
@@ -48,14 +68,29 @@ function TimeInConfirmModal({ theme, member, getDaysRemaining, onConfirm, onClos
           </span>
           <button
             onClick={onClose}
-            style={{ background: "none", border: "none", color: "rgba(255,255,255,0.6)", fontSize: "18px", cursor: "pointer", lineHeight: 1 }}
+            style={{
+              background: "none",
+              border: "none",
+              color: "rgba(255,255,255,0.6)",
+              fontSize: "18px",
+              cursor: "pointer",
+              lineHeight: 1,
+            }}
           >
             ✕
           </button>
         </div>
 
         {/* Body */}
-        <div style={{ padding: "28px 24px", display: "flex", flexDirection: "column", alignItems: "center", gap: "14px" }}>
+        <div
+          style={{
+            padding: "28px 24px",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: "14px",
+          }}
+        >
           {/* Photo */}
           {member.photo_url ? (
             <img
@@ -71,7 +106,14 @@ function TimeInConfirmModal({ theme, member, getDaysRemaining, onConfirm, onClos
               }}
             />
           ) : (
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "10px" }}>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: "10px",
+              }}
+            >
               <div
                 style={{
                   width: "160px",
@@ -106,10 +148,22 @@ function TimeInConfirmModal({ theme, member, getDaysRemaining, onConfirm, onClos
 
           {/* Name */}
           <div style={{ textAlign: "center" }}>
-            <div style={{ fontSize: "20px", fontWeight: "bold", color: theme.text }}>
+            <div
+              style={{
+                fontSize: "20px",
+                fontWeight: "bold",
+                color: theme.text,
+              }}
+            >
               {member.full_name}
             </div>
-            <div style={{ fontSize: "13px", color: theme.textMuted, marginTop: "4px" }}>
+            <div
+              style={{
+                fontSize: "13px",
+                color: theme.textMuted,
+                marginTop: "4px",
+              }}
+            >
               {member.plan_name || "No Plan"}
             </div>
           </div>

@@ -42,13 +42,20 @@ function ProfileModal({
     }
   };
 
-  const paymentsInCycle = paymentHistory.filter((p) =>
-    !m.start_date || new Date(p.payment_date) >= new Date(m.start_date)
+  const paymentsInCycle = paymentHistory.filter(
+    (p) => !m.start_date || new Date(p.payment_date) >= new Date(m.start_date),
   );
   const installmentTotalAmt = parseFloat(m.installment_total || 0);
-  const installmentPaid = paymentsInCycle.reduce((s, p) => s + parseFloat(p.amount || 0), 0);
-  const installmentOutstanding = Math.max(0, installmentTotalAmt - installmentPaid);
-  const fmtMoney = (n) => parseFloat(n || 0).toLocaleString("en-PH", { minimumFractionDigits: 2 });
+  const installmentPaid = paymentsInCycle.reduce(
+    (s, p) => s + parseFloat(p.amount || 0),
+    0,
+  );
+  const installmentOutstanding = Math.max(
+    0,
+    installmentTotalAmt - installmentPaid,
+  );
+  const fmtMoney = (n) =>
+    parseFloat(n || 0).toLocaleString("en-PH", { minimumFractionDigits: 2 });
 
   const infoRow = (label, value) =>
     value ? (
@@ -239,14 +246,18 @@ function ProfileModal({
                 >
                   {deletingPhoto ? "Deleting…" : "🗑️ Delete Photo"}
                 </button>
-                <span style={{ color: "rgba(255,255,255,0.35)", fontSize: "12px" }}>
+                <span
+                  style={{ color: "rgba(255,255,255,0.35)", fontSize: "12px" }}
+                >
                   or click outside to close
                 </span>
               </div>
             </div>
           )}
 
-          <h2 style={{ margin: 0, flex: 1, fontSize: "18px" }}>{m.full_name}</h2>
+          <h2 style={{ margin: 0, flex: 1, fontSize: "18px" }}>
+            {m.full_name}
+          </h2>
 
           <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
             <button
@@ -310,8 +321,19 @@ function ProfileModal({
               minWidth: "120px",
             }}
           >
-            <div style={{ fontSize: "11px", color: theme.textMuted, textTransform: "uppercase", marginBottom: "3px" }}>Current Plan</div>
-            <strong style={{ color: theme.primary, fontSize: "14px" }}>{m.plan_name || "—"}</strong>
+            <div
+              style={{
+                fontSize: "11px",
+                color: theme.textMuted,
+                textTransform: "uppercase",
+                marginBottom: "3px",
+              }}
+            >
+              Current Plan
+            </div>
+            <strong style={{ color: theme.primary, fontSize: "14px" }}>
+              {m.plan_name || "—"}
+            </strong>
           </div>
           <div
             style={{
@@ -323,8 +345,19 @@ function ProfileModal({
               minWidth: "120px",
             }}
           >
-            <div style={{ fontSize: "11px", color: theme.textMuted, textTransform: "uppercase", marginBottom: "3px" }}>Expires</div>
-            <strong style={{ fontSize: "14px" }}>{m.expiration_date ? formatSafeDate(m.expiration_date) : "—"}</strong>
+            <div
+              style={{
+                fontSize: "11px",
+                color: theme.textMuted,
+                textTransform: "uppercase",
+                marginBottom: "3px",
+              }}
+            >
+              Expires
+            </div>
+            <strong style={{ fontSize: "14px" }}>
+              {m.expiration_date ? formatSafeDate(m.expiration_date) : "—"}
+            </strong>
           </div>
           <div
             style={{
@@ -336,40 +369,119 @@ function ProfileModal({
               minWidth: "100px",
             }}
           >
-            <div style={{ fontSize: "11px", color: theme.textMuted, textTransform: "uppercase", marginBottom: "3px" }}>Total Visits</div>
+            <div
+              style={{
+                fontSize: "11px",
+                color: theme.textMuted,
+                textTransform: "uppercase",
+                marginBottom: "3px",
+              }}
+            >
+              Total Visits
+            </div>
             <strong style={{ fontSize: "14px" }}>{totalVisits}</strong>
           </div>
         </div>
 
         {/* Installment section */}
         {m.is_installment == 1 && installmentTotalAmt > 0 && (
-          <div style={{
-            backgroundColor: "#f59e0b22", border: "1px solid #f59e0b",
-            borderRadius: "10px", padding: "16px", marginBottom: "20px",
-          }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
-              <span style={{ backgroundColor: "#f59e0b", color: "#000", padding: "3px 10px", borderRadius: "12px", fontSize: "11px", fontWeight: "bold" }}>
+          <div
+            style={{
+              backgroundColor: "#f59e0b22",
+              border: "1px solid #f59e0b",
+              borderRadius: "10px",
+              padding: "16px",
+              marginBottom: "20px",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                marginBottom: "12px",
+              }}
+            >
+              <span
+                style={{
+                  backgroundColor: "#f59e0b",
+                  color: "#000",
+                  padding: "3px 10px",
+                  borderRadius: "12px",
+                  fontSize: "11px",
+                  fontWeight: "bold",
+                }}
+              >
                 💰 INSTALLMENT PLAN
               </span>
               <button
                 onClick={() => onAddInstallmentPayment(m)}
-                style={{ padding: "7px 14px", backgroundColor: theme.primary, color: theme.primaryText, border: "none", borderRadius: "6px", cursor: "pointer", fontWeight: "bold", fontSize: "12px" }}
+                style={{
+                  padding: "7px 14px",
+                  backgroundColor: theme.primary,
+                  color: theme.primaryText,
+                  border: "none",
+                  borderRadius: "6px",
+                  cursor: "pointer",
+                  fontWeight: "bold",
+                  fontSize: "12px",
+                }}
               >
                 ➕ Add Payment
               </button>
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "12px" }}>
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr 1fr",
+                gap: "12px",
+              }}
+            >
               <div>
-                <div style={{ fontSize: "11px", color: theme.textMuted, textTransform: "uppercase", marginBottom: "2px" }}>Total Plan</div>
+                <div
+                  style={{
+                    fontSize: "11px",
+                    color: theme.textMuted,
+                    textTransform: "uppercase",
+                    marginBottom: "2px",
+                  }}
+                >
+                  Total Plan
+                </div>
                 <strong>₱{fmtMoney(installmentTotalAmt)}</strong>
               </div>
               <div>
-                <div style={{ fontSize: "11px", color: theme.textMuted, textTransform: "uppercase", marginBottom: "2px" }}>Paid So Far</div>
-                <strong style={{ color: "#22c55e" }}>₱{fmtMoney(installmentPaid)}</strong>
+                <div
+                  style={{
+                    fontSize: "11px",
+                    color: theme.textMuted,
+                    textTransform: "uppercase",
+                    marginBottom: "2px",
+                  }}
+                >
+                  Paid So Far
+                </div>
+                <strong style={{ color: "#22c55e" }}>
+                  ₱{fmtMoney(installmentPaid)}
+                </strong>
               </div>
               <div>
-                <div style={{ fontSize: "11px", color: theme.textMuted, textTransform: "uppercase", marginBottom: "2px" }}>Outstanding</div>
-                <strong style={{ color: installmentOutstanding > 0 ? theme.danger : "#22c55e" }}>
+                <div
+                  style={{
+                    fontSize: "11px",
+                    color: theme.textMuted,
+                    textTransform: "uppercase",
+                    marginBottom: "2px",
+                  }}
+                >
+                  Outstanding
+                </div>
+                <strong
+                  style={{
+                    color:
+                      installmentOutstanding > 0 ? theme.danger : "#22c55e",
+                  }}
+                >
                   ₱{fmtMoney(installmentOutstanding)}
                 </strong>
               </div>
@@ -398,7 +510,13 @@ function ProfileModal({
           >
             🪪 Personal Information
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 20px" }}>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: "0 20px",
+            }}
+          >
             {infoRow("Contact", m.contact_number)}
             {infoRow("Age", m.age ? `${m.age} years old` : null)}
             {infoRow("Date of Birth", m.dob ? formatSafeDate(m.dob) : null)}
@@ -406,7 +524,12 @@ function ProfileModal({
             {infoRow("Occupation", m.occupation)}
             {infoRow("Facebook", m.facebook)}
             {infoRow("Contract ID", m.contract_id)}
-            {infoRow("Discount", m.discount_type && m.discount_type !== "None" ? m.discount_type : null)}
+            {infoRow(
+              "Discount",
+              m.discount_type && m.discount_type !== "None"
+                ? m.discount_type
+                : null,
+            )}
             {infoRow("ID Type", m.discount_id_type)}
             {infoRow("ID Number", m.discount_id)}
             {infoRow("School", m.discount_school_name)}
@@ -415,7 +538,18 @@ function ProfileModal({
           </div>
           {m.address && (
             <div style={{ marginTop: "6px" }}>
-              <span style={{ fontSize: "11px", color: theme.textMuted, textTransform: "uppercase", fontWeight: "bold", display: "block", marginBottom: "2px" }}>Address</span>
+              <span
+                style={{
+                  fontSize: "11px",
+                  color: theme.textMuted,
+                  textTransform: "uppercase",
+                  fontWeight: "bold",
+                  display: "block",
+                  marginBottom: "2px",
+                }}
+              >
+                Address
+              </span>
               <span style={{ fontSize: "14px" }}>{m.address}</span>
             </div>
           )}
@@ -467,7 +601,13 @@ function ProfileModal({
                     {formatSafeDate(payment.payment_date)}
                   </span>
                   {payment.payment_method && (
-                    <span style={{ color: theme.textMuted, marginLeft: "8px", fontSize: "12px" }}>
+                    <span
+                      style={{
+                        color: theme.textMuted,
+                        marginLeft: "8px",
+                        fontSize: "12px",
+                      }}
+                    >
                       · {payment.payment_method}
                     </span>
                   )}

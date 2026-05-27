@@ -305,9 +305,11 @@ export default function RevenueReport({ theme, activeTab }) {
   const [loading, setLoading] = useState(false);
   const [month, setMonth] = useState(new Date().getMonth() + 1);
   const [year, setYear] = useState(new Date().getFullYear());
-  const [dayFilter, setDayFilter] = useState(new Date().toISOString().slice(0, 10));
+  const [dayFilter, setDayFilter] = useState(
+    new Date().toISOString().slice(0, 10),
+  );
   const [weeklyTarget, setWeeklyTarget] = useState(() =>
-    parseFloat(localStorage.getItem("fitness_synergy_weekly_target") || "0")
+    parseFloat(localStorage.getItem("fitness_synergy_weekly_target") || "0"),
   );
 
   useEffect(() => {
@@ -338,9 +340,7 @@ export default function RevenueReport({ theme, activeTab }) {
   const fetchAll = async () => {
     setLoading(true);
     try {
-      const res = await apiFetch(
-        `get_revenue.php?month=${month}&year=${year}`,
-      );
+      const res = await apiFetch(`get_revenue.php?month=${month}&year=${year}`);
       const d = await res.json();
       if (d.success) setData(d);
     } catch (e) {
@@ -359,7 +359,18 @@ export default function RevenueReport({ theme, activeTab }) {
       ["FITNESS SYNERGY LIPA - GYM SYSTEM"],
       [`${sheetName} — ${monthName} ${year}`],
       [],
-      ["#", "Date", "Name", "Age", "Senior?", "Type", "Plan", "Payment Method", "Total", "Reference"],
+      [
+        "#",
+        "Date",
+        "Name",
+        "Age",
+        "Senior?",
+        "Type",
+        "Plan",
+        "Payment Method",
+        "Total",
+        "Reference",
+      ],
       ...rows.map((p, i) => {
         const age = p.age ?? calcAge(p.dob);
         const senior = isSenior(age, p.discount_type);
@@ -377,7 +388,18 @@ export default function RevenueReport({ theme, activeTab }) {
         ];
       }),
       [],
-      ["", "", "", "", "", "", "TOTAL", "", rows.reduce((s, p) => s + parseFloat(p.amount || 0), 0), ""],
+      [
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "TOTAL",
+        "",
+        rows.reduce((s, p) => s + parseFloat(p.amount || 0), 0),
+        "",
+      ],
     ];
     const ws = XLSX.utils.aoa_to_sheet(wsData);
     ws["!cols"] = [
@@ -461,10 +483,13 @@ export default function RevenueReport({ theme, activeTab }) {
         const m = p.payment_method || "Cash";
         acc[m] = (acc[m] || 0) + parseFloat(p.amount || 0);
         return acc;
-      }, {})
+      }, {}),
     ).filter(([, v]) => v > 0);
     const dateLabel = new Date(date + "T00:00:00").toLocaleDateString("en-PH", {
-      weekday: "long", year: "numeric", month: "long", day: "numeric",
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
     });
     const win = window.open("", "_blank");
     win.document.write(`
@@ -500,7 +525,10 @@ export default function RevenueReport({ theme, activeTab }) {
       </body></html>
     `);
     win.document.close();
-    setTimeout(() => { win.print(); win.close(); }, 500);
+    setTimeout(() => {
+      win.print();
+      win.close();
+    }, 500);
   };
 
   const selectStyle = {
@@ -563,11 +591,17 @@ export default function RevenueReport({ theme, activeTab }) {
       [`Monthly Earnings — ${yr}`],
       [],
       ["Month", "Total Revenue (₱)", "Transactions"],
-      ...rows.map((r) => [r.month_name, parseFloat(r.total || 0), parseInt(r.count || 0)]),
+      ...rows.map((r) => [
+        r.month_name,
+        parseFloat(r.total || 0),
+        parseInt(r.count || 0),
+      ]),
       [],
-      ["TOTAL",
+      [
+        "TOTAL",
         rows.reduce((s, r) => s + parseFloat(r.total || 0), 0),
-        rows.reduce((s, r) => s + parseInt(r.count || 0), 0)],
+        rows.reduce((s, r) => s + parseInt(r.count || 0), 0),
+      ],
     ];
     const ws = XLSX.utils.aoa_to_sheet(wsData);
     ws["!cols"] = [{ wch: 14 }, { wch: 22 }, { wch: 14 }];
@@ -598,11 +632,15 @@ export default function RevenueReport({ theme, activeTab }) {
       <table><thead><tr>
         <th>Month</th><th>Total Revenue (₱)</th><th>Transactions</th>
       </tr></thead><tbody>
-      ${rows.map((r) => `<tr>
+      ${rows
+        .map(
+          (r) => `<tr>
         <td>${r.month_name}</td>
         <td><strong>₱${parseFloat(r.total || 0).toLocaleString("en-PH", { minimumFractionDigits: 2 })}</strong></td>
         <td>${r.count || 0}</td>
-      </tr>`).join("")}
+      </tr>`,
+        )
+        .join("")}
       <tr class="total-row">
         <td>TOTAL</td>
         <td><strong>₱${grandTotal.toLocaleString("en-PH", { minimumFractionDigits: 2 })}</strong></td>
@@ -611,7 +649,10 @@ export default function RevenueReport({ theme, activeTab }) {
       </tbody></table></body></html>
     `);
     win.document.close();
-    setTimeout(() => { win.print(); win.close(); }, 500);
+    setTimeout(() => {
+      win.print();
+      win.close();
+    }, 500);
   };
 
   const exportBtns = (rows, title, filename) => (
@@ -638,15 +679,24 @@ export default function RevenueReport({ theme, activeTab }) {
       return acc;
     }, {});
     return (
-      <div style={{ display: "flex", gap: 16, flexWrap: "wrap", marginBottom: 24 }}>
+      <div
+        style={{ display: "flex", gap: 16, flexWrap: "wrap", marginBottom: 24 }}
+      >
         <StatCard
           label={label}
-          value={fmtPHP(rows.reduce((s, p) => s + parseFloat(p.amount || 0), 0))}
+          value={fmtPHP(
+            rows.reduce((s, p) => s + parseFloat(p.amount || 0), 0),
+          )}
           sub={`${rows.length} transaction(s)`}
           theme={theme}
         />
         {Object.entries(methodTotals).map(([method, total]) => (
-          <StatCard key={method} label={method} value={fmtPHP(total)} theme={theme} />
+          <StatCard
+            key={method}
+            label={method}
+            value={fmtPHP(total)}
+            theme={theme}
+          />
         ))}
       </div>
     );
@@ -658,7 +708,8 @@ export default function RevenueReport({ theme, activeTab }) {
     const weekRevenue = parseFloat(o.this_week || 0);
     const monthExpenses = parseFloat(o.expenses_this_month || 0);
     const netIncome = parseFloat(o.this_month || 0) - monthExpenses;
-    const weekPct = weeklyTarget > 0 ? Math.min(100, (weekRevenue / weeklyTarget) * 100) : 0;
+    const weekPct =
+      weeklyTarget > 0 ? Math.min(100, (weekRevenue / weeklyTarget) * 100) : 0;
     const now = new Date();
     const dow = now.getDay();
     const monday = new Date(now);
@@ -671,11 +722,35 @@ export default function RevenueReport({ theme, activeTab }) {
         <h1 style={{ margin: "0 0 24px", fontSize: 28 }}>📈 Overview</h1>
 
         {/* Revenue stat cards */}
-        <div style={{ display: "flex", gap: 16, flexWrap: "wrap", marginBottom: 24 }}>
-          <StatCard label="Today's Revenue" value={fmtPHP(o.today)} theme={theme} />
-          <StatCard label="This Week" value={fmtPHP(o.this_week)} sub={weekRange} theme={theme} />
-          <StatCard label="This Month" value={fmtPHP(o.this_month)} theme={theme} />
-          <StatCard label="This Year" value={fmtPHP(o.this_year)} theme={theme} />
+        <div
+          style={{
+            display: "flex",
+            gap: 16,
+            flexWrap: "wrap",
+            marginBottom: 24,
+          }}
+        >
+          <StatCard
+            label="Today's Revenue"
+            value={fmtPHP(o.today)}
+            theme={theme}
+          />
+          <StatCard
+            label="This Week"
+            value={fmtPHP(o.this_week)}
+            sub={weekRange}
+            theme={theme}
+          />
+          <StatCard
+            label="This Month"
+            value={fmtPHP(o.this_month)}
+            theme={theme}
+          />
+          <StatCard
+            label="This Year"
+            value={fmtPHP(o.this_year)}
+            theme={theme}
+          />
           <StatCard label="All Time" value={fmtPHP(o.all_time)} theme={theme} />
           {monthExpenses > 0 && (
             <StatCard
@@ -689,22 +764,59 @@ export default function RevenueReport({ theme, activeTab }) {
               label="Net Income (Month)"
               value={fmtPHP(netIncome)}
               sub="Revenue − Expenses"
-              theme={{ ...theme, primary: netIncome >= 0 ? theme.success : theme.danger }}
+              theme={{
+                ...theme,
+                primary: netIncome >= 0 ? theme.success : theme.danger,
+              }}
             />
           )}
         </div>
 
         {/* Weekly Target Tracker */}
-        <div style={{ background: theme.surface, border: `1px solid ${theme.border}`, borderRadius: 12, padding: 24, marginBottom: 24 }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16 }}>
+        <div
+          style={{
+            background: theme.surface,
+            border: `1px solid ${theme.border}`,
+            borderRadius: 12,
+            padding: 24,
+            marginBottom: 24,
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "flex-start",
+              marginBottom: 16,
+            }}
+          >
             <div>
-              <div style={{ fontWeight: "bold", fontSize: 16, color: theme.text }}>🎯 Weekly Sales Target</div>
-              <div style={{ color: theme.textMuted, fontSize: 12, marginTop: 4 }}>{weekRange}</div>
+              <div
+                style={{ fontWeight: "bold", fontSize: 16, color: theme.text }}
+              >
+                🎯 Weekly Sales Target
+              </div>
+              <div
+                style={{ color: theme.textMuted, fontSize: 12, marginTop: 4 }}
+              >
+                {weekRange}
+              </div>
             </div>
             {!editingTarget ? (
               <button
-                onClick={() => { setEditingTarget(true); setTargetInput(weeklyTarget ? String(weeklyTarget) : ""); }}
-                style={{ background: "none", border: `1px solid ${theme.border}`, color: theme.textMuted, padding: "6px 12px", borderRadius: 6, cursor: "pointer", fontSize: 12 }}
+                onClick={() => {
+                  setEditingTarget(true);
+                  setTargetInput(weeklyTarget ? String(weeklyTarget) : "");
+                }}
+                style={{
+                  background: "none",
+                  border: `1px solid ${theme.border}`,
+                  color: theme.textMuted,
+                  padding: "6px 12px",
+                  borderRadius: 6,
+                  cursor: "pointer",
+                  fontSize: 12,
+                }}
               >
                 ✏️ Set Target
               </button>
@@ -714,7 +826,15 @@ export default function RevenueReport({ theme, activeTab }) {
                   type="number"
                   value={targetInput}
                   onChange={(e) => setTargetInput(e.target.value)}
-                  style={{ width: 130, padding: "6px 10px", borderRadius: 6, border: `1px solid ${theme.border}`, background: theme.bg, color: theme.text, fontSize: 13 }}
+                  style={{
+                    width: 130,
+                    padding: "6px 10px",
+                    borderRadius: 6,
+                    border: `1px solid ${theme.border}`,
+                    background: theme.bg,
+                    color: theme.text,
+                    fontSize: 13,
+                  }}
                   placeholder="e.g. 50000"
                   autoFocus
                 />
@@ -722,20 +842,43 @@ export default function RevenueReport({ theme, activeTab }) {
                   onClick={() => {
                     const v = parseFloat(targetInput) || 0;
                     setWeeklyTarget(v);
-                    localStorage.setItem("fitness_synergy_weekly_target", String(v));
+                    localStorage.setItem(
+                      "fitness_synergy_weekly_target",
+                      String(v),
+                    );
                     setEditingTarget(false);
                     apiFetch("save_setting.php", {
                       method: "POST",
-                      body: JSON.stringify({ key: "weekly_target", value: String(v) }),
+                      body: JSON.stringify({
+                        key: "weekly_target",
+                        value: String(v),
+                      }),
                     }).catch(() => {});
                   }}
-                  style={{ background: theme.primary, color: theme.primaryText, border: "none", padding: "6px 14px", borderRadius: 6, cursor: "pointer", fontSize: 12, fontWeight: "bold" }}
+                  style={{
+                    background: theme.primary,
+                    color: theme.primaryText,
+                    border: "none",
+                    padding: "6px 14px",
+                    borderRadius: 6,
+                    cursor: "pointer",
+                    fontSize: 12,
+                    fontWeight: "bold",
+                  }}
                 >
                   Save
                 </button>
                 <button
                   onClick={() => setEditingTarget(false)}
-                  style={{ background: "none", border: `1px solid ${theme.border}`, color: theme.textMuted, padding: "6px 10px", borderRadius: 6, cursor: "pointer", fontSize: 12 }}
+                  style={{
+                    background: "none",
+                    border: `1px solid ${theme.border}`,
+                    color: theme.textMuted,
+                    padding: "6px 10px",
+                    borderRadius: 6,
+                    cursor: "pointer",
+                    fontSize: 12,
+                  }}
                 >
                   ✕
                 </button>
@@ -743,23 +886,88 @@ export default function RevenueReport({ theme, activeTab }) {
             )}
           </div>
 
-          <div style={{ display: "flex", gap: 32, alignItems: "center", marginBottom: weeklyTarget > 0 ? 16 : 0, flexWrap: "wrap" }}>
+          <div
+            style={{
+              display: "flex",
+              gap: 32,
+              alignItems: "center",
+              marginBottom: weeklyTarget > 0 ? 16 : 0,
+              flexWrap: "wrap",
+            }}
+          >
             <div>
-              <div style={{ color: theme.textMuted, fontSize: 11, textTransform: "uppercase", letterSpacing: 1 }}>This Week</div>
-              <div style={{ color: theme.primary, fontSize: 26, fontWeight: "bold", marginTop: 4 }}>{fmtPHP(weekRevenue)}</div>
+              <div
+                style={{
+                  color: theme.textMuted,
+                  fontSize: 11,
+                  textTransform: "uppercase",
+                  letterSpacing: 1,
+                }}
+              >
+                This Week
+              </div>
+              <div
+                style={{
+                  color: theme.primary,
+                  fontSize: 26,
+                  fontWeight: "bold",
+                  marginTop: 4,
+                }}
+              >
+                {fmtPHP(weekRevenue)}
+              </div>
             </div>
             {weeklyTarget > 0 && (
               <>
                 <div style={{ color: theme.border, fontSize: 28 }}>→</div>
                 <div>
-                  <div style={{ color: theme.textMuted, fontSize: 11, textTransform: "uppercase", letterSpacing: 1 }}>Target</div>
-                  <div style={{ color: theme.text, fontSize: 26, fontWeight: "bold", marginTop: 4 }}>{fmtPHP(weeklyTarget)}</div>
+                  <div
+                    style={{
+                      color: theme.textMuted,
+                      fontSize: 11,
+                      textTransform: "uppercase",
+                      letterSpacing: 1,
+                    }}
+                  >
+                    Target
+                  </div>
+                  <div
+                    style={{
+                      color: theme.text,
+                      fontSize: 26,
+                      fontWeight: "bold",
+                      marginTop: 4,
+                    }}
+                  >
+                    {fmtPHP(weeklyTarget)}
+                  </div>
                 </div>
                 <div style={{ color: theme.border, fontSize: 24 }}>|</div>
                 <div>
-                  <div style={{ color: theme.textMuted, fontSize: 11, textTransform: "uppercase", letterSpacing: 1 }}>Remaining</div>
-                  <div style={{ color: weekRevenue >= weeklyTarget ? theme.success : theme.danger, fontSize: 26, fontWeight: "bold", marginTop: 4 }}>
-                    {weekRevenue >= weeklyTarget ? "✅ Reached!" : fmtPHP(weeklyTarget - weekRevenue)}
+                  <div
+                    style={{
+                      color: theme.textMuted,
+                      fontSize: 11,
+                      textTransform: "uppercase",
+                      letterSpacing: 1,
+                    }}
+                  >
+                    Remaining
+                  </div>
+                  <div
+                    style={{
+                      color:
+                        weekRevenue >= weeklyTarget
+                          ? theme.success
+                          : theme.danger,
+                      fontSize: 26,
+                      fontWeight: "bold",
+                      marginTop: 4,
+                    }}
+                  >
+                    {weekRevenue >= weeklyTarget
+                      ? "✅ Reached!"
+                      : fmtPHP(weeklyTarget - weekRevenue)}
                   </div>
                 </div>
               </>
@@ -768,30 +976,66 @@ export default function RevenueReport({ theme, activeTab }) {
 
           {weeklyTarget > 0 ? (
             <div>
-              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
-                <span style={{ color: theme.textMuted, fontSize: 12 }}>Progress toward weekly target</span>
-                <span style={{ color: theme.text, fontSize: 12, fontWeight: "bold" }}>{weekPct.toFixed(1)}%</span>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  marginBottom: 8,
+                }}
+              >
+                <span style={{ color: theme.textMuted, fontSize: 12 }}>
+                  Progress toward weekly target
+                </span>
+                <span
+                  style={{
+                    color: theme.text,
+                    fontSize: 12,
+                    fontWeight: "bold",
+                  }}
+                >
+                  {weekPct.toFixed(1)}%
+                </span>
               </div>
-              <div style={{ background: theme.border, borderRadius: 100, height: 12, overflow: "hidden" }}>
-                <div style={{
-                  background: weekPct >= 100 ? theme.success : theme.primary,
-                  height: "100%",
-                  width: `${weekPct}%`,
+              <div
+                style={{
+                  background: theme.border,
                   borderRadius: 100,
-                  transition: "width 0.5s ease",
-                }} />
+                  height: 12,
+                  overflow: "hidden",
+                }}
+              >
+                <div
+                  style={{
+                    background: weekPct >= 100 ? theme.success : theme.primary,
+                    height: "100%",
+                    width: `${weekPct}%`,
+                    borderRadius: 100,
+                    transition: "width 0.5s ease",
+                  }}
+                />
               </div>
             </div>
           ) : (
-            <div style={{ color: theme.textMuted, fontSize: 13, padding: "4px 0" }}>
+            <div
+              style={{ color: theme.textMuted, fontSize: 13, padding: "4px 0" }}
+            >
               No target set — click "Set Target" to track this week's progress.
             </div>
           )}
         </div>
 
         {/* Monthly bar chart */}
-        <div style={{ background: theme.surface, border: `1px solid ${theme.border}`, borderRadius: 12, padding: 24 }}>
-          <h3 style={{ margin: "0 0 16px", color: theme.text }}>Monthly Revenue — {year}</h3>
+        <div
+          style={{
+            background: theme.surface,
+            border: `1px solid ${theme.border}`,
+            borderRadius: 12,
+            padding: 24,
+          }}
+        >
+          <h3 style={{ margin: "0 0 16px", color: theme.text }}>
+            Monthly Revenue — {year}
+          </h3>
           <div style={{ display: "flex", gap: 10, marginBottom: 16 }}>
             <select
               value={year}
@@ -799,11 +1043,18 @@ export default function RevenueReport({ theme, activeTab }) {
               style={selectStyle}
             >
               {YEAR_OPTIONS.map((y) => (
-                <option key={y} value={y}>{y}</option>
+                <option key={y} value={y}>
+                  {y}
+                </option>
               ))}
             </select>
           </div>
-          <BarChart data={data.monthly || []} labelKey="month_name" valueKey="total" theme={theme} />
+          <BarChart
+            data={data.monthly || []}
+            labelKey="month_name"
+            valueKey="total"
+            theme={theme}
+          />
         </div>
       </div>
     );
@@ -814,14 +1065,36 @@ export default function RevenueReport({ theme, activeTab }) {
     const rows = data.payments || [];
     const allMembers = data.member_payments || [];
     const allWalkins = data.walkin_payments || [];
-    const filteredRows = dayFilter ? rows.filter((p) => String(p.payment_date).startsWith(dayFilter)) : rows;
-    const filteredMembers = dayFilter ? allMembers.filter((p) => String(p.payment_date).startsWith(dayFilter)) : allMembers;
-    const filteredWalkins = dayFilter ? allWalkins.filter((p) => String(p.payment_date).startsWith(dayFilter)) : allWalkins;
+    const filteredRows = dayFilter
+      ? rows.filter((p) => String(p.payment_date).startsWith(dayFilter))
+      : rows;
+    const filteredMembers = dayFilter
+      ? allMembers.filter((p) => String(p.payment_date).startsWith(dayFilter))
+      : allMembers;
+    const filteredWalkins = dayFilter
+      ? allWalkins.filter((p) => String(p.payment_date).startsWith(dayFilter))
+      : allWalkins;
     return (
       <div style={{ padding: 30 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24, flexWrap: "wrap", gap: 12 }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: 24,
+            flexWrap: "wrap",
+            gap: 12,
+          }}
+        >
           <h1 style={{ margin: 0, fontSize: 28 }}>📅 Daily Earnings</h1>
-          <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
+          <div
+            style={{
+              display: "flex",
+              gap: 10,
+              flexWrap: "wrap",
+              alignItems: "center",
+            }}
+          >
             {monthSelects}
             <input
               type="date"
@@ -835,94 +1108,298 @@ export default function RevenueReport({ theme, activeTab }) {
                   setMonth(Number(m));
                 }
               }}
-              style={{ padding: "7px 10px", borderRadius: 8, background: theme.surface, color: theme.text, border: `1px solid ${theme.border}`, fontSize: 13, cursor: "pointer" }}
+              style={{
+                padding: "7px 10px",
+                borderRadius: 8,
+                background: theme.surface,
+                color: theme.text,
+                border: `1px solid ${theme.border}`,
+                fontSize: 13,
+                cursor: "pointer",
+              }}
               title="Filter by specific date"
             />
             {dayFilter && (
               <button
                 onClick={() => setDayFilter("")}
-                style={{ background: "none", border: `1px solid ${theme.border}`, color: theme.textMuted, padding: "7px 10px", borderRadius: 8, cursor: "pointer", fontSize: 12 }}
+                style={{
+                  background: "none",
+                  border: `1px solid ${theme.border}`,
+                  color: theme.textMuted,
+                  padding: "7px 10px",
+                  borderRadius: 8,
+                  cursor: "pointer",
+                  fontSize: 12,
+                }}
               >
                 ✕ Clear
               </button>
             )}
-            {exportBtns(filteredRows, `Daily Earnings ${MONTHS[month - 1]} ${year}`, `Daily_${MONTHS[month - 1]}_${year}.xlsx`)}
+            {exportBtns(
+              filteredRows,
+              `Daily Earnings ${MONTHS[month - 1]} ${year}`,
+              `Daily_${MONTHS[month - 1]}_${year}.xlsx`,
+            )}
           </div>
         </div>
 
         {/* Daily Summary Card — shown when a specific date is selected */}
-        {dayFilter && (() => {
-          const dayTotal = filteredRows.reduce((s, p) => s + parseFloat(p.amount || 0), 0);
-          const methodBreakdown = Object.entries(
-            filteredRows.reduce((acc, p) => {
-              const m = p.payment_method || "Cash";
-              acc[m] = (acc[m] || 0) + parseFloat(p.amount || 0);
-              return acc;
-            }, {})
-          ).filter(([, v]) => v > 0);
-          return (
-            <div style={{ background: theme.surface, border: `2px solid ${theme.primary}`, borderRadius: 12, padding: 24, marginBottom: 24 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20 }}>
-                <div>
-                  <div style={{ color: theme.primary, fontSize: 11, textTransform: "uppercase", letterSpacing: 2, fontWeight: "bold", marginBottom: 6 }}>📋 Daily Summary</div>
-                  <div style={{ fontSize: 18, fontWeight: "bold", color: theme.text }}>
-                    {new Date(dayFilter + "T00:00:00").toLocaleDateString("en-PH", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
-                  </div>
-                </div>
-                <button
-                  onClick={() => printDailySummary(filteredRows, dayFilter)}
-                  style={{ background: theme.primary, color: theme.primaryText, border: "none", padding: "9px 18px", borderRadius: 8, cursor: "pointer", fontWeight: "bold", fontSize: 13 }}
+        {dayFilter &&
+          (() => {
+            const dayTotal = filteredRows.reduce(
+              (s, p) => s + parseFloat(p.amount || 0),
+              0,
+            );
+            const methodBreakdown = Object.entries(
+              filteredRows.reduce((acc, p) => {
+                const m = p.payment_method || "Cash";
+                acc[m] = (acc[m] || 0) + parseFloat(p.amount || 0);
+                return acc;
+              }, {}),
+            ).filter(([, v]) => v > 0);
+            return (
+              <div
+                style={{
+                  background: theme.surface,
+                  border: `2px solid ${theme.primary}`,
+                  borderRadius: 12,
+                  padding: 24,
+                  marginBottom: 24,
+                }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "flex-start",
+                    marginBottom: 20,
+                  }}
                 >
-                  🖨️ Print Summary
-                </button>
-              </div>
-              <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
-                <div style={{ flex: "1 1 160px", background: theme.bg, borderRadius: 8, padding: "16px 20px", border: `1px solid ${theme.border}`, textAlign: "center" }}>
-                  <div style={{ color: theme.textMuted, fontSize: 11, textTransform: "uppercase", letterSpacing: 1 }}>Total Revenue</div>
-                  <div style={{ color: theme.primary, fontSize: 28, fontWeight: "bold", marginTop: 6 }}>
-                    ₱{dayTotal.toLocaleString("en-PH", { minimumFractionDigits: 2 })}
-                  </div>
-                  <div style={{ color: theme.textMuted, fontSize: 11, marginTop: 4 }}>{filteredRows.length} transaction(s)</div>
-                </div>
-                <div style={{ flex: "1 1 160px", background: theme.bg, borderRadius: 8, padding: "16px 20px", border: `1px solid ${theme.border}` }}>
-                  <div style={{ color: theme.textMuted, fontSize: 11, textTransform: "uppercase", letterSpacing: 1, marginBottom: 10 }}>Transaction Types</div>
-                  <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                    <span style={{ color: "#4caf50", fontWeight: "bold", fontSize: 14 }}>👥 {filteredMembers.length} Member Transaction(s)</span>
-                    <span style={{ color: theme.primary, fontWeight: "bold", fontSize: 14 }}>🚶 {filteredWalkins.length} Walk-in Transaction(s)</span>
-                  </div>
-                </div>
-                {methodBreakdown.length > 0 && (
-                  <div style={{ flex: "2 1 240px", background: theme.bg, borderRadius: 8, padding: "16px 20px", border: `1px solid ${theme.border}` }}>
-                    <div style={{ color: theme.textMuted, fontSize: 11, textTransform: "uppercase", letterSpacing: 1, marginBottom: 10 }}>Payment Methods</div>
-                    <div style={{ display: "flex", flexWrap: "wrap", gap: "8px 24px" }}>
-                      {methodBreakdown.map(([label, val]) => (
-                        <div key={label} style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                          <span style={{ color: theme.textMuted, fontSize: 13 }}>{label}:</span>
-                          <span style={{ color: theme.text, fontWeight: "bold", fontSize: 13 }}>
-                            ₱{val.toLocaleString("en-PH", { minimumFractionDigits: 2 })}
-                          </span>
-                        </div>
-                      ))}
+                  <div>
+                    <div
+                      style={{
+                        color: theme.primary,
+                        fontSize: 11,
+                        textTransform: "uppercase",
+                        letterSpacing: 2,
+                        fontWeight: "bold",
+                        marginBottom: 6,
+                      }}
+                    >
+                      📋 Daily Summary
                     </div>
+                    <div
+                      style={{
+                        fontSize: 18,
+                        fontWeight: "bold",
+                        color: theme.text,
+                      }}
+                    >
+                      {new Date(dayFilter + "T00:00:00").toLocaleDateString(
+                        "en-PH",
+                        {
+                          weekday: "long",
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                        },
+                      )}
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => printDailySummary(filteredRows, dayFilter)}
+                    style={{
+                      background: theme.primary,
+                      color: theme.primaryText,
+                      border: "none",
+                      padding: "9px 18px",
+                      borderRadius: 8,
+                      cursor: "pointer",
+                      fontWeight: "bold",
+                      fontSize: 13,
+                    }}
+                  >
+                    🖨️ Print Summary
+                  </button>
+                </div>
+                <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
+                  <div
+                    style={{
+                      flex: "1 1 160px",
+                      background: theme.bg,
+                      borderRadius: 8,
+                      padding: "16px 20px",
+                      border: `1px solid ${theme.border}`,
+                      textAlign: "center",
+                    }}
+                  >
+                    <div
+                      style={{
+                        color: theme.textMuted,
+                        fontSize: 11,
+                        textTransform: "uppercase",
+                        letterSpacing: 1,
+                      }}
+                    >
+                      Total Revenue
+                    </div>
+                    <div
+                      style={{
+                        color: theme.primary,
+                        fontSize: 28,
+                        fontWeight: "bold",
+                        marginTop: 6,
+                      }}
+                    >
+                      ₱
+                      {dayTotal.toLocaleString("en-PH", {
+                        minimumFractionDigits: 2,
+                      })}
+                    </div>
+                    <div
+                      style={{
+                        color: theme.textMuted,
+                        fontSize: 11,
+                        marginTop: 4,
+                      }}
+                    >
+                      {filteredRows.length} transaction(s)
+                    </div>
+                  </div>
+                  <div
+                    style={{
+                      flex: "1 1 160px",
+                      background: theme.bg,
+                      borderRadius: 8,
+                      padding: "16px 20px",
+                      border: `1px solid ${theme.border}`,
+                    }}
+                  >
+                    <div
+                      style={{
+                        color: theme.textMuted,
+                        fontSize: 11,
+                        textTransform: "uppercase",
+                        letterSpacing: 1,
+                        marginBottom: 10,
+                      }}
+                    >
+                      Transaction Types
+                    </div>
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: 6,
+                      }}
+                    >
+                      <span
+                        style={{
+                          color: "#4caf50",
+                          fontWeight: "bold",
+                          fontSize: 14,
+                        }}
+                      >
+                        👥 {filteredMembers.length} Member Transaction(s)
+                      </span>
+                      <span
+                        style={{
+                          color: theme.primary,
+                          fontWeight: "bold",
+                          fontSize: 14,
+                        }}
+                      >
+                        🚶 {filteredWalkins.length} Walk-in Transaction(s)
+                      </span>
+                    </div>
+                  </div>
+                  {methodBreakdown.length > 0 && (
+                    <div
+                      style={{
+                        flex: "2 1 240px",
+                        background: theme.bg,
+                        borderRadius: 8,
+                        padding: "16px 20px",
+                        border: `1px solid ${theme.border}`,
+                      }}
+                    >
+                      <div
+                        style={{
+                          color: theme.textMuted,
+                          fontSize: 11,
+                          textTransform: "uppercase",
+                          letterSpacing: 1,
+                          marginBottom: 10,
+                        }}
+                      >
+                        Payment Methods
+                      </div>
+                      <div
+                        style={{
+                          display: "flex",
+                          flexWrap: "wrap",
+                          gap: "8px 24px",
+                        }}
+                      >
+                        {methodBreakdown.map(([label, val]) => (
+                          <div
+                            key={label}
+                            style={{
+                              display: "flex",
+                              gap: 8,
+                              alignItems: "center",
+                            }}
+                          >
+                            <span
+                              style={{ color: theme.textMuted, fontSize: 13 }}
+                            >
+                              {label}:
+                            </span>
+                            <span
+                              style={{
+                                color: theme.text,
+                                fontWeight: "bold",
+                                fontSize: 13,
+                              }}
+                            >
+                              ₱
+                              {val.toLocaleString("en-PH", {
+                                minimumFractionDigits: 2,
+                              })}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+                {filteredRows.length === 0 && (
+                  <div
+                    style={{
+                      color: theme.textMuted,
+                      textAlign: "center",
+                      padding: "12px 0 0",
+                      fontSize: 13,
+                    }}
+                  >
+                    No transactions found for this date.
                   </div>
                 )}
               </div>
-              {filteredRows.length === 0 && (
-                <div style={{ color: theme.textMuted, textAlign: "center", padding: "12px 0 0", fontSize: 13 }}>
-                  No transactions found for this date.
-                </div>
-              )}
-            </div>
-          );
-        })()}
+            );
+          })()}
 
-        {totalCard(filteredRows, dayFilter
-          ? `Filtered — ${new Date(dayFilter + "T00:00:00").toLocaleDateString("en-PH")}`
-          : `Total — ${MONTHS[month - 1]} ${year}`
+        {totalCard(
+          filteredRows,
+          dayFilter
+            ? `Filtered — ${new Date(dayFilter + "T00:00:00").toLocaleDateString("en-PH")}`
+            : `Total — ${MONTHS[month - 1]} ${year}`,
         )}
         <h3 style={{ color: theme.text, margin: "0 0 12px" }}>👥 Members</h3>
         <PaymentTable payments={filteredMembers} theme={theme} />
-        <h3 style={{ color: theme.text, margin: "24px 0 12px" }}>🚶 Walk-ins</h3>
+        <h3 style={{ color: theme.text, margin: "24px 0 12px" }}>
+          🚶 Walk-ins
+        </h3>
         <PaymentTable payments={filteredWalkins} theme={theme} />
       </div>
     );
@@ -959,8 +1436,18 @@ export default function RevenueReport({ theme, activeTab }) {
               ))}
             </select>
             <div style={{ display: "flex", gap: 8 }}>
-              <button onClick={() => exportMonthlyPDF(data.monthly || [], year)} style={btnStyle("#c62828")}>📄 PDF</button>
-              <button onClick={() => exportMonthlyExcel(data.monthly || [], year)} style={btnStyle("#1d6f42")}>📊 Excel</button>
+              <button
+                onClick={() => exportMonthlyPDF(data.monthly || [], year)}
+                style={btnStyle("#c62828")}
+              >
+                📄 PDF
+              </button>
+              <button
+                onClick={() => exportMonthlyExcel(data.monthly || [], year)}
+                style={btnStyle("#1d6f42")}
+              >
+                📊 Excel
+              </button>
             </div>
           </div>
         </div>

@@ -3,10 +3,9 @@ function LiveFeed({ theme, isDarkMode, attendanceLogs }) {
     <div
       style={{
         flex: 1,
-        background:
-          isDarkMode
-            ? "rgba(15, 23, 42, 0.72)"
-            : "rgba(255, 255, 255, 0.78)",
+        background: isDarkMode
+          ? "rgba(15, 23, 42, 0.72)"
+          : "rgba(255, 255, 255, 0.78)",
         backdropFilter: "blur(14px)",
         borderRadius: "12px",
         border: `1px solid ${theme.border}`,
@@ -65,7 +64,13 @@ function LiveFeed({ theme, isDarkMode, attendanceLogs }) {
                 borderLeft: `4px solid ${log.type === "Walk-in" ? theme.primary : theme.success}`,
               }}
             >
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
                 <strong style={{ fontSize: "14px" }}>{log.full_name}</strong>
                 <span
                   style={{
@@ -73,8 +78,12 @@ function LiveFeed({ theme, isDarkMode, attendanceLogs }) {
                     fontWeight: "bold",
                     padding: "2px 8px",
                     borderRadius: "20px",
-                    backgroundColor: log.type === "Walk-in" ? `${theme.primary}22` : `${theme.success}22`,
-                    color: log.type === "Walk-in" ? theme.primary : theme.success,
+                    backgroundColor:
+                      log.type === "Walk-in"
+                        ? `${theme.primary}22`
+                        : `${theme.success}22`,
+                    color:
+                      log.type === "Walk-in" ? theme.primary : theme.success,
                   }}
                 >
                   {log.type || "Member"}

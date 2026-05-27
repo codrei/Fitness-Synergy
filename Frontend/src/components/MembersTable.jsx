@@ -108,13 +108,21 @@ function MembersTable({
                   style={{ borderBottom: `1px solid ${theme.border}` }}
                 >
                   <td style={{ padding: "12px 20px" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "10px",
+                      }}
+                    >
                       <div
                         style={{
                           width: "36px",
                           height: "36px",
                           borderRadius: "50%",
-                          backgroundColor: isDarkMode ? "rgba(99,102,241,0.18)" : "#ede9fe",
+                          backgroundColor: isDarkMode
+                            ? "rgba(99,102,241,0.18)"
+                            : "#ede9fe",
                           border: `2px solid #7c3aed`,
                           display: "flex",
                           alignItems: "center",
@@ -126,11 +134,15 @@ function MembersTable({
                         🚶
                       </div>
                       <div>
-                        <span style={{ fontWeight: "bold" }}>{member.full_name}</span>
+                        <span style={{ fontWeight: "bold" }}>
+                          {member.full_name}
+                        </span>
                         <span
                           style={{
                             marginLeft: "8px",
-                            backgroundColor: isDarkMode ? "rgba(99,102,241,0.18)" : "#ede9fe",
+                            backgroundColor: isDarkMode
+                              ? "rgba(99,102,241,0.18)"
+                              : "#ede9fe",
                             color: "#7c3aed",
                             padding: "2px 8px",
                             borderRadius: "12px",
@@ -161,7 +173,17 @@ function MembersTable({
                         fontSize: "12px",
                       }}
                     >
-                      {member.total_visits}x visit{member.total_visits !== 1 ? "s" : ""} · last {member.last_visit ? new Date(member.last_visit + "T00:00:00").toLocaleDateString("en-PH", { month: "short", day: "numeric", year: "numeric" }) : "—"}
+                      {member.total_visits}x visit
+                      {member.total_visits !== 1 ? "s" : ""} · last{" "}
+                      {member.last_visit
+                        ? new Date(
+                            member.last_visit + "T00:00:00",
+                          ).toLocaleDateString("en-PH", {
+                            month: "short",
+                            day: "numeric",
+                            year: "numeric",
+                          })
+                        : "—"}
                     </span>
                   </td>
 
@@ -244,7 +266,13 @@ function MembersTable({
                 }}
               >
                 <td style={{ padding: "12px 20px" }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                    }}
+                  >
                     {member.photo_url ? (
                       <img
                         src={member.photo_url}
@@ -277,9 +305,17 @@ function MembersTable({
                       </div>
                     )}
                     <div>
-                      <span style={{ fontWeight: "bold" }}>{member.full_name}</span>
+                      <span style={{ fontWeight: "bold" }}>
+                        {member.full_name}
+                      </span>
                       {member.age && (
-                        <div style={{ fontSize: "11px", color: theme.textMuted, marginTop: "2px" }}>
+                        <div
+                          style={{
+                            fontSize: "11px",
+                            color: theme.textMuted,
+                            marginTop: "2px",
+                          }}
+                        >
                           Age {member.age}
                         </div>
                       )}
@@ -317,13 +353,17 @@ function MembersTable({
                       if (!isExpired && !isTimedIn) confirmTimeIn(member);
                     }}
                     disabled={isExpired || isTimedIn}
-                    title={isExpired ? "Membership expired — please renew first" : ""}
+                    title={
+                      isExpired ? "Membership expired — please renew first" : ""
+                    }
                     style={{
                       padding: "8px 12px",
                       backgroundColor: isExpired
                         ? theme.border
                         : isTimedIn
-                          ? isDarkMode ? "rgba(0,230,118,0.18)" : "#e8f5e9"
+                          ? isDarkMode
+                            ? "rgba(0,230,118,0.18)"
+                            : "#e8f5e9"
                           : theme.success,
                       color: isExpired
                         ? theme.textMuted
@@ -409,7 +449,8 @@ function MembersTable({
         <span>
           Showing {filteredMembers.length === 0 ? 0 : startIdx + 1}–
           {Math.min(startIdx + PAGE_SIZE, filteredMembers.length)} of{" "}
-          {filteredMembers.length} {filteredMembers.length !== 1 ? "entries" : "entry"}
+          {filteredMembers.length}{" "}
+          {filteredMembers.length !== 1 ? "entries" : "entry"}
         </span>
 
         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
@@ -420,8 +461,10 @@ function MembersTable({
               padding: "6px 14px",
               borderRadius: "6px",
               border: `1px solid ${theme.border}`,
-              backgroundColor: safeCurrentPage === 1 ? "transparent" : theme.primary,
-              color: safeCurrentPage === 1 ? theme.textMuted : theme.primaryText,
+              backgroundColor:
+                safeCurrentPage === 1 ? "transparent" : theme.primary,
+              color:
+                safeCurrentPage === 1 ? theme.textMuted : theme.primaryText,
               cursor: safeCurrentPage === 1 ? "default" : "pointer",
               fontWeight: "bold",
               fontSize: "13px",
@@ -441,8 +484,12 @@ function MembersTable({
               padding: "6px 14px",
               borderRadius: "6px",
               border: `1px solid ${theme.border}`,
-              backgroundColor: safeCurrentPage === totalPages ? "transparent" : theme.primary,
-              color: safeCurrentPage === totalPages ? theme.textMuted : theme.primaryText,
+              backgroundColor:
+                safeCurrentPage === totalPages ? "transparent" : theme.primary,
+              color:
+                safeCurrentPage === totalPages
+                  ? theme.textMuted
+                  : theme.primaryText,
               cursor: safeCurrentPage === totalPages ? "default" : "pointer",
               fontWeight: "bold",
               fontSize: "13px",

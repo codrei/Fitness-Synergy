@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import logo from "../assets/logo.jpg";
 
 function Sidebar({
@@ -11,11 +11,30 @@ function Sidebar({
   setShowTdeeModal,
   currentView,
   setCurrentView,
+  openAdminModal,
 }) {
   const [registerOpen, setRegisterOpen] = useState(false);
   const [revenueOpen, setRevenueOpen] = useState(
-    currentView.startsWith("revenue"),
+    currentView.startsWith("revenue") || currentView === "attendance-report",
   );
+  const [plansOpen, setPlansOpen] = useState(
+    currentView === "plans" || currentView === "promos",
+  );
+
+  // State to manage our Windows-style drop-up panel
+  const [adminMenuOpen, setAdminMenuOpen] = useState(false);
+  const menuRef = useRef(null);
+
+  // Close the drop-up if the user clicks outside of it
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setAdminMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const navBtn = (view) => ({
     textAlign: "left",
@@ -48,6 +67,8 @@ function Sidebar({
     fontSize: "13px",
   });
 
+  const isPlansActive = currentView === "plans" || currentView === "promos";
+
   return (
     <div
       className="app-sidebar"
@@ -61,10 +82,11 @@ function Sidebar({
         padding: "20px",
         boxShadow: "2px 0 10px rgba(0,0,0,0.3)",
         zIndex: 10,
-        overflowY: "auto",
+        //  ✅ FIXED: Removed structural overflowY clipping property from here
         flexShrink: 0,
       }}
     >
+      {/* Branding Header Area */}
       <div style={{ textAlign: "center", marginBottom: "30px" }}>
         <img
           src={logo}
@@ -99,6 +121,7 @@ function Sidebar({
         </span>
       </div>
 
+      {/*  ✅ FIXED INNER SCROLL ZONE: This isolated view box handles scrolling for links smoothly */}
       <div
         style={{
           flex: 1,
@@ -106,6 +129,7 @@ function Sidebar({
           flexDirection: "column",
           gap: "4px",
           overflowY: "auto",
+          marginBottom: "16px",
         }}
       >
         <button
@@ -129,8 +153,16 @@ function Sidebar({
           <span style={{ fontSize: 11 }}>{registerOpen ? "▲" : "▼"}</span>
         </button>
 
+        {/* Register Nested Items */}
         {registerOpen && (
-          <div style={{ display: "flex", flexDirection: "column", gap: "2px", marginBottom: "4px" }}>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "2px",
+              marginBottom: "4px",
+            }}
+          >
             <button onClick={openAddModal} style={subBtn("_never_")}>
               👤 Membership
             </button>
@@ -140,27 +172,34 @@ function Sidebar({
           </div>
         )}
 
-        {/* Revenue Report expandable */}
+        {/* Reports expandable */}
         <button
           onClick={() => {
             setRevenueOpen(!revenueOpen);
             if (!revenueOpen) setCurrentView("revenue-overview");
           }}
           style={{
-            ...navBtn("revenue"),
+            ...navBtn("reports"),
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
-            backgroundColor: currentView.startsWith("revenue")
-              ? "rgba(255,255,255,0.1)"
-              : "transparent",
-            fontWeight: currentView.startsWith("revenue") ? "bold" : "normal",
+            backgroundColor:
+              currentView.startsWith("revenue") ||
+              currentView === "attendance-report"
+                ? "rgba(255,255,255,0.1)"
+                : "transparent",
+            fontWeight:
+              currentView.startsWith("revenue") ||
+              currentView === "attendance-report"
+                ? "bold"
+                : "normal",
           }}
         >
-          <span>💰 Revenue Report</span>
+          <span>📊 Reports</span>
           <span style={{ fontSize: 11 }}>{revenueOpen ? "▲" : "▼"}</span>
         </button>
 
+        {/* Reports Nested Items */}
         {revenueOpen && (
           <div
             style={{
@@ -170,6 +209,17 @@ function Sidebar({
               marginBottom: "4px",
             }}
           >
+            <div
+              style={{
+                padding: "6px 12px 2px 28px",
+                fontSize: 10,
+                color: "#666",
+                textTransform: "uppercase",
+                letterSpacing: 1,
+              }}
+            >
+              💰 Revenue
+            </div>
             <button
               onClick={() => setCurrentView("revenue-overview")}
               style={subBtn("revenue-overview")}
@@ -192,7 +242,7 @@ function Sidebar({
               onClick={() => setCurrentView("revenue-yearly")}
               style={subBtn("revenue-yearly")}
             >
-              📆 Yearly Earnings
+              <code>📆</code> Yearly Earnings
             </button>
             <button
               onClick={() => setCurrentView("revenue-logs")}
@@ -200,22 +250,73 @@ function Sidebar({
             >
               🧾 Payment Logs
             </button>
+
+            <div
+              style={{
+                padding: "8px 12px 2px 28px",
+                fontSize: 10,
+                color: "#666",
+                textTransform: "uppercase",
+                letterSpacing: 1,
+                marginTop: 4,
+              }}
+            >
+              📅 Attendance
+            </div>
+            <button
+              onClick={() => setCurrentView("attendance-report")}
+              style={subBtn("attendance-report")}
+            >
+              📊 Attendance Report
+            </button>
           </div>
         )}
 
+        {/* Plans & Promos expandable */}
         <button
-          onClick={() => setCurrentView("plans")}
-          style={navBtn("plans")}
+          onClick={() => {
+            setPlansOpen(!plansOpen);
+            if (!plansOpen) setCurrentView("plans");
+          }}
+          style={{
+            ...navBtn("plans"),
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            backgroundColor: isPlansActive
+              ? "rgba(255,255,255,0.1)"
+              : "transparent",
+            fontWeight: isPlansActive ? "bold" : "normal",
+          }}
         >
-          📋 Plans
+          <span>📋 Plans</span>
+          <span style={{ fontSize: 11 }}>{plansOpen ? "▲" : "▼"}</span>
         </button>
 
-        <button
-          onClick={() => setCurrentView("promos")}
-          style={navBtn("promos")}
-        >
-          🎁 Promos
-        </button>
+        {/* Plans & Promos Nested Items */}
+        {plansOpen && (
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "2px",
+              marginBottom: "4px",
+            }}
+          >
+            <button
+              onClick={() => setCurrentView("plans")}
+              style={subBtn("plans")}
+            >
+              📄 Regular Plans
+            </button>
+            <button
+              onClick={() => setCurrentView("promos")}
+              style={subBtn("promos")}
+            >
+              🎁 Promos
+            </button>
+          </div>
+        )}
 
         <button
           onClick={() => setCurrentView("expenses")}
@@ -225,56 +326,199 @@ function Sidebar({
         </button>
       </div>
 
-      {/* TDEE always at bottom before logout */}
+      {/* --- REFACTORED WINDOWS STYLE BOTTOM SECTION --- */}
       <div
+        ref={menuRef}
         style={{
           borderTop: "1px solid rgba(255,255,255,0.1)",
           paddingTop: "16px",
-          display: "flex",
-          flexDirection: "column",
-          gap: "10px",
+          position: "relative",
         }}
       >
+        {/* Hidden Context Drop-Up Menu */}
+        {adminMenuOpen && (
+          <div
+            style={{
+              position: "absolute",
+              bottom: "105%",
+              left: "0",
+              width: "100%",
+              backgroundColor: theme.surface || "#222",
+              border: `1px solid ${theme.border || "rgba(255,255,255,0.15)"}`,
+              borderRadius: "8px",
+              padding: "8px",
+              boxShadow: "0 -5px 25px rgba(0,0,0,0.5)",
+              display: "flex",
+              flexDirection: "column",
+              gap: "4px",
+              zIndex: 100,
+            }}
+          >
+            <button
+              onClick={() => {
+                setAdminMenuOpen(false);
+                openAdminModal();
+              }}
+              style={{
+                textAlign: "left",
+                padding: "10px 12px",
+                background: "none",
+                border: "none",
+                color: theme.text || "white",
+                cursor: "pointer",
+                borderRadius: "6px",
+                fontSize: "14px",
+                width: "100%",
+              }}
+              onMouseEnter={(e) =>
+                (e.target.style.backgroundColor = isDarkMode
+                  ? "rgba(255,255,255,0.08)"
+                  : "rgba(0,0,0,0.05)")
+              }
+              onMouseLeave={(e) =>
+                (e.target.style.backgroundColor = "transparent")
+              }
+            >
+              ⚙️ Account Profile
+            </button>
+
+            <button
+              onClick={() => {
+                setAdminMenuOpen(false);
+                setShowTdeeModal(true);
+              }}
+              style={{
+                textAlign: "left",
+                padding: "10px 12px",
+                background: "none",
+                border: "none",
+                color: theme.text || "white",
+                cursor: "pointer",
+                borderRadius: "6px",
+                fontSize: "14px",
+                width: "100%",
+              }}
+              onMouseEnter={(e) =>
+                (e.target.style.backgroundColor = isDarkMode
+                  ? "rgba(255,255,255,0.08)"
+                  : "rgba(0,0,0,0.05)")
+              }
+              onMouseLeave={(e) =>
+                (e.target.style.backgroundColor = "transparent")
+              }
+            >
+              🧮 TDEE Tools
+            </button>
+
+            <button
+              onClick={() => {
+                setAdminMenuOpen(false);
+                toggleTheme();
+              }}
+              style={{
+                textAlign: "left",
+                padding: "10px 12px",
+                background: "none",
+                border: "none",
+                color: theme.text || "white",
+                cursor: "pointer",
+                borderRadius: "6px",
+                fontSize: "14px",
+                width: "100%",
+              }}
+              onMouseEnter={(e) =>
+                (e.target.style.backgroundColor = isDarkMode
+                  ? "rgba(255,255,255,0.08)"
+                  : "rgba(0,0,0,0.05)")
+              }
+              onMouseLeave={(e) =>
+                (e.target.style.backgroundColor = "transparent")
+              }
+            >
+              {isDarkMode ? "☀️ Switch to Light" : "🌙 Switch to Dark"}
+            </button>
+
+            <div
+              style={{
+                height: "1px",
+                backgroundColor: theme.border || "rgba(255,255,255,0.1)",
+                margin: "4px 0",
+              }}
+            />
+
+            <button
+              onClick={handleLogout}
+              style={{
+                textAlign: "left",
+                padding: "10px 12px",
+                backgroundColor: theme.danger || "#ef4444",
+                border: "none",
+                color: "white",
+                cursor: "pointer",
+                borderRadius: "6px",
+                fontSize: "14px",
+                fontWeight: "bold",
+                width: "100%",
+              }}
+            >
+              🚪 Logout
+            </button>
+          </div>
+        )}
+
+        {/* Windows Main System Anchor Button Trigger */}
         <button
-          onClick={() => setShowTdeeModal(true)}
+          onClick={() => setAdminMenuOpen(!adminMenuOpen)}
           style={{
-            textAlign: "left",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            width: "100%",
             padding: "12px",
-            backgroundColor: "transparent",
+            backgroundColor: adminMenuOpen
+              ? "rgba(255,255,255,0.1)"
+              : "rgba(0,0,0,0.2)",
             color: "white",
-            border: "none",
+            border: "1px solid rgba(255,255,255,0.1)",
             borderRadius: "8px",
             cursor: "pointer",
           }}
         >
-          🧮 TDEE Tools
-        </button>
-        <button
-          onClick={toggleTheme}
-          style={{
-            padding: "10px",
-            backgroundColor: "transparent",
-            color: theme.textMuted,
-            border: "1px solid rgba(255,255,255,0.2)",
-            borderRadius: "6px",
-            cursor: "pointer",
-          }}
-        >
-          {isDarkMode ? "☀️ Switch to Light" : "🌙 Switch to Dark"}
-        </button>
-        <button
-          onClick={handleLogout}
-          style={{
-            padding: "10px",
-            backgroundColor: theme.danger,
-            color: "white",
-            border: "none",
-            borderRadius: "6px",
-            cursor: "pointer",
-            fontWeight: "bold",
-          }}
-        >
-          🚪 Logout
+          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+            <div
+              style={{
+                width: "32px",
+                height: "32px",
+                borderRadius: "50%",
+                backgroundColor: theme.primary,
+                color: "black",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontWeight: "bold",
+                fontSize: "14px",
+              }}
+            >
+              A
+            </div>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "flex-start",
+              }}
+            >
+              <span style={{ fontSize: "14px", fontWeight: "bold" }}>
+                Administrator
+              </span>
+              <span style={{ fontSize: "11px", color: "#aaa" }}>
+                Active System Account
+              </span>
+            </div>
+          </div>
+          <span style={{ fontSize: "10px", color: "#888" }}>
+            {adminMenuOpen ? "▼" : "▲"}
+          </span>
         </button>
       </div>
     </div>

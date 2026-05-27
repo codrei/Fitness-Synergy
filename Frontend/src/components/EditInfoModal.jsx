@@ -1,7 +1,8 @@
 import React from "react";
 
 function EditInfoModal({ theme, infoForm, setInfoForm, onSubmit, onClose }) {
-  const update = (field, value) => setInfoForm((f) => ({ ...f, [field]: value }));
+  const update = (field, value) =>
+    setInfoForm((f) => ({ ...f, [field]: value }));
 
   const labelStyle = {
     fontSize: "12px",
@@ -59,14 +60,28 @@ function EditInfoModal({ theme, infoForm, setInfoForm, onSubmit, onClose }) {
           <h2 style={{ margin: 0, fontSize: "20px" }}>✏️ Edit Member Info</h2>
           <button
             onClick={onClose}
-            style={{ background: "none", border: "none", fontSize: "20px", cursor: "pointer" }}
+            style={{
+              background: "none",
+              border: "none",
+              fontSize: "20px",
+              cursor: "pointer",
+            }}
           >
             ❌
           </button>
         </div>
 
-        <form onSubmit={onSubmit} style={{ display: "flex", flexDirection: "column", gap: "18px" }}>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px" }}>
+        <form
+          onSubmit={onSubmit}
+          style={{ display: "flex", flexDirection: "column", gap: "18px" }}
+        >
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: "15px",
+            }}
+          >
             <div>
               <label style={labelStyle}>Full Name</label>
               <input
@@ -111,7 +126,13 @@ function EditInfoModal({ theme, infoForm, setInfoForm, onSubmit, onClose }) {
             />
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px" }}>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: "15px",
+            }}
+          >
             <div>
               <label style={labelStyle}>Date of Birth</label>
               <input
@@ -136,7 +157,13 @@ function EditInfoModal({ theme, infoForm, setInfoForm, onSubmit, onClose }) {
             </div>
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px" }}>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: "15px",
+            }}
+          >
             <div>
               <label style={labelStyle}>Age</label>
               <input
@@ -161,19 +188,36 @@ function EditInfoModal({ theme, infoForm, setInfoForm, onSubmit, onClose }) {
             </div>
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px" }}>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: "15px",
+            }}
+          >
             <div>
               <label style={labelStyle}>Contract ID #</label>
               <input
                 type="text"
                 value={infoForm.contractId}
                 readOnly
-                style={{ ...inputStyle, opacity: 0.6, cursor: "default", backgroundColor: theme.surface }}
+                style={{
+                  ...inputStyle,
+                  opacity: 0.6,
+                  cursor: "default",
+                  backgroundColor: theme.surface,
+                }}
               />
             </div>
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px" }}>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: "15px",
+            }}
+          >
             <div>
               <label style={labelStyle}>Emergency Contact Name</label>
               <input
@@ -189,7 +233,9 @@ function EditInfoModal({ theme, infoForm, setInfoForm, onSubmit, onClose }) {
               <input
                 type="text"
                 value={infoForm.emergencyContactNumber}
-                onChange={(e) => update("emergencyContactNumber", e.target.value)}
+                onChange={(e) =>
+                  update("emergencyContactNumber", e.target.value)
+                }
                 placeholder="Phone number"
                 style={inputStyle}
               />
@@ -197,7 +243,13 @@ function EditInfoModal({ theme, infoForm, setInfoForm, onSubmit, onClose }) {
           </div>
 
           {/* Discount section */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px" }}>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: "15px",
+            }}
+          >
             <div>
               <label style={labelStyle}>Discount / Promo Group</label>
               <select
@@ -205,10 +257,12 @@ function EditInfoModal({ theme, infoForm, setInfoForm, onSubmit, onClose }) {
                 onChange={(e) =>
                   setInfoForm((f) => ({
                     ...f,
-                    discountType:       e.target.value,
-                    discountId:         e.target.value === "None" ? "" : f.discountId,
-                    discountIdType:     e.target.value === "None" ? "" : f.discountIdType,
-                    discountSchoolName: e.target.value !== "Student" ? "" : f.discountSchoolName,
+                    discountType: e.target.value,
+                    discountId: e.target.value === "None" ? "" : f.discountId,
+                    discountIdType:
+                      e.target.value === "None" ? "" : f.discountIdType,
+                    discountSchoolName:
+                      e.target.value !== "Student" ? "" : f.discountSchoolName,
                   }))
                 }
                 style={inputStyle}
@@ -238,10 +292,19 @@ function EditInfoModal({ theme, infoForm, setInfoForm, onSubmit, onClose }) {
           </div>
 
           {infoForm.discountType !== "None" && (
-            <div style={{ display: "grid", gridTemplateColumns: infoForm.discountType === "Student" ? "1fr 1fr" : "1fr", gap: "15px" }}>
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns:
+                  infoForm.discountType === "Student" ? "1fr 1fr" : "1fr",
+                gap: "15px",
+              }}
+            >
               <div>
                 <label style={labelStyle}>
-                  {infoForm.discountType === "Student" ? "Student ID Number" : "Senior Citizen ID Number"}
+                  {infoForm.discountType === "Student"
+                    ? "Student ID Number"
+                    : "Senior Citizen ID Number"}
                 </label>
                 <input
                   type="text"
@@ -257,7 +320,9 @@ function EditInfoModal({ theme, infoForm, setInfoForm, onSubmit, onClose }) {
                   <input
                     type="text"
                     value={infoForm.discountSchoolName}
-                    onChange={(e) => update("discountSchoolName", e.target.value)}
+                    onChange={(e) =>
+                      update("discountSchoolName", e.target.value)
+                    }
                     placeholder="e.g., University of Santo Tomas"
                     style={inputStyle}
                   />

@@ -120,7 +120,9 @@ function PhotoCropModal({ theme, memberId, onSuccess, onClose }) {
             marginBottom: "20px",
           }}
         >
-          <h2 style={{ margin: 0, fontSize: "18px" }}>📷 Upload Profile Photo</h2>
+          <h2 style={{ margin: 0, fontSize: "18px" }}>
+            📷 Upload Profile Photo
+          </h2>
           <button
             onClick={onClose}
             style={{
@@ -170,7 +172,8 @@ function PhotoCropModal({ theme, memberId, onSuccess, onClose }) {
                 textAlign: "center",
               }}
             >
-              Drag the circle to adjust. The crop is 1:1 (square → saved as circle).
+              Drag the circle to adjust. The crop is 1:1 (square → saved as
+              circle).
             </p>
 
             <div
@@ -194,7 +197,11 @@ function PhotoCropModal({ theme, memberId, onSuccess, onClose }) {
                   ref={imgRef}
                   src={imgSrc}
                   onLoad={onImageLoad}
-                  style={{ maxHeight: "360px", maxWidth: "100%", display: "block" }}
+                  style={{
+                    maxHeight: "360px",
+                    maxWidth: "100%",
+                    display: "block",
+                  }}
                   alt="crop preview"
                 />
               </ReactCrop>
@@ -234,15 +241,16 @@ function PhotoCropModal({ theme, memberId, onSuccess, onClose }) {
                   flex: 2,
                   padding: "12px",
                   backgroundColor:
-                    !completedCrop || isUploading ? theme.border : theme.primary,
+                    !completedCrop || isUploading
+                      ? theme.border
+                      : theme.primary,
                   color:
                     !completedCrop || isUploading
                       ? theme.textMuted
                       : theme.primaryText,
                   border: "none",
                   borderRadius: "6px",
-                  cursor:
-                    !completedCrop || isUploading ? "default" : "pointer",
+                  cursor: !completedCrop || isUploading ? "default" : "pointer",
                   fontWeight: "bold",
                   fontSize: "14px",
                 }}

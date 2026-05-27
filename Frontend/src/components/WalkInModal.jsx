@@ -1,13 +1,23 @@
 import React, { useState } from "react";
 
-function WalkInModal({ theme, onClose, handleWalkInSubmit, walkInForm, setWalkInForm }) {
+function WalkInModal({
+  theme,
+  onClose,
+  handleWalkInSubmit,
+  walkInForm,
+  setWalkInForm,
+}) {
   const [submitting, setSubmitting] = useState(false);
   const update = (field, value) =>
     setWalkInForm((f) => ({ ...f, [field]: value }));
 
   const onSubmit = async (e) => {
     setSubmitting(true);
-    try { await handleWalkInSubmit(e); } finally { setSubmitting(false); }
+    try {
+      await handleWalkInSubmit(e);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const labelStyle = {
@@ -29,7 +39,6 @@ function WalkInModal({ theme, onClose, handleWalkInSubmit, walkInForm, setWalkIn
     outline: "none",
     boxSizing: "border-box",
   };
-
 
   return (
     <div
@@ -69,10 +78,17 @@ function WalkInModal({ theme, onClose, handleWalkInSubmit, walkInForm, setWalkIn
             marginBottom: "25px",
           }}
         >
-          <h2 style={{ margin: 0, fontSize: "20px" }}>🚶 Register Walk-in Guest</h2>
+          <h2 style={{ margin: 0, fontSize: "20px" }}>
+            🚶 Register Walk-in Guest
+          </h2>
           <button
             onClick={onClose}
-            style={{ background: "none", border: "none", fontSize: "20px", cursor: "pointer" }}
+            style={{
+              background: "none",
+              border: "none",
+              fontSize: "20px",
+              cursor: "pointer",
+            }}
           >
             ❌
           </button>
@@ -80,9 +96,20 @@ function WalkInModal({ theme, onClose, handleWalkInSubmit, walkInForm, setWalkIn
 
         <form
           onSubmit={onSubmit}
-          style={{ display: "flex", flexDirection: "column", gap: "18px", flex: 1 }}
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: "18px",
+            flex: 1,
+          }}
         >
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px" }}>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: "15px",
+            }}
+          >
             <div>
               <label style={labelStyle}>Guest Name</label>
               <input

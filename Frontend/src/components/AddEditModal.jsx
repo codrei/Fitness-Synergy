@@ -17,7 +17,11 @@ function AddEditModal({
 
   const onSubmit = async (e) => {
     setSubmitting(true);
-    try { await handleSubmit(e); } finally { setSubmitting(false); }
+    try {
+      await handleSubmit(e);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const selectedPlanObj = plans.find(
@@ -47,7 +51,6 @@ function AddEditModal({
     boxSizing: "border-box",
     transition: "border-color 0.2s ease",
   };
-
 
   return (
     <div
@@ -142,11 +145,13 @@ function AddEditModal({
               <option value="" disabled>
                 Select a Plan...
               </option>
-              {plans.filter((p) => String(p.plan_id) !== "1").map((plan) => (
-                <option key={plan.plan_id} value={plan.plan_id}>
-                  {plan.plan_name} - ₱{plan.price}
-                </option>
-              ))}
+              {plans
+                .filter((p) => String(p.plan_id) !== "1")
+                .map((plan) => (
+                  <option key={plan.plan_id} value={plan.plan_id}>
+                    {plan.plan_name} - ₱{plan.price}
+                  </option>
+                ))}
             </select>
           </div>
 
@@ -159,22 +164,34 @@ function AddEditModal({
                   const id = e.target.value;
                   const p = promos.find((pr) => String(pr.promo_id) === id);
                   if (!p) {
-                    const basePlan = plans.find((pl) => String(pl.plan_id) === String(memberForm.plan));
-                    setMemberForm((f) => ({ ...f, promoId: "", bonusDays: 0, customPrice: basePlan ? basePlan.price : f.customPrice }));
+                    const basePlan = plans.find(
+                      (pl) => String(pl.plan_id) === String(memberForm.plan),
+                    );
+                    setMemberForm((f) => ({
+                      ...f,
+                      promoId: "",
+                      bonusDays: 0,
+                      customPrice: basePlan ? basePlan.price : f.customPrice,
+                    }));
                     return;
                   }
-                  const basePlan = plans.find((pl) => String(pl.plan_id) === String(memberForm.plan));
+                  const basePlan = plans.find(
+                    (pl) => String(pl.plan_id) === String(memberForm.plan),
+                  );
                   const basePrice = parseFloat(basePlan?.price || 0);
                   const discount = parseFloat(p.discount_amount || 0);
                   setMemberForm((f) => ({
                     ...f,
                     promoId: id,
                     bonusDays: p.bonus_days,
-                    customPrice: p.is_free == 1
-                      ? "0"
-                      : discount > 0
-                        ? String(Math.max(0, basePrice - discount))
-                        : basePlan ? basePlan.price : f.customPrice,
+                    customPrice:
+                      p.is_free == 1
+                        ? "0"
+                        : discount > 0
+                          ? String(Math.max(0, basePrice - discount))
+                          : basePlan
+                            ? basePlan.price
+                            : f.customPrice,
                   }));
                 }}
                 style={inputStyle}
@@ -184,7 +201,8 @@ function AddEditModal({
                   <option key={p.promo_id} value={p.promo_id}>
                     {p.is_free == 1
                       ? `${p.promo_name} (FREE)`
-                      : parseInt(p.bonus_days) > 0 && parseFloat(p.discount_amount) > 0
+                      : parseInt(p.bonus_days) > 0 &&
+                          parseFloat(p.discount_amount) > 0
                         ? `${p.promo_name} (+${p.bonus_days} days, ₱${p.discount_amount} off)`
                         : parseInt(p.bonus_days) > 0
                           ? `${p.promo_name} (+${p.bonus_days} days)`
@@ -391,7 +409,13 @@ function AddEditModal({
                 </div>
               </div>
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px" }}>
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr",
+                  gap: "15px",
+                }}
+              >
                 <div>
                   <label style={labelStyle}>Discount / Promo Group</label>
                   <select
@@ -399,10 +423,15 @@ function AddEditModal({
                     onChange={(e) =>
                       setMemberForm((f) => ({
                         ...f,
-                        discountType:     e.target.value,
-                        discountId:       e.target.value === "None" ? "" : f.discountId,
-                        discountIdType:   e.target.value === "None" ? "" : f.discountIdType,
-                        discountSchoolName: e.target.value !== "Student" ? "" : f.discountSchoolName,
+                        discountType: e.target.value,
+                        discountId:
+                          e.target.value === "None" ? "" : f.discountId,
+                        discountIdType:
+                          e.target.value === "None" ? "" : f.discountIdType,
+                        discountSchoolName:
+                          e.target.value !== "Student"
+                            ? ""
+                            : f.discountSchoolName,
                       }))
                     }
                     style={inputStyle}
@@ -423,7 +452,9 @@ function AddEditModal({
                     >
                       <option value="">Select ID Type...</option>
                       <option value="School ID">School ID</option>
-                      <option value="Senior Citizen ID">Senior Citizen ID</option>
+                      <option value="Senior Citizen ID">
+                        Senior Citizen ID
+                      </option>
                       <option value="PWD ID">PWD ID</option>
                       <option value="Government ID">Government ID</option>
                       <option value="Other">Other</option>
@@ -433,10 +464,19 @@ function AddEditModal({
               </div>
 
               {memberForm.discountType !== "None" && (
-                <div style={{ display: "grid", gridTemplateColumns: memberForm.discountType === "Student" ? "1fr 1fr" : "1fr", gap: "15px" }}>
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns:
+                      memberForm.discountType === "Student" ? "1fr 1fr" : "1fr",
+                    gap: "15px",
+                  }}
+                >
                   <div>
                     <label style={labelStyle}>
-                      {memberForm.discountType === "Student" ? "Student ID Number" : "Senior Citizen ID Number"}
+                      {memberForm.discountType === "Student"
+                        ? "Student ID Number"
+                        : "Senior Citizen ID Number"}
                     </label>
                     <input
                       type="text"
@@ -453,7 +493,9 @@ function AddEditModal({
                       <input
                         type="text"
                         value={memberForm.discountSchoolName}
-                        onChange={(e) => update("discountSchoolName", e.target.value)}
+                        onChange={(e) =>
+                          update("discountSchoolName", e.target.value)
+                        }
                         placeholder="e.g., University of Santo Tomas"
                         style={inputStyle}
                       />
@@ -462,8 +504,23 @@ function AddEditModal({
                 </div>
               )}
 
-              <div style={{ borderTop: `1px dashed ${theme.border}`, paddingTop: "16px" }}>
-                <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", fontSize: "13px", fontWeight: "bold", color: theme.text }}>
+              <div
+                style={{
+                  borderTop: `1px dashed ${theme.border}`,
+                  paddingTop: "16px",
+                }}
+              >
+                <label
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
+                    cursor: "pointer",
+                    fontSize: "13px",
+                    fontWeight: "bold",
+                    color: theme.text,
+                  }}
+                >
                   <input
                     type="checkbox"
                     checked={memberForm.isInstallment || false}
@@ -481,7 +538,9 @@ function AddEditModal({
                       min="0"
                       required
                       value={memberForm.installmentTotal || ""}
-                      onChange={(e) => update("installmentTotal", e.target.value)}
+                      onChange={(e) =>
+                        update("installmentTotal", e.target.value)
+                      }
                       placeholder="e.g., 5000.00"
                       style={inputStyle}
                     />
@@ -579,8 +638,8 @@ function AddEditModal({
             {submitting
               ? "Saving…"
               : editingId
-              ? "💾 Save Changes & Update"
-              : "🚀 Complete Registration Process"}
+                ? "💾 Save Changes & Update"
+                : "🚀 Complete Registration Process"}
           </button>
         </form>
       </div>
