@@ -257,15 +257,23 @@ function App() {
           password: loginForm.pass,
         }),
       });
-      if (!response.ok) throw new Error("Server offline");
-      const res = await response.json();
-      if (res.success) {
+
+      // Parse the JSON body for every response — the API returns
+      // { success, error } even on 401/429, and the user needs to see why.
+      let res;
+      try {
+        res = await response.json();
+      } catch {
+        throw new Error("Server returned an invalid response.");
+      }
+
+      if (response.ok && res.success) {
         localStorage.setItem("fitness_synergy_token", res.token);
         setIsLoggedIn(true);
       } else {
         setLoginForm((prev) => ({
           ...prev,
-          error: res.error || "Invalid Credentials",
+          error: res.error || "Invalid credentials.",
         }));
       }
     } catch (err) {
