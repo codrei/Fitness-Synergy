@@ -22,6 +22,7 @@ import PhotoCropModal from "./components/PhotoCropModal"; // 1. IMPORT NEW MODAL
 import bgTexture from "./assets/geomblue.png";
 import { apiFetch } from "./api";
 import AttendanceReport from "./components/AttendanceReport";
+import BranchSalesReport from "./components/BranchSalesReport";
 
 const WALKIN_FORM_DEFAULT = {
   guestName: "",
@@ -737,6 +738,8 @@ function App() {
           <RevenueReport theme={theme} activeTab={currentView} />
         ) : currentView === "attendance-report" ? (
           <AttendanceReport theme={theme} isDarkMode={isDarkMode} />
+        ) : currentView === "branch-report" ? (
+          <BranchSalesReport theme={theme} />
         ) : currentView === "plans" ? (
           <PlansManager theme={theme} />
         ) : currentView === "promos" ? (

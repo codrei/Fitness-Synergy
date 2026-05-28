@@ -97,6 +97,31 @@ DELETE FROM `sessions` WHERE `expires_at` < NOW();
 
 
 -- ============================================================
+-- FIX 8: Branch Sales Report Module tables
+-- ============================================================
+
+CREATE TABLE IF NOT EXISTS `monthly_targets` (
+  `id` INT AUTO_INCREMENT PRIMARY KEY,
+  `month` TINYINT NOT NULL,
+  `year` SMALLINT NOT NULL,
+  `target_amount` DECIMAL(12,2) NOT NULL DEFAULT 0,
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  UNIQUE KEY `uk_month_year` (`month`, `year`)
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS `bank_deposits` (
+  `id` INT AUTO_INCREMENT PRIMARY KEY,
+  `deposit_date` DATE NOT NULL,
+  `amount` DECIMAL(12,2) NOT NULL,
+  `variance` DECIMAL(12,2) DEFAULT NULL,
+  `remarks` VARCHAR(500) DEFAULT NULL,
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  INDEX `idx_deposit_date` (`deposit_date`)
+) ENGINE=InnoDB;
+
+
+-- ============================================================
 -- VERIFICATION - Run these after the patch to confirm success
 -- ============================================================
 -- SELECT TABLE_NAME, ENGINE FROM information_schema.TABLES

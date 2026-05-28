@@ -72,7 +72,7 @@ function Sidebar({
   };
 
   const isPlansActive = currentView === "plans" || currentView === "promos";
-  const isReportsActive = currentView.startsWith("revenue") || currentView === "attendance-report";
+  const isReportsActive = currentView.startsWith("revenue") || currentView === "attendance-report" || currentView === "branch-report";
 
   return (
     <div
@@ -258,6 +258,21 @@ function Sidebar({
             </div>
             <button onClick={() => setCurrentView("attendance-report")} style={subBtn("attendance-report")}>
               Attendance Report
+            </button>
+            <div
+              style={{
+                padding: "8px 12px 2px 28px",
+                fontSize: 10,
+                color: "#555",
+                textTransform: "uppercase",
+                letterSpacing: 1,
+                marginTop: 4,
+              }}
+            >
+              Branch Reports
+            </div>
+            <button onClick={() => setCurrentView("branch-report")} style={subBtn("branch-report")}>
+              Branch Sales Report
             </button>
           </div>
         )}
