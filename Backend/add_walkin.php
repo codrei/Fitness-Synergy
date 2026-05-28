@@ -3,7 +3,8 @@ require_once 'cors.php';
 header("Content-Type: application/json; charset=UTF-8");
 require_once 'db.php';
 require_once 'auth_check.php';
-requireAuth();
+require_once 'audit.php';
+$session = requireAuth();
 
 $data = json_decode(file_get_contents("php://input"));
 
@@ -97,6 +98,19 @@ try {
         ':payment_method' => $payment_method,
         ':reference'      => $reference_number,
     ]);
+    $payment_id = (int)$conn->lastInsertId();
+
+    logActivity(
+        $conn, $session,
+        'walkin.create', 'payment', $payment_id,
+        "Walk-in: $guest_name — ₱" . number_format($custom_price, 2) . " ($payment_method)",
+        [
+            'guest_name'    => $guest_name,
+            'guest_contact' => $guest_contact,
+            'amount'        => $custom_price,
+            'payment_method'=> $payment_method,
+        ]
+    );
 
     // Recommend membership when a recurring walk-in passes 7 visits.
     $recommend   = false;

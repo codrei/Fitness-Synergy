@@ -4,7 +4,8 @@ header("Content-Type: application/json; charset=UTF-8");
 
 require_once 'db.php';
 require_once 'auth_check.php';
-requireAuth();
+require_once 'audit.php';
+$session = requireAuth();
 
 $data = json_decode(file_get_contents("php://input"));
 
@@ -163,6 +164,20 @@ try {
     ]);
 
     $conn->commit();
+
+    logActivity(
+        $conn, $session,
+        'member.create', 'member', $new_member_id,
+        "Registered new member: $full_name ($contract_id)",
+        [
+            'full_name'         => $full_name,
+            'contract_id'       => $contract_id,
+            'plan_id'           => $plan_id,
+            'is_installment'    => $is_installment,
+            'installment_total' => $installment_total,
+            'payment_method'    => $payment_method,
+        ]
+    );
 
     echo json_encode([
         "success"     => true,

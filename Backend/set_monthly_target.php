@@ -3,7 +3,8 @@ require_once 'cors.php';
 header("Content-Type: application/json; charset=UTF-8");
 require_once 'db.php';
 require_once 'auth_check.php';
-requireAuth();
+require_once 'audit.php';
+$session = requireAuth();
 
 $data = json_decode(file_get_contents('php://input'), true);
 $month  = (int)($data['month']  ?? 0);
@@ -23,6 +24,11 @@ try {
         ON DUPLICATE KEY UPDATE target_amount = :amt2, updated_at = CURRENT_TIMESTAMP
     ");
     $stmt->execute([':m' => $month, ':y' => $year, ':amt' => $amount, ':amt2' => $amount]);
+    logActivity(
+        $conn, $session,
+        'target.set', 'target', "$month-$year",
+        "Set monthly target for $month/$year: ₱" . number_format($amount, 2)
+    );
     echo json_encode(['success' => true]);
 } catch (Exception $e) {
     http_response_code(500);

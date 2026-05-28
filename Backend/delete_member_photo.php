@@ -3,7 +3,8 @@ require_once 'cors.php';
 header("Content-Type: application/json; charset=UTF-8");
 require_once 'db.php';
 require_once 'auth_check.php';
-requireAuth();
+require_once 'audit.php';
+$session = requireAuth();
 
 $data = json_decode(file_get_contents("php://input"));
 $member_id = $data->member_id ?? null;
@@ -27,6 +28,12 @@ try {
 
     $conn->prepare("UPDATE members SET photo_url = NULL WHERE member_id = :id")
          ->execute([':id' => $member_id]);
+
+    logActivity(
+        $conn, $session,
+        'member.photo_delete', 'member', $member_id,
+        "Deleted photo for member #" . (int)$member_id
+    );
 
     echo json_encode(["success" => true]);
 } catch (PDOException $e) {

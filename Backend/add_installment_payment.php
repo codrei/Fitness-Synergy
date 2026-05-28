@@ -3,7 +3,8 @@ require_once 'cors.php';
 header("Content-Type: application/json; charset=UTF-8");
 require_once 'db.php';
 require_once 'auth_check.php';
-requireAuth();
+require_once 'audit.php';
+$session = requireAuth();
 
 $data = json_decode(file_get_contents("php://input"));
 
@@ -44,20 +45,34 @@ try {
     $payment_method   = !empty($data->payment_method)   ? $data->payment_method   : 'Cash';
     $reference_number = !empty($data->reference_number) ? $data->reference_number : null;
 
-    $conn->prepare("
+    $insertStmt = $conn->prepare("
         INSERT INTO payments
             (member_id, customer_type, amount, payment_date, plan_id,
              payment_method, reference_number)
         VALUES
             (:member_id, 'Member', :amount, CURRENT_DATE(), :plan_id,
              :payment_method, :reference)
-    ")->execute([
+    ");
+    $insertStmt->execute([
         ':member_id'      => (int)$data->member_id,
         ':amount'         => (float)$data->amount,
         ':plan_id'        => $m['plan_id'],
         ':payment_method' => $payment_method,
         ':reference'      => $reference_number,
     ]);
+    $payment_id = (int)$conn->lastInsertId();
+
+    logActivity(
+        $conn, $session,
+        'payment.installment', 'payment', $payment_id,
+        "Installment payment for member #" . (int)$data->member_id . ": ₱" . number_format((float)$data->amount, 2) . " ($payment_method)",
+        [
+            'member_id'      => (int)$data->member_id,
+            'amount'         => (float)$data->amount,
+            'payment_method' => $payment_method,
+            'reference'      => $reference_number,
+        ]
+    );
 
     echo json_encode(["success" => true, "message" => "Installment payment recorded."]);
 } catch (PDOException $e) {

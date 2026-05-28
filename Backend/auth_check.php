@@ -43,7 +43,13 @@ function requireAuth() {
     }
 
     try {
-        $stmt = $conn->prepare("SELECT admin_id FROM sessions WHERE session_token = :token AND expires_at > NOW()");
+        // Return admin_id + current username so audit logs can snapshot who acted.
+        $stmt = $conn->prepare("
+            SELECT s.admin_id, a.username
+            FROM sessions s
+            JOIN admins a ON a.admin_id = s.admin_id
+            WHERE s.session_token = :token AND s.expires_at > NOW()
+        ");
         $stmt->execute([':token' => $token]);
         $session = $stmt->fetch(PDO::FETCH_ASSOC);
 

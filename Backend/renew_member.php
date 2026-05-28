@@ -3,7 +3,8 @@ require_once 'cors.php';
 header("Content-Type: application/json; charset=UTF-8");
 require_once 'db.php';
 require_once 'auth_check.php';
-requireAuth();
+require_once 'audit.php';
+$session = requireAuth();
 
 $data = json_decode(file_get_contents("php://input"));
 
@@ -123,6 +124,22 @@ try {
     ]);
 
     $conn->commit();
+
+    logActivity(
+        $conn, $session,
+        'member.renew', 'member', $data->member_id,
+        "Renewed membership (plan_id $plan_id, new expiry $newExpiration)",
+        [
+            'plan_id'           => $plan_id,
+            'new_expiration'    => $newExpiration,
+            'is_installment'    => $is_installment,
+            'installment_total' => $installment_total,
+            'payment_amount'    => $payment_amount,
+            'payment_method'    => $payment_method,
+            'bonus_days'        => $bonus_days,
+        ]
+    );
+
     echo json_encode([
         "success"        => true,
         "message"        => "Membership renewed successfully!",
