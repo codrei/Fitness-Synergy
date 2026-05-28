@@ -2,31 +2,37 @@
 // auth_check.php
 
 function requireAuth() {
-    // 🔐 CORS PREFLIGHT BYPASS: Allow layout validations to pass through without token screening
     if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-        return; 
+        return;
     }
 
     global $conn;
 
-    // Compatible header extraction for Apache, Nginx, and LiteSpeed
-    $authHeader = null;
-    if (function_exists('getallheaders')) {
-        $headers = getallheaders();
-        if (isset($headers['Authorization'])) {
-            $authHeader = $headers['Authorization'];
-        }
-    }
-    if (!$authHeader && isset($_SERVER['HTTP_AUTHORIZATION'])) {
-        $authHeader = $_SERVER['HTTP_AUTHORIZATION'];
-    }
-    if (!$authHeader && isset($_SERVER['REDIRECT_HTTP_AUTHORIZATION'])) {
-        $authHeader = $_SERVER['REDIRECT_HTTP_AUTHORIZATION'];
+    $token = null;
+
+    // Primary: X-Auth-Token header (not stripped by InfinityFree/LiteSpeed proxy)
+    if (!empty($_SERVER['HTTP_X_AUTH_TOKEN'])) {
+        $token = trim($_SERVER['HTTP_X_AUTH_TOKEN']);
     }
 
-    $token = null;
-    if ($authHeader && preg_match('/^Bearer\s+(.+)$/i', $authHeader, $matches)) {
-        $token = $matches[1];
+    // Fallback: Authorization: Bearer header (may be stripped by some hosts)
+    if (!$token) {
+        $authHeader = null;
+        if (function_exists('getallheaders')) {
+            $headers = getallheaders();
+            if (isset($headers['Authorization'])) {
+                $authHeader = $headers['Authorization'];
+            }
+        }
+        if (!$authHeader && isset($_SERVER['HTTP_AUTHORIZATION'])) {
+            $authHeader = $_SERVER['HTTP_AUTHORIZATION'];
+        }
+        if (!$authHeader && isset($_SERVER['REDIRECT_HTTP_AUTHORIZATION'])) {
+            $authHeader = $_SERVER['REDIRECT_HTTP_AUTHORIZATION'];
+        }
+        if ($authHeader && preg_match('/^Bearer\s+(.+)$/i', $authHeader, $matches)) {
+            $token = $matches[1];
+        }
     }
 
     if (!$token) {
@@ -37,7 +43,6 @@ function requireAuth() {
     }
 
     try {
-        // Notice: This matches the PDO connection setup configured in this file
         $stmt = $conn->prepare("SELECT admin_id FROM sessions WHERE session_token = :token AND expires_at > NOW()");
         $stmt->execute([':token' => $token]);
         $session = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -48,8 +53,7 @@ function requireAuth() {
             echo json_encode(["success" => false, "error" => "Session expired. Please log in again."]);
             exit();
         }
-        
-        // Return the active session metadata down to the caller file context script
+
         return $session;
 
     } catch (PDOException $e) {

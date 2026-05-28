@@ -1,5 +1,6 @@
 <?php
 require_once 'cors.php';
+header("Content-Type: application/json; charset=UTF-8");
 require_once 'auth_check.php';
 requireAuth();
 

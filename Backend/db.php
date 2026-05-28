@@ -33,7 +33,6 @@ if (empty($host) || empty($dbname) || empty($username)) {
     echo json_encode([
         "success" => false,
         "error"   => "Server misconfiguration: missing DB credentials in .env.",
-        "_debug"  => compact('host', 'dbname', 'username')
     ]);
     exit;
 }

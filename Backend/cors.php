@@ -14,12 +14,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     } else {
         header("Access-Control-Allow-Origin: https://fitness-synergy.infinityfreeapp.com");
     }
-    
+
     header("Access-Control-Allow-Credentials: true");
     header("Access-Control-Allow-Methods: POST, GET, OPTIONS, PUT, DELETE");
-    header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With");
+    header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With, X-Auth-Token");
     http_response_code(200);
-    exit; // Stop right here for options!
+    exit;
 }
 
 // 2. Normal headers for GET/POST requests continue below
@@ -36,5 +36,5 @@ if (!empty($origin) && in_array($origin, $allowed_origins, true)) {
 }
 header("Access-Control-Allow-Credentials: true");
 header("Access-Control-Allow-Methods: POST, GET, OPTIONS, PUT, DELETE");
-header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With");
+header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With, X-Auth-Token");
 ?>

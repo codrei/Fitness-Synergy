@@ -1,5 +1,6 @@
 <?php
 require_once 'cors.php';
+header("Content-Type: application/json; charset=UTF-8");
 require_once 'db.php';
 require_once 'auth_check.php';
 requireAuth();
@@ -18,7 +19,7 @@ try {
             SELECT time_in, 'Member' as type FROM attendance
             WHERE MONTH(time_in) = :month AND YEAR(time_in) = :year
             UNION ALL
-            SELECT created_at as time_in, 'Walk-in' as type FROM payments
+            SELECT COALESCE(created_at, payment_date) as time_in, 'Walk-in' as type FROM payments
             WHERE customer_type = 'Walk-in'
             AND MONTH(payment_date) = :month AND YEAR(payment_date) = :year
         ) combined

@@ -2,12 +2,6 @@
 // Backend/update_admin_profile.php
 
 require_once 'cors.php';
-
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
-    exit();
-}
-
 header("Content-Type: application/json; charset=UTF-8");
 
 require_once 'db.php';
@@ -49,9 +43,6 @@ try {
         echo json_encode([
             "success" => false,
             "error"   => "Current password is incorrect.",
-            // Remove these two debug lines after confirming it works:
-            "_debug_hash_length" => strlen($admin['password']),
-            "_debug_hash_prefix" => substr($admin['password'], 0, 7),
         ]);
         exit;
     }

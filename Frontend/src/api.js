@@ -10,7 +10,7 @@ export async function apiFetch(endpoint, options = {}) {
     ...restOptions,
     headers: {
       "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...(token ? { "X-Auth-Token": token } : {}),
       ...extraHeaders,
     },
   });
@@ -22,6 +22,6 @@ export async function apiUpload(endpoint, formData) {
   return fetch(`${API_BASE}/${endpoint}`, {
     method: "POST",
     body: formData,
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
+    headers: token ? { "X-Auth-Token": token } : {},
   });
 }
