@@ -10,10 +10,11 @@ $data = json_decode(file_get_contents("php://input"));
 if (!empty($data->full_name)) {
     try {
         $plan_id = !empty($data->plan_id) ? (int)$data->plan_id : 1;
-        
+        $force   = !empty($data->force)   ? (bool)$data->force : false;
+
         // PROMO FLEXIBILITY: Catch custom price and bonus days from React frontend
         $bonus_days   = !empty($data->bonus_days) ? (int)$data->bonus_days : 0;
-        $custom_price = !empty($data->custom_price) ? (float)$data->custom_price : null; 
+        $custom_price = !empty($data->custom_price) ? (float)$data->custom_price : null;
 
         // PAYMENT METHOD
         $payment_method    = !empty($data->payment_method)    ? $data->payment_method                                        : 'Cash';
@@ -21,6 +22,28 @@ if (!empty($data->full_name)) {
         $reference_number  = !empty($data->reference_number)  ? $data->reference_number                                      : null;
         $is_installment    = !empty($data->is_installment)    ? 1                                                             : 0;
         $installment_total = !empty($data->installment_total) ? (float)$data->installment_total                               : 0;
+
+        // Duplicate member check: same name + contact, unless admin confirmed force
+        if (!$force && $contact_number) {
+            $dupCheck = $conn->prepare("
+                SELECT member_id, full_name, contract_id
+                FROM members
+                WHERE LOWER(TRIM(full_name)) = LOWER(TRIM(:name))
+                  AND contact_number = :contact
+                LIMIT 1
+            ");
+            $dupCheck->execute([':name' => $data->full_name, ':contact' => $contact_number]);
+            $existing = $dupCheck->fetch(PDO::FETCH_ASSOC);
+            if ($existing) {
+                echo json_encode([
+                    "success"           => false,
+                    "duplicate_warning" => true,
+                    "existing_name"     => $existing['full_name'],
+                    "existing_contract" => $existing['contract_id'],
+                ]);
+                exit;
+            }
+        }
 
         // Fetch base duration days from the chosen plan tier
         $planQuery = $conn->prepare("SELECT duration_days FROM plans WHERE plan_id = :plan");

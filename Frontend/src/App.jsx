@@ -329,7 +329,7 @@ function App() {
     }
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e, force = false) => {
     e.preventDefault();
     if (!memberForm.plan) return alert("Please select a plan!");
 
@@ -360,6 +360,7 @@ function App() {
           payment_method: memberForm.paymentMethod,
           payment_amount: memberForm.paymentAmount,
           reference_number: memberForm.referenceNumber,
+          force: force,
           ...(editingId && { member_id: editingId }),
         }),
       }).then((r) => r.json());
@@ -375,6 +376,8 @@ function App() {
           clearMemberForm();
           showToast(editingId ? "Member Updated" : "Member Added");
         }
+      } else if (res.duplicate_warning) {
+        return res;
       } else {
         showToast(res.error || "Submission Failed", "error");
       }

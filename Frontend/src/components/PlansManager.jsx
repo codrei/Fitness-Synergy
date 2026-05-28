@@ -71,15 +71,20 @@ function PlansManager({ theme }) {
 
   // Separate plans into categories
   const walkinPlan = plans.filter((p) => parseInt(p.duration_days) <= 1);
+  const freeTrialPlans = plans.filter(
+    (p) => parseInt(p.duration_days) > 1 && parseFloat(p.price) === 0,
+  );
   const standardPlans = plans.filter(
     (p) =>
       parseInt(p.duration_days) > 1 &&
+      parseFloat(p.price) > 0 &&
       !p.plan_name.toLowerCase().includes("student") &&
       !p.plan_name.toLowerCase().includes("senior"),
   );
   const studentSeniorPlans = plans.filter(
     (p) =>
       parseInt(p.duration_days) > 1 &&
+      parseFloat(p.price) > 0 &&
       (p.plan_name.toLowerCase().includes("student") ||
         p.plan_name.toLowerCase().includes("senior")),
   );
@@ -205,14 +210,31 @@ function PlansManager({ theme }) {
                 <td
                   style={{
                     padding: "14px 20px",
-                    color: accent,
+                    color: parseFloat(plan.price) === 0 ? "#00e676" : accent,
                     fontWeight: "bold",
                   }}
                 >
-                  ₱
-                  {parseFloat(plan.price).toLocaleString("en-PH", {
-                    minimumFractionDigits: 2,
-                  })}
+                  {parseFloat(plan.price) === 0 ? (
+                    <span
+                      style={{
+                        backgroundColor: "#00e67622",
+                        border: "1px solid #00e676",
+                        borderRadius: 6,
+                        padding: "2px 10px",
+                        fontSize: 12,
+                        letterSpacing: "0.5px",
+                      }}
+                    >
+                      FREE
+                    </span>
+                  ) : (
+                    <>
+                      ₱
+                      {parseFloat(plan.price).toLocaleString("en-PH", {
+                        minimumFractionDigits: 2,
+                      })}
+                    </>
+                  )}
                 </td>
                 <td style={{ padding: "14px 20px", color: theme.textMuted }}>
                   {plan.duration_days} day{plan.duration_days !== 1 ? "s" : ""}
@@ -296,6 +318,13 @@ function PlansManager({ theme }) {
         title="🚶 Walk-in / Daily Plan"
         plans={walkinPlan}
         accent="#f59e0b"
+      />
+
+      {/* Free Trial Plans */}
+      <PlanTable
+        title="🎟️ Free Trial Plans"
+        plans={freeTrialPlans}
+        accent="#00e676"
       />
 
       {/* Standard Plans */}

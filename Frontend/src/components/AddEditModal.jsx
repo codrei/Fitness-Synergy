@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 
 function AddEditModal({
   theme,
@@ -12,16 +12,31 @@ function AddEditModal({
   setMemberForm,
 }) {
   const [submitting, setSubmitting] = useState(false);
+  const [duplicateWarning, setDuplicateWarning] = useState(null);
+  const forceRef = useRef(false);
+  const formRef = useRef(null);
+
   const update = (field, value) =>
     setMemberForm((f) => ({ ...f, [field]: value }));
 
   const onSubmit = async (e) => {
     setSubmitting(true);
+    const force = forceRef.current;
+    forceRef.current = false;
     try {
-      await handleSubmit(e);
+      const result = await handleSubmit(e, force);
+      if (result?.duplicate_warning) {
+        setDuplicateWarning(result);
+      }
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const registerAnyway = () => {
+    forceRef.current = true;
+    setDuplicateWarning(null);
+    formRef.current.requestSubmit();
   };
 
   const selectedPlanObj = plans.find(
@@ -30,6 +45,10 @@ function AddEditModal({
   const isLongTermPlan = selectedPlanObj
     ? parseInt(selectedPlanObj.duration_days, 10) > 1
     : false;
+  const isFreeTrial =
+    selectedPlanObj &&
+    parseFloat(selectedPlanObj.price) === 0 &&
+    parseFloat(memberForm.customPrice || 0) === 0;
 
   const labelStyle = {
     fontSize: "12px",
@@ -114,6 +133,7 @@ function AddEditModal({
         </div>
 
         <form
+          ref={formRef}
           onSubmit={onSubmit}
           style={{
             display: "flex",
@@ -122,6 +142,60 @@ function AddEditModal({
             flex: 1,
           }}
         >
+          {duplicateWarning && (
+            <div
+              style={{
+                backgroundColor: "#f59e0b22",
+                border: "1px solid #f59e0b",
+                borderRadius: "8px",
+                padding: "14px 16px",
+              }}
+            >
+              <div style={{ fontWeight: "bold", color: "#f59e0b", marginBottom: 6 }}>
+                Possible Duplicate Member
+              </div>
+              <div style={{ fontSize: 13, color: theme.text, marginBottom: 12 }}>
+                A member named <strong>{duplicateWarning.existing_name}</strong>{" "}
+                ({duplicateWarning.existing_contract}) already has this same name
+                and contact number.
+              </div>
+              <div style={{ display: "flex", gap: 8 }}>
+                <button
+                  type="button"
+                  onClick={registerAnyway}
+                  style={{
+                    padding: "7px 14px",
+                    backgroundColor: theme.danger,
+                    color: "#fff",
+                    border: "none",
+                    borderRadius: "6px",
+                    cursor: "pointer",
+                    fontWeight: "bold",
+                    fontSize: 12,
+                  }}
+                >
+                  Register Anyway
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setDuplicateWarning(null)}
+                  style={{
+                    padding: "7px 14px",
+                    backgroundColor: theme.border,
+                    color: theme.text,
+                    border: "none",
+                    borderRadius: "6px",
+                    cursor: "pointer",
+                    fontWeight: "bold",
+                    fontSize: 12,
+                  }}
+                >
+                  Go Back
+                </button>
+              </div>
+            </div>
+          )}
+
           <div>
             <label style={labelStyle}>Membership Plan</label>
             <select
@@ -149,11 +223,31 @@ function AddEditModal({
                 .filter((p) => String(p.plan_id) !== "1")
                 .map((plan) => (
                   <option key={plan.plan_id} value={plan.plan_id}>
-                    {plan.plan_name} - ₱{plan.price}
+                    {parseFloat(plan.price) === 0
+                      ? `${plan.plan_name} — FREE`
+                      : `${plan.plan_name} - ₱${plan.price}`}
                   </option>
                 ))}
             </select>
           </div>
+
+          {isFreeTrial && (
+            <div
+              style={{
+                backgroundColor: "#00e67622",
+                border: "1px solid #00e676",
+                borderRadius: "8px",
+                padding: "10px 16px",
+                color: "#00e676",
+                fontWeight: "bold",
+                fontSize: 13,
+                textAlign: "center",
+                letterSpacing: "0.5px",
+              }}
+            >
+              FREE TRIAL — No payment required for this plan
+            </div>
+          )}
 
           {promos.length > 0 && (
             <div>
