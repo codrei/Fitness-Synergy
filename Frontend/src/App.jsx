@@ -409,7 +409,7 @@ function App() {
 
   const startRenewal = (member) => {
     setRenewalMember(member);
-    setRenewalForm({ ...RRENEWAL_FORM_DEFAULT, planId: member.plan_id || "" });
+    setRenewalForm({ ...RENEWAL_FORM_DEFAULT, planId: member.plan_id || "" });
     setShowRenewalModal(true);
   };
 
@@ -434,7 +434,7 @@ function App() {
       if (res.success) {
         setShowRenewalModal(false);
         setRenewalMember(null);
-        setRenewalForm(RRENEWAL_FORM_DEFAULT);
+        setRenewalForm(RENEWAL_FORM_DEFAULT);
         fetchData();
         showToast("Membership renewed!");
       } else {
@@ -920,7 +920,7 @@ function App() {
           onClose={() => {
             setShowRenewalModal(false);
             setRenewalMember(null);
-            setRenewalForm(RRENEWAL_FORM_DEFAULT);
+            setRenewalForm(RENEWAL_FORM_DEFAULT);
           }}
         />
       )}
