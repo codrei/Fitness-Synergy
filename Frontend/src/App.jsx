@@ -27,6 +27,7 @@ import AdminSettingsModal from "./components/AdminSettingsModal";
 import PhotoCropModal from "./components/PhotoCropModal";
 import PostRegPhotoModal from "./components/PostRegPhotoModal";
 import WalkInRecommendModal from "./components/WalkInRecommendModal";
+import Toast from "./components/Toast";
 
 // Hooks + utilities
 import { useTheme } from "./hooks/useTheme";
@@ -50,7 +51,7 @@ function App() {
 
   // ── UI shell hooks ──
   const { isDarkMode, theme, toggleTheme } = useTheme();
-  const { showToast } = useToast();
+  const { toast, showToast } = useToast();
   const currentTime = useCurrentTime();
 
   // ── Navigation / filters ──
@@ -66,6 +67,8 @@ function App() {
     show: false,
     id: null,
     name: "",
+    error: "",
+    pending: false,
   });
 
   // ── Walk-in modal state ──
@@ -81,6 +84,7 @@ function App() {
   const [showRenewalModal, setShowRenewalModal] = useState(false);
   const [renewalMember, setRenewalMember] = useState(null);
   const [renewalForm, setRenewalForm] = useState(RENEWAL_FORM_DEFAULT);
+  const [renewalStatus, setRenewalStatus] = useState({ error: "", pending: false });
 
   // ── Edit-info modal state ──
   const [showEditInfoModal, setShowEditInfoModal] = useState(false);
@@ -329,11 +333,20 @@ function App() {
   const startRenewal = (member) => {
     setRenewalMember(member);
     setRenewalForm({ ...RENEWAL_FORM_DEFAULT, planId: member.plan_id || "" });
+    setRenewalStatus({ error: "", pending: false });
     setShowRenewalModal(true);
+  };
+
+  const closeRenewalModal = () => {
+    setShowRenewalModal(false);
+    setRenewalMember(null);
+    setRenewalForm(RENEWAL_FORM_DEFAULT);
+    setRenewalStatus({ error: "", pending: false });
   };
 
   const handleRenewal = async (e) => {
     e.preventDefault();
+    setRenewalStatus({ error: "", pending: true });
     try {
       const res = await apiFetch("renew_member.php", {
         method: "POST",
@@ -351,16 +364,18 @@ function App() {
       }).then((r) => r.json());
 
       if (res.success) {
-        setShowRenewalModal(false);
-        setRenewalMember(null);
-        setRenewalForm(RENEWAL_FORM_DEFAULT);
+        closeRenewalModal();
         fetchData();
         showToast("Membership renewed!");
       } else {
-        showToast(res.error || "Renewal failed", "error");
+        // Keep modal open and surface the server reason (e.g. outstanding installment).
+        setRenewalStatus({ error: res.error || "Renewal failed.", pending: false });
       }
     } catch {
-      showToast("Renewal failed", "error");
+      setRenewalStatus({
+        error: "Renewal failed. Check your connection.",
+        pending: false,
+      });
     }
   };
 
@@ -600,7 +615,7 @@ function App() {
             convertWalkIn={convertWalkIn}
             showToast={showToast}
             handleDelete={(id, name) =>
-              setDeleteConfirm({ show: true, id, name })
+              setDeleteConfirm({ show: true, id, name, error: "", pending: false })
             }
           />
         )}
@@ -687,11 +702,9 @@ function App() {
           renewalForm={renewalForm}
           setRenewalForm={setRenewalForm}
           onSubmit={handleRenewal}
-          onClose={() => {
-            setShowRenewalModal(false);
-            setRenewalMember(null);
-            setRenewalForm(RENEWAL_FORM_DEFAULT);
-          }}
+          onClose={closeRenewalModal}
+          errorMessage={renewalStatus.error}
+          pending={renewalStatus.pending}
         />
       )}
 
@@ -737,22 +750,43 @@ function App() {
         <ConfirmModal
           theme={theme}
           name={deleteConfirm.name}
-          onCancel={() => setDeleteConfirm({ show: false, id: null, name: "" })}
+          errorMessage={deleteConfirm.error}
+          pending={deleteConfirm.pending}
+          onCancel={() =>
+            setDeleteConfirm({ show: false, id: null, name: "", error: "", pending: false })
+          }
           onConfirm={async () => {
+            setDeleteConfirm((prev) => ({ ...prev, pending: true, error: "" }));
             try {
               const res = await apiFetch("delete_member.php", {
                 method: "POST",
                 body: JSON.stringify({ member_id: deleteConfirm.id }),
               }).then((r) => r.json());
-              setDeleteConfirm({ show: false, id: null, name: "" });
-              if (res.success) fetchData();
-              else showToast(res.error || "Delete failed", "error");
+
+              if (res.success) {
+                setDeleteConfirm({ show: false, id: null, name: "", error: "", pending: false });
+                fetchData();
+                showToast("Member deleted.");
+              } else {
+                // Keep the modal open and surface the server's reason inline.
+                setDeleteConfirm((prev) => ({
+                  ...prev,
+                  pending: false,
+                  error: res.error || "Delete failed.",
+                }));
+              }
             } catch {
-              showToast("Delete failed. Check your connection.", "error");
+              setDeleteConfirm((prev) => ({
+                ...prev,
+                pending: false,
+                error: "Delete failed. Check your connection.",
+              }));
             }
           }}
         />
       )}
+
+      <Toast toast={toast} />
 
       {postRegPhotoPrompt && !postRegPhotoUpload && (
         <PostRegPhotoModal

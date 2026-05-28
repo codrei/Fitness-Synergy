@@ -1,6 +1,11 @@
-import React from "react";
-
-function ConfirmModal({ theme, name, onConfirm, onCancel }) {
+function ConfirmModal({
+  theme,
+  name,
+  errorMessage = "",
+  pending = false,
+  onConfirm,
+  onCancel,
+}) {
   return (
     <div
       style={{
@@ -22,25 +27,19 @@ function ConfirmModal({ theme, name, onConfirm, onCancel }) {
           backgroundColor: theme.surface,
           padding: "36px",
           borderRadius: "16px",
-          width: "400px",
+          width: "420px",
           border: `1px solid ${theme.border}`,
           boxShadow: "0 16px 48px rgba(0,0,0,0.55)",
           textAlign: "center",
         }}
       >
-        <h3
-          style={{
-            margin: "0 0 10px",
-            fontSize: "20px",
-            color: theme.text,
-          }}
-        >
+        <h3 style={{ margin: "0 0 10px", fontSize: "20px", color: theme.text }}>
           Delete Member?
         </h3>
         <p
           style={{
             color: theme.textMuted,
-            margin: "0 0 28px",
+            margin: "0 0 24px",
             fontSize: "14px",
             lineHeight: "1.6",
           }}
@@ -49,6 +48,29 @@ function ConfirmModal({ theme, name, onConfirm, onCancel }) {
           <strong style={{ color: theme.text }}>{name}</strong> along with all
           their attendance and payment history. This cannot be undone.
         </p>
+
+        {errorMessage && (
+          <div
+            role="alert"
+            style={{
+              backgroundColor: "rgba(255, 82, 82, 0.08)",
+              border: "1px solid rgba(255, 82, 82, 0.35)",
+              color: "#FF8A8A",
+              padding: "12px 14px",
+              borderRadius: "8px",
+              marginBottom: "20px",
+              fontSize: "13px",
+              lineHeight: 1.5,
+              textAlign: "left",
+            }}
+          >
+            <strong style={{ display: "block", marginBottom: 4 }}>
+              Cannot delete
+            </strong>
+            {errorMessage}
+          </div>
+        )}
+
         <div
           style={{
             display: "flex",
@@ -58,36 +80,41 @@ function ConfirmModal({ theme, name, onConfirm, onCancel }) {
         >
           <button
             onClick={onCancel}
+            disabled={pending}
             style={{
               padding: "11px 28px",
               borderRadius: "8px",
               border: `1px solid ${theme.border}`,
               backgroundColor: "transparent",
               color: theme.text,
-              cursor: "pointer",
+              cursor: pending ? "not-allowed" : "pointer",
               fontWeight: "bold",
               fontSize: "14px",
-              transition: "background 0.15s",
+              opacity: pending ? 0.5 : 1,
             }}
           >
-            Cancel
+            {errorMessage ? "Close" : "Cancel"}
           </button>
-          <button
-            onClick={onConfirm}
-            style={{
-              padding: "11px 28px",
-              borderRadius: "8px",
-              border: "none",
-              backgroundColor: theme.danger,
-              color: "#fff",
-              cursor: "pointer",
-              fontWeight: "bold",
-              fontSize: "14px",
-              boxShadow: "0 4px 12px rgba(255,82,82,0.35)",
-            }}
-          >
-            Yes, Delete
-          </button>
+          {!errorMessage && (
+            <button
+              onClick={onConfirm}
+              disabled={pending}
+              style={{
+                padding: "11px 28px",
+                borderRadius: "8px",
+                border: "none",
+                backgroundColor: theme.danger,
+                color: "#fff",
+                cursor: pending ? "not-allowed" : "pointer",
+                fontWeight: "bold",
+                fontSize: "14px",
+                boxShadow: "0 4px 12px rgba(255,82,82,0.35)",
+                opacity: pending ? 0.7 : 1,
+              }}
+            >
+              {pending ? "Deleting…" : "Yes, Delete"}
+            </button>
+          )}
         </div>
       </div>
     </div>

@@ -1,5 +1,3 @@
-import React from "react";
-
 function RenewalModal({
   theme,
   member,
@@ -9,6 +7,8 @@ function RenewalModal({
   setRenewalForm,
   onSubmit,
   onClose,
+  errorMessage = "",
+  pending = false,
 }) {
   const update = (field, value) =>
     setRenewalForm((f) => ({ ...f, [field]: value }));
@@ -114,6 +114,27 @@ function RenewalModal({
           Renewing for:{" "}
           <strong style={{ color: theme.text }}>{member.full_name}</strong>
         </p>
+
+        {errorMessage && (
+          <div
+            role="alert"
+            style={{
+              backgroundColor: "rgba(255, 82, 82, 0.08)",
+              border: "1px solid rgba(255, 82, 82, 0.35)",
+              color: "#FF8A8A",
+              padding: "12px 14px",
+              borderRadius: "8px",
+              marginBottom: "20px",
+              fontSize: "13px",
+              lineHeight: 1.5,
+            }}
+          >
+            <strong style={{ display: "block", marginBottom: 4 }}>
+              Renewal blocked
+            </strong>
+            {errorMessage}
+          </div>
+        )}
 
         <form
           onSubmit={onSubmit}
@@ -392,19 +413,21 @@ function RenewalModal({
 
           <button
             type="submit"
+            disabled={pending}
             style={{
               padding: "16px",
               backgroundColor: theme.primary,
               color: theme.primaryText,
               border: "none",
               borderRadius: "8px",
-              cursor: "pointer",
+              cursor: pending ? "not-allowed" : "pointer",
               fontWeight: "bold",
               fontSize: "14px",
               letterSpacing: "0.5px",
+              opacity: pending ? 0.6 : 1,
             }}
           >
-            Confirm Renewal
+            {pending ? "Processing…" : "Confirm Renewal"}
           </button>
         </form>
       </div>

@@ -37,14 +37,45 @@ try {
         $custom_price = (float)$plan['price'];
     }
 
-    // Get current member expiration
-    $mStmt = $conn->prepare("SELECT expiration_date FROM members WHERE member_id = :id");
+    // Get current member state including any open installment
+    $mStmt = $conn->prepare("
+        SELECT expiration_date, is_installment, installment_total, start_date
+        FROM members WHERE member_id = :id
+    ");
     $mStmt->execute([':id' => $data->member_id]);
     $currentMember = $mStmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$currentMember) {
+        http_response_code(404);
         echo json_encode(["success" => false, "error" => "Member not found."]);
         exit;
+    }
+
+    // Block renewal if the current contract still has an outstanding installment balance.
+    // Otherwise renewing would overwrite installment_total and reset start_date, silently
+    // erasing the debt the member still owes on the previous contract.
+    if ((int)$currentMember['is_installment'] === 1 && (float)$currentMember['installment_total'] > 0) {
+        $paidStmt = $conn->prepare("
+            SELECT COALESCE(SUM(amount), 0) FROM payments
+            WHERE member_id = :id
+              AND customer_type = 'Member'
+              AND payment_date >= :start
+        ");
+        $paidStmt->execute([
+            ':id'    => $data->member_id,
+            ':start' => $currentMember['start_date'],
+        ]);
+        $outstanding = (float)$currentMember['installment_total'] - (float)$paidStmt->fetchColumn();
+        if ($outstanding > 0.01) {
+            http_response_code(409);
+            echo json_encode([
+                "success" => false,
+                "error"   => "Cannot renew — this member has an outstanding installment balance of ₱"
+                            . number_format($outstanding, 2)
+                            . " on the current contract. Settle the full balance before renewing.",
+            ]);
+            exit;
+        }
     }
 
     // Extend from current expiration if still active, else start fresh from today
