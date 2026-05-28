@@ -8,8 +8,30 @@ requireAuth();
 $data = json_decode(file_get_contents("php://input"));
 
 if (empty($data->member_id) || empty($data->full_name)) {
+    http_response_code(400);
     echo json_encode(["success" => false, "error" => "Member ID and name are required."]);
     exit;
+}
+
+// Validate format if provided (existing records may have NULL — that's allowed)
+if (!empty($data->contact_number) && !preg_match('/^09\d{9}$/', $data->contact_number)) {
+    http_response_code(422);
+    echo json_encode([
+        "success" => false,
+        "error"   => "Contact number must be exactly 11 digits starting with 09.",
+    ]);
+    exit;
+}
+if (isset($data->age) && $data->age !== '' && $data->age !== null) {
+    $ageInt = (int)$data->age;
+    if ($ageInt < 1 || $ageInt > 120) {
+        http_response_code(422);
+        echo json_encode([
+            "success" => false,
+            "error"   => "Age must be between 1 and 120.",
+        ]);
+        exit;
+    }
 }
 
 try {

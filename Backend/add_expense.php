@@ -8,12 +8,12 @@ requireAuth();
 $data         = json_decode(file_get_contents('php://input'), true);
 $category     = trim($data['category']     ?? '');
 $description  = trim($data['description']  ?? '');
-$amount       = $data['amount']       ?? 0;
+$amount       = (float)($data['amount']    ?? 0);
 $expense_date = $data['expense_date'] ?? date('Y-m-d');
 
-if (!$category || !$amount) {
+if (!$category || $amount <= 0) {
     http_response_code(400);
-    echo json_encode(['success' => false, 'error' => 'Category and amount are required.']);
+    echo json_encode(['success' => false, 'error' => 'Category is required and amount must be greater than zero.']);
     exit;
 }
 

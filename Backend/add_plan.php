@@ -8,7 +8,20 @@ requireAuth();
 $data = json_decode(file_get_contents("php://input"));
 
 if (empty($data->plan_name) || !isset($data->price) || !isset($data->duration_days)) {
+    http_response_code(400);
     echo json_encode(["success" => false, "error" => "Plan name, price, and duration are required."]);
+    exit;
+}
+
+$price = (float)$data->price;
+$days  = (int)$data->duration_days;
+
+if ($price < 0 || $days < 1) {
+    http_response_code(422);
+    echo json_encode([
+        "success" => false,
+        "error"   => "Price must be ≥ 0 and duration must be at least 1 day.",
+    ]);
     exit;
 }
 
@@ -18,8 +31,8 @@ try {
         VALUES (:name, :price, :days)
     ")->execute([
         ':name'  => trim($data->plan_name),
-        ':price' => (float)$data->price,
-        ':days'  => (int)$data->duration_days,
+        ':price' => $price,
+        ':days'  => $days,
     ]);
     echo json_encode(["success" => true, "plan_id" => $conn->lastInsertId()]);
 } catch (PDOException $e) {

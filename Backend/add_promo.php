@@ -8,7 +8,20 @@ requireAuth();
 $data = json_decode(file_get_contents("php://input"));
 
 if (empty($data->promo_name)) {
+    http_response_code(400);
     echo json_encode(["success" => false, "error" => "Promo name is required."]);
+    exit;
+}
+
+$bonus_days      = isset($data->bonus_days)      ? (int)$data->bonus_days        : 0;
+$discount_amount = isset($data->discount_amount) ? (float)$data->discount_amount : 0;
+
+if ($bonus_days < 0 || $discount_amount < 0) {
+    http_response_code(422);
+    echo json_encode([
+        "success" => false,
+        "error"   => "Bonus days and discount amount must be ≥ 0.",
+    ]);
     exit;
 }
 
@@ -18,10 +31,10 @@ try {
         VALUES (:name, :days, :discount, :is_free, :desc, 1)
     ")->execute([
         ':name'     => trim($data->promo_name),
-        ':days'     => isset($data->bonus_days)      ? (int)$data->bonus_days              : 0,
-        ':discount' => isset($data->discount_amount) ? (float)$data->discount_amount       : 0,
-        ':is_free'  => !empty($data->is_free)        ? 1                                   : 0,
-        ':desc'     => !empty($data->description)    ? trim($data->description)            : null,
+        ':days'     => $bonus_days,
+        ':discount' => $discount_amount,
+        ':is_free'  => !empty($data->is_free) ? 1 : 0,
+        ':desc'     => !empty($data->description) ? trim($data->description) : null,
     ]);
     echo json_encode(["success" => true, "promo_id" => $conn->lastInsertId()]);
 } catch (PDOException $e) {

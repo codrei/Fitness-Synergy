@@ -1,4 +1,9 @@
 import React from "react";
+import {
+  PHONE_PATTERN_STR,
+  sanitizePhoneInput,
+  isValidPhilippinePhone,
+} from "../utils/phone";
 
 function EditInfoModal({ theme, infoForm, setInfoForm, onSubmit, onClose }) {
   const update = (field, value) =>
@@ -95,12 +100,24 @@ function EditInfoModal({ theme, infoForm, setInfoForm, onSubmit, onClose }) {
             <div>
               <label style={labelStyle}>Contact Number</label>
               <input
-                type="text"
+                type="tel"
+                inputMode="numeric"
+                pattern={PHONE_PATTERN_STR}
+                maxLength={11}
+                title="Must be exactly 11 digits starting with 09"
                 value={infoForm.contactNumber}
-                onChange={(e) => update("contactNumber", e.target.value)}
-                placeholder="e.g., 0917XXXXXXX"
+                onChange={(e) =>
+                  update("contactNumber", sanitizePhoneInput(e.target.value))
+                }
+                placeholder="09171234567"
                 style={inputStyle}
               />
+              {infoForm.contactNumber &&
+                !isValidPhilippinePhone(infoForm.contactNumber) && (
+                  <div style={{ fontSize: 11, color: theme.danger, marginTop: 4 }}>
+                    Must be 11 digits starting with 09
+                  </div>
+                )}
             </div>
           </div>
 
