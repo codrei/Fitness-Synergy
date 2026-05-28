@@ -71,6 +71,26 @@ function AddEditModal({
     transition: "border-color 0.2s ease",
   };
 
+  const SectionDivider = ({ title }) => (
+    <div style={{ display: "flex", alignItems: "center", gap: 10, margin: "8px 0 2px" }}>
+      <span
+        style={{
+          fontSize: "10px",
+          color: theme.textMuted,
+          textTransform: "uppercase",
+          letterSpacing: "1.5px",
+          fontWeight: "bold",
+          whiteSpace: "nowrap",
+        }}
+      >
+        {title}
+      </span>
+      <div style={{ flex: 1, height: "1px", backgroundColor: theme.border }} />
+    </div>
+  );
+
+  const Req = () => <span style={{ color: theme.danger, marginLeft: 2 }}>*</span>;
+
   return (
     <div
       style={{
@@ -100,32 +120,35 @@ function AddEditModal({
           boxShadow: "0 10px 40px rgba(0,0,0,0.5)",
           display: "flex",
           flexDirection: "column",
-          transition: "all 0.3s ease-in-out",
         }}
       >
+        {/* Header */}
         <div
           style={{
             display: "flex",
             justifyContent: "space-between",
-            alignItems: "center",
-            marginBottom: "25px",
+            alignItems: "flex-start",
+            marginBottom: "20px",
           }}
         >
-          <h2 style={{ margin: 0, fontSize: "20px" }}>
-            {editingId
-              ? "Edit Profile & Status"
-              : "Register Member"}
-          </h2>
+          <div>
+            <h2 style={{ margin: 0, fontSize: "20px", color: theme.text }}>
+              {editingId ? "Edit Profile & Status" : "Register Member"}
+            </h2>
+            <span style={{ fontSize: "11px", color: theme.textMuted }}>
+              Fields marked <span style={{ color: theme.danger }}>*</span> are required
+            </span>
+          </div>
           <button
-            onClick={() => {
-              setShowMemberModal(false);
-              cancelEdit();
-            }}
+            onClick={() => { setShowMemberModal(false); cancelEdit(); }}
             style={{
               background: "none",
               border: "none",
-              fontSize: "20px",
+              fontSize: "22px",
               cursor: "pointer",
+              color: theme.text,
+              lineHeight: 1,
+              padding: "2px 6px",
             }}
           >
             ×
@@ -135,13 +158,9 @@ function AddEditModal({
         <form
           ref={formRef}
           onSubmit={onSubmit}
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: "18px",
-            flex: 1,
-          }}
+          style={{ display: "flex", flexDirection: "column", gap: "14px", flex: 1 }}
         >
+          {/* Duplicate warning — always stays at top */}
           {duplicateWarning && (
             <div
               style={{
@@ -196,8 +215,79 @@ function AddEditModal({
             </div>
           )}
 
+          {/* ── SECTION 1: BASIC INFORMATION ── */}
+          <SectionDivider title="Basic Information" />
+
           <div>
-            <label style={labelStyle}>Membership Plan</label>
+            <label style={labelStyle}>Full Name <Req /></label>
+            <input
+              type="text"
+              value={memberForm.name}
+              onChange={(e) => update("name", e.target.value)}
+              placeholder="First and Last Name"
+              required
+              style={inputStyle}
+            />
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px" }}>
+            <div>
+              <label style={labelStyle}>Contact Number</label>
+              <input
+                type="text"
+                value={memberForm.contactNumber}
+                onChange={(e) => update("contactNumber", e.target.value)}
+                placeholder="e.g., 0917XXXXXXX"
+                style={inputStyle}
+              />
+            </div>
+            <div>
+              <label style={labelStyle}>Age</label>
+              <input
+                type="number"
+                min="1"
+                max="120"
+                value={memberForm.age}
+                onChange={(e) => update("age", e.target.value)}
+                placeholder="e.g., 25"
+                style={inputStyle}
+              />
+            </div>
+          </div>
+
+          <div>
+            <label style={labelStyle}>Complete Address <Req /></label>
+            <input
+              type="text"
+              value={memberForm.address}
+              onChange={(e) => update("address", e.target.value)}
+              placeholder="House No., Street, Barangay, City"
+              required={!editingId}
+              style={inputStyle}
+            />
+          </div>
+
+          <div>
+            <label style={labelStyle}>
+              Facebook / Social Media{" "}
+              <span style={{ color: theme.textMuted, fontWeight: "normal", textTransform: "none", fontSize: "11px" }}>
+                (Optional)
+              </span>
+            </label>
+            <input
+              type="text"
+              value={memberForm.facebook}
+              onChange={(e) => update("facebook", e.target.value)}
+              placeholder="facebook.com/username or @handle"
+              style={inputStyle}
+            />
+          </div>
+
+          {/* ── SECTION 2: MEMBERSHIP PLAN ── */}
+          <SectionDivider title="Membership Plan" />
+
+          <div>
+            <label style={labelStyle}>Plan <Req /></label>
             <select
               value={memberForm.plan}
               onChange={(e) => {
@@ -216,16 +306,14 @@ function AddEditModal({
               required
               style={inputStyle}
             >
-              <option value="" disabled>
-                Select a Plan...
-              </option>
+              <option value="" disabled>Select a Plan...</option>
               {plans
                 .filter((p) => String(p.plan_id) !== "1")
                 .map((plan) => (
                   <option key={plan.plan_id} value={plan.plan_id}>
                     {parseFloat(plan.price) === 0
                       ? `${plan.plan_name} — FREE`
-                      : `${plan.plan_name} - ₱${plan.price}`}
+                      : `${plan.plan_name} — ₱${plan.price}`}
                   </option>
                 ))}
             </select>
@@ -251,7 +339,12 @@ function AddEditModal({
 
           {promos.length > 0 && (
             <div>
-              <label style={labelStyle}>Apply Promo (Optional)</label>
+              <label style={labelStyle}>
+                Apply Promo{" "}
+                <span style={{ color: theme.textMuted, fontWeight: "normal", textTransform: "none", fontSize: "11px" }}>
+                  (Optional)
+                </span>
+              </label>
               <select
                 value={memberForm.promoId || ""}
                 onChange={(e) => {
@@ -295,8 +388,7 @@ function AddEditModal({
                   <option key={p.promo_id} value={p.promo_id}>
                     {p.is_free == 1
                       ? `${p.promo_name} (FREE)`
-                      : parseInt(p.bonus_days) > 0 &&
-                          parseFloat(p.discount_amount) > 0
+                      : parseInt(p.bonus_days) > 0 && parseFloat(p.discount_amount) > 0
                         ? `${p.promo_name} (+${p.bonus_days} days, ₱${p.discount_amount} off)`
                         : parseInt(p.bonus_days) > 0
                           ? `${p.promo_name} (+${p.bonus_days} days)`
@@ -307,15 +399,9 @@ function AddEditModal({
             </div>
           )}
 
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "1fr 1fr",
-              gap: "15px",
-            }}
-          >
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px" }}>
             <div>
-              <label style={labelStyle}>Custom Price Override (₱)</label>
+              <label style={labelStyle}>Custom Price (₱)</label>
               <input
                 type="number"
                 step="0.01"
@@ -326,115 +412,27 @@ function AddEditModal({
               />
             </div>
             <div>
-              <label style={labelStyle}>Promo Bonus Days</label>
+              <label style={labelStyle}>Bonus Days</label>
               <input
                 type="number"
                 value={memberForm.bonusDays}
                 onChange={(e) => update("bonusDays", e.target.value)}
                 placeholder="e.g., 3"
                 min="0"
-                style={inputStyle}
+                readOnly={!!memberForm.promoId}
+                style={{ ...inputStyle, opacity: memberForm.promoId ? 0.6 : 1 }}
               />
             </div>
           </div>
 
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "2fr 1fr 1fr",
-              gap: "15px",
-            }}
-          >
-            <div>
-              <label style={labelStyle}>Full Name</label>
-              <input
-                type="text"
-                value={memberForm.name}
-                onChange={(e) => update("name", e.target.value)}
-                required
-                style={inputStyle}
-              />
-            </div>
-            <div>
-              <label style={labelStyle}>Contact Number</label>
-              <input
-                type="text"
-                value={memberForm.contactNumber}
-                onChange={(e) => update("contactNumber", e.target.value)}
-                placeholder="e.g., 0917XXXXXXX"
-                style={inputStyle}
-              />
-            </div>
-            <div>
-              <label style={labelStyle}>Age</label>
-              <input
-                type="number"
-                min="1"
-                max="120"
-                value={memberForm.age}
-                onChange={(e) => update("age", e.target.value)}
-                placeholder="e.g., 25"
-                style={inputStyle}
-              />
-            </div>
-          </div>
-
-          <div>
-            <label style={labelStyle}>Complete Address</label>
-            <input
-              type="text"
-              value={memberForm.address}
-              onChange={(e) => update("address", e.target.value)}
-              placeholder="House No., Street, Barangay, City"
-              required
-              style={inputStyle}
-            />
-          </div>
-
-          <div>
-            <label style={labelStyle}>Facebook / Social Media (Optional)</label>
-            <input
-              type="text"
-              value={memberForm.facebook}
-              onChange={(e) => update("facebook", e.target.value)}
-              placeholder="facebook.com/username or @handle"
-              style={inputStyle}
-            />
-          </div>
-
+          {/* ── SECTION 3: CONTRACT DETAILS (long-term plans only) ── */}
           {isLongTermPlan && (
-            <fieldset
-              style={{
-                border: `1px dashed ${theme.border}`,
-                borderRadius: "8px",
-                padding: "20px",
-                display: "flex",
-                flexDirection: "column",
-                gap: "18px",
-                margin: "5px 0",
-                animation: "fadeIn 0.3s ease-in-out",
-              }}
-            >
-              <legend
-                style={{
-                  color: theme.primary,
-                  fontWeight: "bold",
-                  fontSize: "12px",
-                  padding: "0 8px",
-                }}
-              >
-                LONG-TERM CONTRACT PROFILE
-              </legend>
+            <>
+              <SectionDivider title="Contract Details" />
 
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "1fr 1fr",
-                  gap: "15px",
-                }}
-              >
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px" }}>
                 <div>
-                  <label style={labelStyle}>Date of Birth</label>
+                  <label style={labelStyle}>Date of Birth <Req /></label>
                   <input
                     type="date"
                     value={memberForm.dob}
@@ -444,7 +442,7 @@ function AddEditModal({
                   />
                 </div>
                 <div>
-                  <label style={labelStyle}>Gender</label>
+                  <label style={labelStyle}>Gender <Req /></label>
                   <select
                     value={memberForm.gender}
                     onChange={(e) => update("gender", e.target.value)}
@@ -470,21 +468,13 @@ function AddEditModal({
                 />
               </div>
 
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "1fr 1fr",
-                  gap: "15px",
-                }}
-              >
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px" }}>
                 <div>
                   <label style={labelStyle}>Emergency Contact Name</label>
                   <input
                     type="text"
                     value={memberForm.emergencyContactName}
-                    onChange={(e) =>
-                      update("emergencyContactName", e.target.value)
-                    }
+                    onChange={(e) => update("emergencyContactName", e.target.value)}
                     placeholder="Full Name"
                     style={inputStyle}
                   />
@@ -494,43 +484,30 @@ function AddEditModal({
                   <input
                     type="text"
                     value={memberForm.emergencyContactNumber}
-                    onChange={(e) =>
-                      update("emergencyContactNumber", e.target.value)
-                    }
+                    onChange={(e) => update("emergencyContactNumber", e.target.value)}
                     placeholder="Phone number"
                     style={inputStyle}
                   />
                 </div>
               </div>
 
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "1fr 1fr",
-                  gap: "15px",
-                }}
-              >
+              <div style={{ display: "grid", gridTemplateColumns: memberForm.discountType !== "None" ? "1fr 1fr" : "1fr", gap: "15px" }}>
                 <div>
-                  <label style={labelStyle}>Discount / Promo Group</label>
+                  <label style={labelStyle}>Discount Group</label>
                   <select
                     value={memberForm.discountType}
                     onChange={(e) =>
                       setMemberForm((f) => ({
                         ...f,
                         discountType: e.target.value,
-                        discountId:
-                          e.target.value === "None" ? "" : f.discountId,
-                        discountIdType:
-                          e.target.value === "None" ? "" : f.discountIdType,
-                        discountSchoolName:
-                          e.target.value !== "Student"
-                            ? ""
-                            : f.discountSchoolName,
+                        discountId: e.target.value === "None" ? "" : f.discountId,
+                        discountIdType: e.target.value === "None" ? "" : f.discountIdType,
+                        discountSchoolName: e.target.value !== "Student" ? "" : f.discountSchoolName,
                       }))
                     }
                     style={inputStyle}
                   >
-                    <option value="None">Regular (No Promo)</option>
+                    <option value="None">Regular (No Discount)</option>
                     <option value="Student">Student Promo</option>
                     <option value="Senior">Senior Citizen Promo</option>
                   </select>
@@ -546,9 +523,7 @@ function AddEditModal({
                     >
                       <option value="">Select ID Type...</option>
                       <option value="School ID">School ID</option>
-                      <option value="Senior Citizen ID">
-                        Senior Citizen ID
-                      </option>
+                      <option value="Senior Citizen ID">Senior Citizen ID</option>
                       <option value="PWD ID">PWD ID</option>
                       <option value="Government ID">Government ID</option>
                       <option value="Other">Other</option>
@@ -561,8 +536,7 @@ function AddEditModal({
                 <div
                   style={{
                     display: "grid",
-                    gridTemplateColumns:
-                      memberForm.discountType === "Student" ? "1fr 1fr" : "1fr",
+                    gridTemplateColumns: memberForm.discountType === "Student" ? "1fr 1fr" : "1fr",
                     gap: "15px",
                   }}
                 >
@@ -571,6 +545,7 @@ function AddEditModal({
                       {memberForm.discountType === "Student"
                         ? "Student ID Number"
                         : "Senior Citizen ID Number"}
+                      {" "}<Req />
                     </label>
                     <input
                       type="text"
@@ -587,9 +562,7 @@ function AddEditModal({
                       <input
                         type="text"
                         value={memberForm.discountSchoolName}
-                        onChange={(e) =>
-                          update("discountSchoolName", e.target.value)
-                        }
+                        onChange={(e) => update("discountSchoolName", e.target.value)}
                         placeholder="e.g., University of Santo Tomas"
                         style={inputStyle}
                       />
@@ -598,12 +571,7 @@ function AddEditModal({
                 </div>
               )}
 
-              <div
-                style={{
-                  borderTop: `1px dashed ${theme.border}`,
-                  paddingTop: "16px",
-                }}
-              >
+              <div style={{ borderTop: `1px dashed ${theme.border}`, paddingTop: "14px" }}>
                 <label
                   style={{
                     display: "flex",
@@ -625,47 +593,27 @@ function AddEditModal({
                 </label>
                 {memberForm.isInstallment && (
                   <div style={{ marginTop: "12px" }}>
-                    <label style={labelStyle}>Total Contract Amount (₱)</label>
+                    <label style={labelStyle}>Total Contract Amount (₱) <Req /></label>
                     <input
                       type="number"
                       step="0.01"
                       min="0"
                       required
                       value={memberForm.installmentTotal || ""}
-                      onChange={(e) =>
-                        update("installmentTotal", e.target.value)
-                      }
+                      onChange={(e) => update("installmentTotal", e.target.value)}
                       placeholder="e.g., 5000.00"
                       style={inputStyle}
                     />
                   </div>
                 )}
               </div>
-            </fieldset>
+            </>
           )}
 
+          {/* ── SECTION 4: PAYMENT DETAILS (new registrations only) ── */}
           {!editingId && (
-            <fieldset
-              style={{
-                border: `1px dashed ${theme.border}`,
-                borderRadius: "8px",
-                padding: "20px",
-                display: "flex",
-                flexDirection: "column",
-                gap: "15px",
-                margin: "5px 0",
-              }}
-            >
-              <legend
-                style={{
-                  color: theme.primary,
-                  fontWeight: "bold",
-                  fontSize: "12px",
-                  padding: "0 8px",
-                }}
-              >
-                PAYMENT DETAILS
-              </legend>
+            <>
+              <SectionDivider title="Payment Details" />
 
               <div>
                 <label style={labelStyle}>Payment Method</label>
@@ -685,7 +633,7 @@ function AddEditModal({
 
               {memberForm.isInstallment && (
                 <div>
-                  <label style={labelStyle}>Downpayment Amount (₱)</label>
+                  <label style={labelStyle}>Downpayment Amount (₱) <Req /></label>
                   <input
                     type="number"
                     step="0.01"
@@ -709,9 +657,10 @@ function AddEditModal({
                   style={inputStyle}
                 />
               </div>
-            </fieldset>
+            </>
           )}
 
+          {/* Submit */}
           <button
             type="submit"
             disabled={submitting}
@@ -720,7 +669,7 @@ function AddEditModal({
               backgroundColor: theme.primary,
               color: theme.primaryText,
               border: "none",
-              borderRadius: "6px",
+              borderRadius: "8px",
               cursor: submitting ? "default" : "pointer",
               fontWeight: "bold",
               marginTop: "auto",

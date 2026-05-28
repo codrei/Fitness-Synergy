@@ -5,7 +5,6 @@ const EMPTY = {
   plan_name: "",
   price: "",
   duration_days: "",
-  plan_type: "Standard",
 };
 
 function PlansManager({ theme }) {
@@ -456,6 +455,24 @@ function PlansManager({ theme }) {
                   />
                 </div>
               </div>
+              {/* Category preview hint */}
+              {modal.form.plan_name && modal.form.duration_days && modal.form.price !== "" && (() => {
+                const dur = parseInt(modal.form.duration_days);
+                const price = parseFloat(modal.form.price);
+                const name = modal.form.plan_name.toLowerCase();
+                let label, color;
+                if (dur <= 1) { label = "Walk-in / Daily Plan"; color = "#f59e0b"; }
+                else if (price === 0) { label = "Free Trial Plans"; color = "#00e676"; }
+                else if (name.includes("student") || name.includes("senior")) { label = "Student / Senior Plans"; color = "#00e676"; }
+                else { label = "Standard Plans"; color = theme.primary; }
+                return (
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12, color: theme.textMuted, backgroundColor: `${color}12`, border: `1px solid ${color}33`, borderRadius: 6, padding: "7px 12px" }}>
+                    <span>Will appear under:</span>
+                    <strong style={{ color }}>{label}</strong>
+                  </div>
+                );
+              })()}
+
               {error && (
                 <div style={{ color: theme.danger, fontSize: 13 }}>{error}</div>
               )}
