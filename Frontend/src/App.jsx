@@ -923,6 +923,12 @@ function App() {
           theme={theme}
           onClose={() => setShowAdminSettingsModal(false)}
           showToast={showToast}
+          onLogout={() => {
+            apiFetch("logout.php", { method: "POST" }).catch(() => {});
+            localStorage.removeItem("fitness_synergy_token");
+            setShowAdminSettingsModal(false);
+            setIsLoggedIn(false);
+          }}
         />
       )}
 

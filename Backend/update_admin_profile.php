@@ -28,7 +28,6 @@ if (empty($currentPassword)) {
 }
 
 try {
-    // Fetch current record
     $stmt = $conn->prepare("SELECT username, password FROM admins WHERE admin_id = :id");
     $stmt->execute([':id' => $admin_id]);
     $admin = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -38,12 +37,8 @@ try {
         exit;
     }
 
-    // Verify current password against stored hash
     if (!password_verify($currentPassword, $admin['password'])) {
-        echo json_encode([
-            "success" => false,
-            "error"   => "Current password is incorrect.",
-        ]);
+        echo json_encode(["success" => false, "error" => "Current password is incorrect."]);
         exit;
     }
 
@@ -55,9 +50,11 @@ try {
         $bindings[':username'] = $newUsername;
     }
 
+    $passwordChanged = false;
     if (!empty($newPassword)) {
         $updateFields[]        = "password = :password";
         $bindings[':password'] = password_hash($newPassword, PASSWORD_BCRYPT);
+        $passwordChanged       = true;
     }
 
     if (empty($updateFields)) {
@@ -68,17 +65,15 @@ try {
     $sql             = "UPDATE admins SET " . implode(", ", $updateFields) . " WHERE admin_id = :id";
     $bindings[':id'] = $admin_id;
 
-    $stmt    = $conn->prepare($sql);
-    $success = $stmt->execute($bindings);
+    $conn->prepare($sql)->execute($bindings);
 
-    if ($success && $stmt->rowCount() > 0) {
-        echo json_encode(["success" => true, "message" => "Profile updated successfully."]);
-    } elseif ($success && $stmt->rowCount() === 0) {
-        // Executed fine but nothing changed (same values submitted)
-        echo json_encode(["success" => false, "error" => "No changes were applied. Values may be identical to current."]);
-    } else {
-        echo json_encode(["success" => false, "error" => "Update failed."]);
+    // Invalidate all sessions after credential change so old tokens stop working
+    if ($passwordChanged) {
+        $conn->prepare("DELETE FROM sessions WHERE admin_id = :id")
+             ->execute([':id' => $admin_id]);
     }
+
+    echo json_encode(["success" => true, "message" => "Profile updated successfully."]);
 
 } catch (PDOException $e) {
     http_response_code(500);
