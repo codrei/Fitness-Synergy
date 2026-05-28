@@ -1,13 +1,19 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useCallback } from "react";
+import { apiFetch } from "./api";
+import bgTexture from "./assets/geomblue.png";
+
+// View-level components
 import RevenueReport from "./components/RevenueReport";
+import AttendanceReport from "./components/AttendanceReport";
+import BranchSalesReport from "./components/BranchSalesReport";
 import PlansManager from "./components/PlansManager";
 import PromosManager from "./components/PromosManager";
 import ExpensesManager from "./components/ExpensesManager";
 import Login from "./components/Login";
 import Sidebar from "./components/Sidebar";
-import StatsCards from "./components/StatsCards";
-import MembersTable from "./components/MembersTable";
-import LiveFeed from "./components/LiveFeed";
+import DashboardView from "./views/DashboardView";
+
+// Modals
 import AddEditModal from "./components/AddEditModal";
 import WalkInModal from "./components/WalkInModal";
 import ProfileModal from "./components/ProfileModal";
@@ -18,110 +24,51 @@ import InstallmentPaymentModal from "./components/InstallmentPaymentModal";
 import TdeeModal from "./components/TdeeModal";
 import ConfirmModal from "./components/ConfirmModal";
 import AdminSettingsModal from "./components/AdminSettingsModal";
-import PhotoCropModal from "./components/PhotoCropModal"; // 1. IMPORT NEW MODAL
-import bgTexture from "./assets/geomblue.png";
-import { apiFetch } from "./api";
-import AttendanceReport from "./components/AttendanceReport";
-import BranchSalesReport from "./components/BranchSalesReport";
+import PhotoCropModal from "./components/PhotoCropModal";
+import PostRegPhotoModal from "./components/PostRegPhotoModal";
+import WalkInRecommendModal from "./components/WalkInRecommendModal";
 
-const WALKIN_FORM_DEFAULT = {
-  guestName: "",
-  guestAge: "",
-  guestContact: "",
-  guestAddress: "",
-  customPrice: "",
-  paymentMethod: "Cash",
-  referenceNumber: "",
-};
-
-const RENEWAL_FORM_DEFAULT = {
-  planId: "",
-  promoId: "",
-  customPrice: "",
-  bonusDays: 0,
-  isInstallment: false,
-  installmentTotal: "",
-  paymentMethod: "Cash",
-  paymentAmount: "",
-  referenceNumber: "",
-};
-
-const MEMBER_FORM_DEFAULT = {
-  name: "",
-  plan: "",
-  promoId: "",
-  bonusDays: 0,
-  customPrice: "",
-  isInstallment: false,
-  installmentTotal: "",
-  address: "",
-  contactNumber: "",
-  facebook: "",
-  dob: "",
-  age: "",
-  gender: "",
-  occupation: "",
-  emergencyContactName: "",
-  emergencyContactNumber: "",
-  discountType: "None",
-  discountId: "",
-  discountIdType: "",
-  discountSchoolName: "",
-  paymentMethod: "Cash",
-  paymentAmount: "",
-  referenceNumber: "",
-};
-
-const formatSafeDate = (dateStr, includeTime = false) => {
-  if (!dateStr)
-    return includeTime
-      ? new Date().toLocaleString()
-      : new Date().toLocaleDateString();
-  const d = new Date(dateStr);
-  if (isNaN(d) || d.getFullYear() <= 1970)
-    return includeTime
-      ? new Date().toLocaleString()
-      : new Date().toLocaleDateString();
-  return includeTime ? d.toLocaleString() : d.toLocaleDateString();
-};
-
-const getDaysRemaining = (expDate) => {
-  if (!expDate) return "No Expiration";
-  const today = new Date().setHours(0, 0, 0, 0);
-  const expiration = new Date(expDate + "T00:00:00").setHours(0, 0, 0, 0);
-  const daysLeft = Math.round((expiration - today) / (1000 * 60 * 60 * 24));
-  if (daysLeft < 0) return "Expired";
-  if (daysLeft === 0) return "Expires Today";
-  return `${daysLeft} day(s) left`;
-};
+// Hooks + utilities
+import { useTheme } from "./hooks/useTheme";
+import { useToast } from "./hooks/useToast";
+import { useCurrentTime } from "./hooks/useCurrentTime";
+import { useGymData } from "./hooks/useGymData";
+import { formatSafeDate, getDaysRemaining } from "./utils/date";
+import { printReceipt } from "./utils/receipt";
+import {
+  WALKIN_FORM_DEFAULT,
+  RENEWAL_FORM_DEFAULT,
+  MEMBER_FORM_DEFAULT,
+} from "./constants/formDefaults";
 
 function App() {
-  const [members, setMembers] = useState([]);
-  const [attendanceLogs, setAttendanceLogs] = useState([]);
-  const [plans, setPlans] = useState([]);
-  const [promos, setPromos] = useState([]);
-  const [stats, setStats] = useState(null);
-  const [installmentPaymentMember, setInstallmentPaymentMember] =
-    useState(null);
-  const [searchQuery, setSearchQuery] = useState("");
+  // ── Auth ──
   const [isLoggedIn, setIsLoggedIn] = useState(
     !!localStorage.getItem("fitness_synergy_token"),
   );
-  const [isDarkMode, setIsDarkMode] = useState(
-    localStorage.getItem("theme") !== "light",
-  );
-  const [toast, setToast] = useState({
-    show: false,
-    message: "",
-    type: "success",
-  });
-  const [isLoading, setIsLoading] = useState(false);
+  const [loginForm, setLoginForm] = useState({ user: "", pass: "", error: "" });
+
+  // ── UI shell hooks ──
+  const { isDarkMode, theme, toggleTheme } = useTheme();
+  const { showToast } = useToast();
+  const currentTime = useCurrentTime();
+
+  // ── Navigation / filters ──
+  const [currentView, setCurrentView] = useState("dashboard");
+  const [memberStatusFilter, setMemberStatusFilter] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  // ── Member CRUD modal state ──
+  const [showMemberModal, setShowMemberModal] = useState(false);
+  const [editingId, setEditingId] = useState(null);
+  const [memberForm, setMemberForm] = useState(MEMBER_FORM_DEFAULT);
   const [deleteConfirm, setDeleteConfirm] = useState({
     show: false,
     id: null,
     name: "",
   });
-  const [showMemberModal, setShowMemberModal] = useState(false);
+
+  // ── Walk-in modal state ──
   const [showWalkInModal, setShowWalkInModal] = useState(false);
   const [walkInForm, setWalkInForm] = useState(WALKIN_FORM_DEFAULT);
   const [walkInRecommend, setWalkInRecommend] = useState({
@@ -129,27 +76,34 @@ function App() {
     name: "",
     visits: 0,
   });
-  const [showTdeeModal, setShowTdeeModal] = useState(false);
-  const [showAdminSettingsModal, setShowAdminSettingsModal] = useState(false); // 2. STATE FOR MODAL
-  const [postRegPhotoPrompt, setPostRegPhotoPrompt] = useState(null);
-  const [postRegPhotoUpload, setPostRegPhotoUpload] = useState(null);
-  const [currentView, setCurrentView] = useState("dashboard");
-  const [memberStatusFilter, setMemberStatusFilter] = useState(null);
-  const [editingId, setEditingId] = useState(null);
+
+  // ── Renewal modal state ──
   const [showRenewalModal, setShowRenewalModal] = useState(false);
   const [renewalMember, setRenewalMember] = useState(null);
   const [renewalForm, setRenewalForm] = useState(RENEWAL_FORM_DEFAULT);
+
+  // ── Edit-info modal state ──
   const [showEditInfoModal, setShowEditInfoModal] = useState(false);
   const [editInfoMember, setEditInfoMember] = useState(null);
   const [infoForm, setInfoForm] = useState({});
-  const [timeInConfirmMember, setTimeInConfirmMember] = useState(null);
-  const [memberForm, setMemberForm] = useState(MEMBER_FORM_DEFAULT);
+
+  // ── Profile / time-in / installment ──
   const [selectedMember, setSelectedMember] = useState(null);
   const [memberHistory, setMemberHistory] = useState({
     logs: [],
     visits: 0,
     payments: [],
   });
+  const [timeInConfirmMember, setTimeInConfirmMember] = useState(null);
+  const [installmentPaymentMember, setInstallmentPaymentMember] = useState(null);
+
+  // ── Post-registration photo flow ──
+  const [postRegPhotoPrompt, setPostRegPhotoPrompt] = useState(null);
+  const [postRegPhotoUpload, setPostRegPhotoUpload] = useState(null);
+
+  // ── Misc tools ──
+  const [showTdeeModal, setShowTdeeModal] = useState(false);
+  const [showAdminSettingsModal, setShowAdminSettingsModal] = useState(false);
   const [tdeeData, setTdeeData] = useState({
     gender: "male",
     age: 25,
@@ -162,90 +116,42 @@ function App() {
     activity: 1.2,
   });
   const [tdeeResult, setTdeeResult] = useState(0);
-  const [loginForm, setLoginForm] = useState({ user: "", pass: "", error: "" });
-  const [currentTime, setCurrentTime] = useState(new Date());
 
-  const theme = useMemo(
-    () => ({
-      bg: isDarkMode ? "#091212" : "#ECF8F7",
-      surface: isDarkMode ? "#111E1E" : "#FFFFFF",
-      border: isDarkMode ? "#1C3232" : "#BFE5E3",
-      text: isDarkMode ? "#E8F8F7" : "#0B2424",
-      textMuted: isDarkMode ? "#6AABA8" : "#427A78",
-      primary: isDarkMode ? "#00CCCC" : "#009999",
-      primaryText: "#000000",
-      danger: isDarkMode ? "#FF5252" : "#C62828",
-      success: isDarkMode ? "#00E676" : "#1B6B63",
-      sidebar: isDarkMode ? "#060D0D" : "#091A1A",
-    }),
-    [isDarkMode],
-  );
-
-  useEffect(() => {
-    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
-    return () => clearInterval(timer);
+  // ── Data layer: members, attendance, plans, promos, stats ──
+  const handleAuthExpired = useCallback(() => {
+    localStorage.removeItem("fitness_synergy_token");
+    setIsLoggedIn(false);
   }, []);
-
-  useEffect(() => {
-    document.body.style.backgroundColor = isDarkMode ? "#060D0D" : "#D8F0EE";
-  }, [isDarkMode]);
-
-  const showToast = (message, type = "success") => {
-    setToast({ show: true, message, type });
-    setTimeout(
-      () => setToast({ show: false, message: "", type: "success" }),
-      3500,
-    );
-  };
+  const handleDataError = useCallback(
+    (msg) => showToast(msg, "error"),
+    [showToast],
+  );
+  const {
+    members,
+    attendanceLogs,
+    plans,
+    promos,
+    stats,
+    isLoading,
+    fetchData,
+  } = useGymData({
+    isLoggedIn,
+    onAuthExpired: handleAuthExpired,
+    onError: handleDataError,
+  });
 
   const clearMemberForm = () => {
     setEditingId(null);
     setMemberForm(MEMBER_FORM_DEFAULT);
   };
 
-  const fetchData = async () => {
-    setIsLoading(true);
-    try {
-      const endpoints = [
-        "get_members",
-        "get_attendance",
-        "get_plans",
-        "get_stats",
-        "get_promos",
-      ];
-      const responses = await Promise.all(
-        endpoints.map((e) => apiFetch(`${e}.php`)),
-      );
-
-      if (responses.some((r) => r.status === 401)) {
-        localStorage.removeItem("fitness_synergy_token");
-        setIsLoggedIn(false);
-        return;
-      }
-
-      const results = await Promise.all(
-        responses.map((res) => {
-          if (!res.ok) throw new Error(`Server error: ${res.status}`);
-          return res.json();
-        }),
-      );
-      setMembers(results[0] || []);
-      setAttendanceLogs(results[1] || []);
-      setPlans(results[2] || []);
-      setStats(results[3] || null);
-      setPromos(Array.isArray(results[4]) ? results[4] : []);
-    } catch (err) {
-      showToast("Failed to load data. Check server connection.", "error");
-      console.error("Fetch error:", err);
-    } finally {
-      setIsLoading(false);
-    }
+  const handleLogout = () => {
+    apiFetch("logout.php", { method: "POST" }).catch(() => {});
+    localStorage.removeItem("fitness_synergy_token");
+    setIsLoggedIn(false);
   };
 
-  useEffect(() => {
-    if (isLoggedIn) fetchData();
-  }, [isLoggedIn]);
-
+  // ── Handlers ──
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoginForm((p) => ({ ...p, error: "" }));
@@ -276,7 +182,7 @@ function App() {
           error: res.error || "Invalid credentials.",
         }));
       }
-    } catch (err) {
+    } catch {
       setLoginForm((prev) => ({
         ...prev,
         error:
@@ -298,7 +204,7 @@ function App() {
       } else {
         showToast(res.error, "error");
       }
-    } catch (err) {
+    } catch {
       showToast("Attendance Server Error", "error");
     }
   };
@@ -334,7 +240,7 @@ function App() {
       } else {
         showToast(res.error || "Walk-in registration failed", "error");
       }
-    } catch (err) {
+    } catch {
       showToast("Walk-in registration failed", "error");
     }
   };
@@ -370,7 +276,7 @@ function App() {
           payment_method: memberForm.paymentMethod,
           payment_amount: memberForm.paymentAmount,
           reference_number: memberForm.referenceNumber,
-          force: force,
+          force,
           ...(editingId && { member_id: editingId }),
         }),
       }).then((r) => r.json());
@@ -381,7 +287,10 @@ function App() {
         if (!editingId && res.member_id) {
           const savedName = memberForm.name;
           clearMemberForm();
-          setPostRegPhotoPrompt({ memberId: res.member_id, memberName: savedName });
+          setPostRegPhotoPrompt({
+            memberId: res.member_id,
+            memberName: savedName,
+          });
         } else {
           clearMemberForm();
           showToast(editingId ? "Member Updated" : "Member Added");
@@ -391,7 +300,7 @@ function App() {
       } else {
         showToast(res.error || "Submission Failed", "error");
       }
-    } catch (err) {
+    } catch {
       showToast("Submission Failed", "error");
     }
   };
@@ -554,95 +463,15 @@ function App() {
       tdeeData.heightUnit === "ftin"
         ? tdeeData.heightFt * 30.48 + tdeeData.heightIn * 2.54
         : parseFloat(tdeeData.heightCm);
-    let bmr =
+    const bmr =
       tdeeData.gender === "male"
         ? 10 * w + 6.25 * h - 5 * tdeeData.age + 5
         : 10 * w + 6.25 * h - 5 * tdeeData.age - 161;
     setTdeeResult(Math.round(bmr * tdeeData.activity));
   };
 
-  const printReceipt = (payment, member) => {
-    const rows = payment.payment_method
-      ? `<tr><td>${payment.payment_method}</td><td>₱${parseFloat(payment.amount).toLocaleString("en-PH", { minimumFractionDigits: 2 })}</td></tr>`
-      : "";
-
-    const bonusDays = parseInt(payment.bonus_days || 0, 10);
-    const bonusRow = bonusDays > 0
-      ? `<tr><td>Bonus Days</td><td>+${bonusDays} day${bonusDays > 1 ? "s" : ""} (FREE)</td></tr>`
-      : "";
-
-    const requiresSignature = ["Bank Transfer", "Credit Card", "Debit Card"].includes(payment.payment_method);
-    const signatureBlock = requiresSignature
-      ? `<hr>
-         <div style="font-size:11px;margin-top:6px">
-           <strong>SIGNATURE REQUIRED</strong><br>
-           By signing below, the client confirms this ${payment.payment_method} transaction.<br><br>
-           <div style="border-bottom:1px solid #000;margin-top:28px;width:100%"></div>
-           <div style="display:flex;justify-content:space-between;font-size:10px;margin-top:3px">
-             <span>Client Signature</span><span>Date</span>
-           </div>
-         </div>`
-      : "";
-
-    const printedAt = new Date();
-    const html = `<!DOCTYPE html><html><head><title>Receipt</title>
-    <style>
-      body { font-family: monospace; width: 320px; margin: 20px auto; font-size: 13px; }
-      h2 { text-align: center; margin: 0; font-size: 16px; }
-      .sub { text-align: center; color: #555; font-size: 11px; margin-bottom: 12px; }
-      hr { border: none; border-top: 1px dashed #999; margin: 10px 0; }
-      table { width: 100%; border-collapse: collapse; }
-      td { padding: 3px 0; }
-      td:last-child { text-align: right; }
-      .total { font-weight: bold; font-size: 15px; }
-      .footer { text-align: center; margin-top: 14px; font-size: 11px; color: #777; }
-    </style></head><body>
-    <h2>FITNESS SYNERGY LIPA</h2>
-    <div class="sub">Official Payment Receipt</div>
-    <hr>
-    <table>
-      <tr><td>Receipt #</td><td>${payment.payment_id}</td></tr>
-      <tr><td>Date</td><td>${new Date(payment.payment_date).toLocaleDateString()}</td></tr>
-      <tr><td>Time</td><td>${printedAt.toLocaleTimeString()}</td></tr>
-      <tr><td>Member</td><td>${member.full_name}</td></tr>
-      ${member.address ? `<tr><td>Address</td><td style="text-align:right;max-width:160px;word-break:break-word">${member.address}</td></tr>` : ""}
-      <tr><td>Plan</td><td>${payment.plan_name || member.plan_name || "—"}</td></tr>
-      ${bonusRow}
-      ${member.discount_type && member.discount_type !== "None" ? `<tr><td>Discount</td><td>${member.discount_type}</td></tr>` : ""}
-    </table>
-    <hr>
-    <table>${rows || '<tr><td colspan="2">—</td></tr>'}</table>
-    <hr>
-    <table><tr class="total"><td>TOTAL PAID</td><td>₱${parseFloat(payment.amount).toLocaleString("en-PH", { minimumFractionDigits: 2 })}</td></tr></table>
-    ${payment.reference_number ? `<hr><div style="font-size:11px">Ref #: ${payment.reference_number}</div>` : ""}
-    ${signatureBlock}
-    <div class="footer">Thank you for choosing Fitness Synergy Lipa!<br>Keep this receipt for your records.</div>
-    </body></html>`;
-
-    const w = window.open("", "_blank", "width=400,height=600");
-    w.document.write(html);
-    w.document.close();
-    w.focus();
-    w.print();
-  };
-
-  const filteredMembers = members.filter((m) =>
-    (m.full_name || "").toLowerCase().includes(searchQuery.toLowerCase()),
-  );
-
-  const formattedDate = currentTime.toLocaleDateString(undefined, {
-    weekday: "long",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
-  const formattedTime = currentTime.toLocaleTimeString(undefined, {
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-  });
-
-  if (!isLoggedIn)
+  // ── Render: login screen ──
+  if (!isLoggedIn) {
     return (
       <Login
         theme={theme}
@@ -654,7 +483,9 @@ function App() {
         handleLogin={handleLogin}
       />
     );
+  }
 
+  // ── Render: authenticated shell ──
   return (
     <div
       style={{
@@ -674,15 +505,8 @@ function App() {
       <Sidebar
         theme={theme}
         isDarkMode={isDarkMode}
-        toggleTheme={() => {
-          setIsDarkMode(!isDarkMode);
-          localStorage.setItem("theme", !isDarkMode ? "dark" : "light");
-        }}
-        handleLogout={() => {
-          apiFetch("logout.php", { method: "POST" }).catch(() => {});
-          localStorage.removeItem("fitness_synergy_token");
-          setIsLoggedIn(false);
-        }}
+        toggleTheme={toggleTheme}
+        handleLogout={handleLogout}
         openAddModal={() => {
           clearMemberForm();
           setShowMemberModal(true);
@@ -692,7 +516,7 @@ function App() {
           setShowWalkInModal(true);
         }}
         setShowTdeeModal={setShowTdeeModal}
-        openAdminModal={() => setShowAdminSettingsModal(true)} // 3. INJECT OPEN ACTION INTO SIDEBAR
+        openAdminModal={() => setShowAdminSettingsModal(true)}
         currentView={currentView}
         setCurrentView={setCurrentView}
       />
@@ -742,6 +566,7 @@ function App() {
             </span>
           </div>
         )}
+
         {currentView.startsWith("revenue") ? (
           <RevenueReport theme={theme} activeTab={currentView} />
         ) : currentView === "attendance-report" ? (
@@ -755,104 +580,33 @@ function App() {
         ) : currentView === "expenses" ? (
           <ExpensesManager theme={theme} />
         ) : (
-          <>
-            <header
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                marginBottom: "30px",
-              }}
-            >
-              <h1 style={{ margin: 0, fontSize: "28px" }}>
-                Fitness Synergy Lipa Dashboard
-              </h1>
-              <div
-                style={{
-                  textAlign: "right",
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "flex-end",
-                }}
-              >
-                <span
-                  style={{
-                    fontSize: "20px",
-                    fontWeight: "bold",
-                    color: theme.text,
-                    letterSpacing: "0.5px",
-                  }}
-                >
-                  {formattedTime}
-                </span>
-                <span
-                  style={{
-                    fontSize: "12px",
-                    fontWeight: "600",
-                    color: theme.textMuted,
-                    textTransform: "uppercase",
-                    letterSpacing: "1px",
-                    marginTop: "4px",
-                  }}
-                >
-                  {formattedDate}
-                </span>
-              </div>
-            </header>
-
-            <div
-              style={{ display: "flex", gap: "20px", alignItems: "flex-start" }}
-            >
-              <div
-                style={{
-                  flex: 1,
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "20px",
-                }}
-              >
-                <StatsCards
-                  stats={stats}
-                  theme={theme}
-                  isDarkMode={isDarkMode}
-                  onNavigate={(filter) => setMemberStatusFilter(filter)}
-                />
-                <MembersTable
-                  theme={theme}
-                  isDarkMode={isDarkMode}
-                  searchQuery={searchQuery}
-                  setSearchQuery={setSearchQuery}
-                  filteredMembers={filteredMembers}
-                  plans={plans}
-                  getDaysRemaining={getDaysRemaining}
-                  confirmTimeIn={(member) => setTimeInConfirmMember(member)}
-                  attendanceLogs={attendanceLogs}
-                  viewProfile={viewProfile}
-                  startRenewal={startRenewal}
-                  walkInAgain={walkInAgain}
-                  convertWalkIn={convertWalkIn}
-                  showToast={showToast}
-                  handleDelete={(id, name) => {
-                    setDeleteConfirm({ show: true, id, name });
-                  }}
-                  externalStatusFilter={memberStatusFilter}
-                />
-              </div>
-              <div
-                className="live-feed-panel"
-                style={{ width: "350px", flexShrink: 0 }}
-              >
-                <LiveFeed
-                  theme={theme}
-                  isDarkMode={isDarkMode}
-                  attendanceLogs={attendanceLogs}
-                />
-              </div>
-            </div>
-          </>
+          <DashboardView
+            theme={theme}
+            isDarkMode={isDarkMode}
+            currentTime={currentTime}
+            stats={stats}
+            members={members}
+            plans={plans}
+            attendanceLogs={attendanceLogs}
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+            memberStatusFilter={memberStatusFilter}
+            setMemberStatusFilter={setMemberStatusFilter}
+            getDaysRemaining={getDaysRemaining}
+            confirmTimeIn={(member) => setTimeInConfirmMember(member)}
+            viewProfile={viewProfile}
+            startRenewal={startRenewal}
+            walkInAgain={walkInAgain}
+            convertWalkIn={convertWalkIn}
+            showToast={showToast}
+            handleDelete={(id, name) =>
+              setDeleteConfirm({ show: true, id, name })
+            }
+          />
         )}
       </main>
 
+      {/* ── Modals ── */}
       {showMemberModal && (
         <AddEditModal
           theme={theme}
@@ -923,6 +677,7 @@ function App() {
           onClose={() => setInstallmentPaymentMember(null)}
         />
       )}
+
       {showRenewalModal && renewalMember && (
         <RenewalModal
           theme={theme}
@@ -964,7 +719,6 @@ function App() {
         />
       )}
 
-      {/* 4. RENDER NEW ADMIN SETTINGS MODAL AT THE BOTTOM */}
       {showAdminSettingsModal && (
         <AdminSettingsModal
           theme={theme}
@@ -1000,70 +754,21 @@ function App() {
         />
       )}
 
-      {/* Post-registration photo prompt */}
       {postRegPhotoPrompt && !postRegPhotoUpload && (
-        <div
-          onClick={() => {
+        <PostRegPhotoModal
+          theme={theme}
+          memberName={postRegPhotoPrompt.memberName}
+          onUpload={() => {
+            setPostRegPhotoUpload(postRegPhotoPrompt.memberId);
+            setPostRegPhotoPrompt(null);
+          }}
+          onSkip={() => {
             setPostRegPhotoPrompt(null);
             showToast("Member Added");
           }}
-          style={{
-            position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.82)",
-            display: "flex", justifyContent: "center", alignItems: "center",
-            zIndex: 1300, backdropFilter: "blur(4px)",
-          }}
-        >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            style={{
-              backgroundColor: theme.surface, borderRadius: "16px",
-              padding: "36px 32px", width: "380px", textAlign: "center",
-              border: `1px solid ${theme.border}`,
-              boxShadow: "0 20px 60px rgba(0,0,0,0.7)",
-            }}
-          >
-            <h2 style={{ margin: "0 0 6px", fontSize: "20px", color: theme.text }}>
-              Registration Complete!
-            </h2>
-            <p style={{ margin: "0 0 6px", fontWeight: "bold", color: theme.primary, fontSize: "15px" }}>
-              {postRegPhotoPrompt.memberName}
-            </p>
-            <p style={{ margin: "0 0 24px", color: theme.textMuted, fontSize: "13px", lineHeight: 1.5 }}>
-              Add a profile photo now so staff can verify identity at the front desk.
-            </p>
-            <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-              <button
-                onClick={() => {
-                  setPostRegPhotoUpload(postRegPhotoPrompt.memberId);
-                  setPostRegPhotoPrompt(null);
-                }}
-                style={{
-                  padding: "13px", backgroundColor: theme.primary,
-                  color: theme.primaryText, border: "none", borderRadius: "8px",
-                  cursor: "pointer", fontWeight: "bold", fontSize: "14px",
-                }}
-              >
-                Upload Photo Now
-              </button>
-              <button
-                onClick={() => {
-                  setPostRegPhotoPrompt(null);
-                  showToast("Member Added");
-                }}
-                style={{
-                  padding: "11px", backgroundColor: "transparent",
-                  color: theme.textMuted, border: `1px solid ${theme.border}`,
-                  borderRadius: "8px", cursor: "pointer", fontSize: "13px",
-                }}
-              >
-                Skip for now
-              </button>
-            </div>
-          </div>
-        </div>
+        />
       )}
 
-      {/* Post-registration photo upload */}
       {postRegPhotoUpload && (
         <PhotoCropModal
           theme={theme}
@@ -1081,92 +786,21 @@ function App() {
       )}
 
       {walkInRecommend.show && (
-        <div
-          style={{
-            position: "fixed",
-            inset: 0,
-            backgroundColor: "rgba(0,0,0,0.7)",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            zIndex: 2000,
-            backdropFilter: "blur(4px)",
+        <WalkInRecommendModal
+          theme={theme}
+          name={walkInRecommend.name}
+          visits={walkInRecommend.visits}
+          onConvert={() => {
+            const savedName = walkInRecommend.name;
+            setWalkInRecommend({ show: false, name: "", visits: 0 });
+            clearMemberForm();
+            setMemberForm((f) => ({ ...f, name: savedName }));
+            setShowMemberModal(true);
           }}
-        >
-          <div
-            style={{
-              backgroundColor: theme.surface,
-              borderRadius: "16px",
-              padding: "36px",
-              width: "420px",
-              textAlign: "center",
-              border: `1px solid ${theme.border}`,
-              boxShadow: "0 20px 60px rgba(0,0,0,0.5)",
-            }}
-          >
-            <h2
-              style={{
-                margin: "0 0 10px",
-                fontSize: "20px",
-                color: theme.primary,
-              }}
-            >
-              Loyal Walk-in Guest!
-            </h2>
-            <p
-              style={{ color: theme.text, margin: "0 0 6px", fontSize: "15px" }}
-            >
-              Si <strong>{walkInRecommend.name}</strong> ay bumisita na ng{" "}
-              <strong>{walkInRecommend.visits}</strong> beses bilang walk-in.
-            </p>
-            <p
-              style={{
-                color: theme.textMuted,
-                margin: "0 0 24px",
-                fontSize: "13px",
-              }}
-            >
-              Alukin siyang kumuha ng Regular Membership para makatipid!
-            </p>
-            <div style={{ display: "flex", gap: "12px" }}>
-              <button
-                onClick={() => {
-                  setWalkInRecommend({ show: false, name: "", visits: 0 });
-                  clearMemberForm();
-                  setMemberForm((f) => ({ ...f, name: walkInRecommend.name }));
-                  setShowMemberModal(true);
-                }}
-                style={{
-                  flex: 1,
-                  padding: "12px",
-                  border: "none",
-                  borderRadius: "8px",
-                  backgroundColor: theme.primary,
-                  color: theme.primaryText,
-                  fontWeight: "bold",
-                  cursor: "pointer",
-                }}
-              >
-                Gawan ng Membership
-              </button>
-              <button
-                onClick={() =>
-                  setWalkInRecommend({ show: false, name: "", visits: 0 })
-                }
-                style={{
-                  padding: "12px 20px",
-                  border: `1px solid ${theme.border}`,
-                  borderRadius: "8px",
-                  backgroundColor: "transparent",
-                  color: theme.text,
-                  cursor: "pointer",
-                }}
-              >
-                Sige mamaya na
-              </button>
-            </div>
-          </div>
-        </div>
+          onDismiss={() =>
+            setWalkInRecommend({ show: false, name: "", visits: 0 })
+          }
+        />
       )}
     </div>
   );
