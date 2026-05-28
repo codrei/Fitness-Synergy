@@ -325,13 +325,14 @@ function MembersTable({
         </div>
       </div>
 
-      <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
+      <div style={{ overflowX: "auto" }}>
+      <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left", minWidth: "750px" }}>
         <thead>
           <tr>
-            <th style={{ padding: "12px 20px", color: theme.textMuted, fontSize: "12px", textTransform: "uppercase", fontWeight: "bold" }}>Name</th>
-            <th style={{ padding: "12px 20px", color: theme.textMuted, fontSize: "12px", textTransform: "uppercase", fontWeight: "bold" }}>Plan</th>
-            <th style={{ padding: "12px 20px", color: theme.textMuted, fontSize: "12px", textTransform: "uppercase", fontWeight: "bold" }}>Status</th>
-            <th style={{ padding: "12px 20px", color: theme.textMuted, fontSize: "12px", textTransform: "uppercase", fontWeight: "bold", textAlign: "right" }}>Actions</th>
+            <th style={{ padding: "12px 20px", color: theme.textMuted, fontSize: "12px", textTransform: "uppercase", fontWeight: "bold", whiteSpace: "nowrap" }}>Name</th>
+            <th style={{ padding: "12px 20px", color: theme.textMuted, fontSize: "12px", textTransform: "uppercase", fontWeight: "bold", whiteSpace: "nowrap" }}>Plan</th>
+            <th style={{ padding: "12px 20px", color: theme.textMuted, fontSize: "12px", textTransform: "uppercase", fontWeight: "bold", whiteSpace: "nowrap" }}>Status</th>
+            <th style={{ padding: "12px 20px", color: theme.textMuted, fontSize: "12px", textTransform: "uppercase", fontWeight: "bold", textAlign: "right", whiteSpace: "nowrap", width: "1%" }}>Actions</th>
           </tr>
         </thead>
 
@@ -393,12 +394,12 @@ function MembersTable({
                   </td>
 
                   {/* Plan */}
-                  <td style={{ padding: "12px 20px", color: theme.textMuted, fontSize: "13px" }}>
+                  <td style={{ padding: "12px 20px", color: theme.textMuted, fontSize: "13px", whiteSpace: "nowrap" }}>
                     {member.plan_name || "Walk-in / Daily Plan"}
                   </td>
 
                   {/* Status — two lines, no pill */}
-                  <td style={{ padding: "12px 20px" }}>
+                  <td style={{ padding: "12px 20px", whiteSpace: "nowrap" }}>
                     <div style={{ fontWeight: "bold", fontSize: "14px", color: "#7c3aed" }}>
                       {member.total_visits} visit{member.total_visits !== 1 ? "s" : ""}
                     </div>
@@ -415,8 +416,8 @@ function MembersTable({
                   </td>
 
                   {/* Actions */}
-                  <td style={{ padding: "12px 20px", textAlign: "right" }}>
-                    <div style={{ display: "flex", justifyContent: "flex-end", alignItems: "center", gap: "6px" }}>
+                  <td style={{ padding: "12px 20px", textAlign: "right", whiteSpace: "nowrap" }}>
+                    <div style={{ display: "flex", justifyContent: "flex-end", alignItems: "center", gap: "6px", flexWrap: "nowrap" }}>
                       <button
                         onClick={() => walkInAgain(member)}
                         style={{
@@ -594,12 +595,12 @@ function MembersTable({
                 </td>
 
                 {/* Plan */}
-                <td style={{ padding: "12px 20px", color: theme.textMuted, fontSize: "13px" }}>
+                <td style={{ padding: "12px 20px", color: theme.textMuted, fontSize: "13px", whiteSpace: "nowrap" }}>
                   {member.plan_name || "No Plan"}
                 </td>
 
                 {/* Status */}
-                <td style={{ padding: "12px 20px" }}>
+                <td style={{ padding: "12px 20px", whiteSpace: "nowrap" }}>
                   <span
                     style={{
                       backgroundColor: statusBg,
@@ -615,8 +616,8 @@ function MembersTable({
                 </td>
 
                 {/* Actions */}
-                <td style={{ padding: "12px 20px", textAlign: "right" }}>
-                  <div style={{ display: "flex", justifyContent: "flex-end", alignItems: "center", gap: "6px" }}>
+                <td style={{ padding: "12px 20px", textAlign: "right", whiteSpace: "nowrap" }}>
+                  <div style={{ display: "flex", justifyContent: "flex-end", alignItems: "center", gap: "6px", flexWrap: "nowrap" }}>
                     {/* Primary: Time In */}
                     <button
                       onClick={() => { if (!isExpired && !isTimedIn) confirmTimeIn(member); }}
@@ -742,6 +743,7 @@ function MembersTable({
           })}
         </tbody>
       </table>
+      </div>
 
       {/* Pagination */}
       <div
