@@ -6,6 +6,7 @@ header("Content-Type: application/json; charset=UTF-8");
 
 require_once 'db.php';
 require_once 'auth_check.php';
+require_once 'audit.php';
 
 $session  = requireAuth();
 $admin_id = $session['admin_id'] ?? 1;
@@ -72,6 +73,16 @@ try {
         $conn->prepare("DELETE FROM sessions WHERE admin_id = :id")
              ->execute([':id' => $admin_id]);
     }
+
+    $changes = [];
+    if (!empty($newUsername) && $newUsername !== $admin['username']) $changes[] = "username → $newUsername";
+    if ($passwordChanged) $changes[] = "password changed";
+    logActivity(
+        $conn, $session,
+        $passwordChanged ? 'admin.password_change' : 'admin.profile_update',
+        'admin', $admin_id,
+        "Admin profile updated: " . implode(', ', $changes)
+    );
 
     echo json_encode(["success" => true, "message" => "Profile updated successfully."]);
 

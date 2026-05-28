@@ -311,6 +311,10 @@ function Sidebar({
         <button onClick={() => setCurrentView("expenses")} style={navBtn("expenses")}>
           Expenses
         </button>
+
+        <button onClick={() => setCurrentView("activity-log")} style={navBtn("activity-log")}>
+          Activity Log
+        </button>
       </div>
 
       {/* Admin drop-up */}

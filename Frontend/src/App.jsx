@@ -12,6 +12,7 @@ import ExpensesManager from "./components/ExpensesManager";
 import Login from "./components/Login";
 import Sidebar from "./components/Sidebar";
 import DashboardView from "./views/DashboardView";
+import ActivityLogView from "./views/ActivityLogView";
 
 // Modals
 import AddEditModal from "./components/AddEditModal";
@@ -594,6 +595,8 @@ function App() {
           <PromosManager theme={theme} />
         ) : currentView === "expenses" ? (
           <ExpensesManager theme={theme} />
+        ) : currentView === "activity-log" ? (
+          <ActivityLogView theme={theme} />
         ) : (
           <DashboardView
             theme={theme}

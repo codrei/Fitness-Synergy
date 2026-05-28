@@ -4,7 +4,8 @@ header("Content-Type: application/json; charset=UTF-8");
 
 require_once 'db.php';
 require_once 'auth_check.php';
-requireAuth();
+require_once 'audit.php';
+$session = requireAuth();
 $data = json_decode(file_get_contents("php://input"));
 
 if (!empty($data->member_id) && !empty($data->full_name)) {
@@ -139,6 +140,17 @@ if (!empty($data->member_id) && !empty($data->full_name)) {
             ':exp'                  => $expirationDate,
             ':id'                   => $data->member_id
         ]);
+
+        logActivity(
+            $conn, $session,
+            'member.update', 'member', $data->member_id,
+            "Updated member: " . trim($data->full_name),
+            [
+                'plan_id'         => $plan_id,
+                'expiration_date' => $expirationDate,
+                'bonus_days'      => $bonus_days,
+            ]
+        );
 
         echo json_encode(["success" => true, "message" => "Member status and customized duration updated!"]);
     } catch(PDOException $e) {

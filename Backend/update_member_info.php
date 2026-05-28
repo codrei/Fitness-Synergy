@@ -3,7 +3,8 @@ require_once 'cors.php';
 header("Content-Type: application/json; charset=UTF-8");
 require_once 'db.php';
 require_once 'auth_check.php';
-requireAuth();
+require_once 'audit.php';
+$session = requireAuth();
 
 $data = json_decode(file_get_contents("php://input"));
 
@@ -69,6 +70,12 @@ try {
         ':discount_school_name' => !empty($data->discount_school_name)     ? $data->discount_school_name     : null,
         ':id'                   => $data->member_id,
     ]);
+    logActivity(
+        $conn, $session,
+        'member.update_info', 'member', $data->member_id,
+        "Edited info for: " . trim($data->full_name)
+    );
+
     echo json_encode(["success" => true, "message" => "Member info updated."]);
 } catch (PDOException $e) {
     error_log('[update_member_info] ' . $e->getMessage());

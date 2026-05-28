@@ -1,9 +1,16 @@
+// Mobile-safe receipt printing.
+//
+// The previous implementation used `window.open(...)` which is blocked by
+// mobile Safari, by stricter popup blockers, and by every iOS standalone-PWA.
+// This version renders the receipt into a hidden same-origin <iframe> and
+// triggers print from inside it, which works everywhere a print dialog exists.
+
 const SIGNATURE_REQUIRED_METHODS = ["Bank Transfer", "Credit Card", "Debit Card"];
 
 const formatPeso = (n) =>
   parseFloat(n).toLocaleString("en-PH", { minimumFractionDigits: 2 });
 
-export const printReceipt = (payment, member) => {
+function buildReceiptHTML(payment, member) {
   const paymentRow = payment.payment_method
     ? `<tr><td>${payment.payment_method}</td><td>₱${formatPeso(payment.amount)}</td></tr>`
     : "";
@@ -28,9 +35,10 @@ export const printReceipt = (payment, member) => {
     : "";
 
   const printedAt = new Date();
-  const html = `<!DOCTYPE html><html><head><title>Receipt</title>
+  return `<!DOCTYPE html><html><head><title>Receipt</title>
   <style>
-    body { font-family: monospace; width: 320px; margin: 20px auto; font-size: 13px; }
+    @media print { @page { margin: 8mm; } }
+    body { font-family: monospace; width: 320px; margin: 20px auto; font-size: 13px; color: #000; }
     h2 { text-align: center; margin: 0; font-size: 16px; }
     .sub { text-align: center; color: #555; font-size: 11px; margin-bottom: 12px; }
     hr { border: none; border-top: 1px dashed #999; margin: 10px 0; }
@@ -61,10 +69,52 @@ export const printReceipt = (payment, member) => {
   ${signatureBlock}
   <div class="footer">Thank you for choosing Fitness Synergy Lipa!<br>Keep this receipt for your records.</div>
   </body></html>`;
+}
 
-  const win = window.open("", "_blank", "width=400,height=600");
-  win.document.write(html);
-  win.document.close();
-  win.focus();
-  win.print();
-};
+export function printReceipt(payment, member) {
+  const html = buildReceiptHTML(payment, member);
+
+  // Hidden, off-screen iframe — same-origin so we can call print() on its window.
+  const iframe = document.createElement("iframe");
+  iframe.setAttribute("aria-hidden", "true");
+  iframe.style.position = "fixed";
+  iframe.style.right = "0";
+  iframe.style.bottom = "0";
+  iframe.style.width = "0";
+  iframe.style.height = "0";
+  iframe.style.border = "0";
+  iframe.style.visibility = "hidden";
+  document.body.appendChild(iframe);
+
+  const cleanup = () => {
+    // Slight delay so the print dialog has time to grab the document.
+    setTimeout(() => {
+      if (iframe.parentNode) iframe.parentNode.removeChild(iframe);
+    }, 500);
+  };
+
+  const triggerPrint = () => {
+    try {
+      iframe.contentWindow.focus();
+      iframe.contentWindow.print();
+    } catch (err) {
+      console.error("Receipt print failed:", err);
+    } finally {
+      cleanup();
+    }
+  };
+
+  // srcdoc is the most reliable cross-browser way to inject HTML and get onload.
+  // Some older browsers ignore it — fall back to document.write in that case.
+  if ("srcdoc" in iframe) {
+    iframe.onload = triggerPrint;
+    iframe.srcdoc = html;
+  } else {
+    const doc = iframe.contentDocument || iframe.contentWindow.document;
+    doc.open();
+    doc.write(html);
+    doc.close();
+    // No onload event for write — give the browser a tick to render.
+    setTimeout(triggerPrint, 200);
+  }
+}
