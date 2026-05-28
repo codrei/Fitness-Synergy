@@ -21,12 +21,12 @@ function TimeInConfirmModal({
       ? "#f59e0b"
       : "#00c853";
   const statusLabel = isExpired
-    ? "❌ EXPIRED"
+    ? "EXPIRED"
     : daysLeft === "Expires Today"
-      ? "⚠️ EXPIRES TODAY"
+      ? "EXPIRES TODAY"
       : daysLeft === "No Expiration"
-        ? "✅ NO EXPIRATION"
-        : `✅ ${daysLeft}`;
+        ? "NO EXPIRATION"
+        : `${daysLeft} days`;
 
   return (
     <div
@@ -64,7 +64,7 @@ function TimeInConfirmModal({
           }}
         >
           <span style={{ color: "#fff", fontWeight: "bold", fontSize: "15px" }}>
-            🔍 Verify Identity Before Time-In
+            Verify Identity Before Time-In
           </span>
           <button
             onClick={onClose}
@@ -127,7 +127,7 @@ function TimeInConfirmModal({
                   fontSize: "64px",
                 }}
               >
-                👤
+                No Photo
               </div>
               <div
                 style={{
@@ -141,7 +141,7 @@ function TimeInConfirmModal({
                   textAlign: "center",
                 }}
               >
-                ⚠️ No photo on file — verify ID manually
+                No photo on file — verify ID manually
               </div>
             </div>
           )}
@@ -207,7 +207,7 @@ function TimeInConfirmModal({
               letterSpacing: "0.3px",
             }}
           >
-            ✅ Confirm Time In
+            Confirm Time In
           </button>
           <button
             onClick={onClose}

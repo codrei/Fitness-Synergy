@@ -106,7 +106,7 @@ export default function AttendanceReport({ theme, isDarkMode }) {
     <div style={{ padding: 30 }}>
       {/* Header */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 28, flexWrap: "wrap", gap: 12 }}>
-        <h1 style={{ margin: 0, fontSize: 26 }}>📊 Attendance Report</h1>
+        <h1 style={{ margin: 0, fontSize: 26 }}>Attendance Report</h1>
         <div style={{ display: "flex", gap: 10 }}>
           <select value={month} onChange={(e) => setMonth(Number(e.target.value))} style={selectStyle}>
             {MONTHS.map((m, i) => <option key={i} value={i + 1}>{m}</option>)}
@@ -125,17 +125,17 @@ export default function AttendanceReport({ theme, isDarkMode }) {
         <>
           {/* Summary Cards */}
           <div style={{ display: "flex", gap: 14, flexWrap: "wrap", marginBottom: 24 }}>
-            <StatCard label="Total Visits" value={s.total_visits ?? 0} icon="📍" color="#6366f1" theme={theme} isDarkMode={isDarkMode} sub={`${MONTHS[month-1]} ${year}`} />
-            <StatCard label="Member Visits" value={s.total_members ?? 0} icon="🏋️" color="#3b82f6" theme={theme} isDarkMode={isDarkMode} sub="Registered members" />
-            <StatCard label="Walk-in Visits" value={s.total_walkins ?? 0} icon="🚶" color="#a855f7" theme={theme} isDarkMode={isDarkMode} sub="Guest check-ins" />
-            <StatCard label="Avg Per Day" value={s.avg_per_day ?? 0} icon="📈" color="#22c55e" theme={theme} isDarkMode={isDarkMode} sub="Daily average" />
-            <StatCard label="Peak Hour" value={s.peak_hour !== null ? fmtHour(s.peak_hour) : "—"} icon="⏰" color="#f59e0b" theme={theme} isDarkMode={isDarkMode} sub="Busiest time" />
-            <StatCard label="Peak Day" value={s.peak_day ?? "—"} icon="📅" color="#ef4444" theme={theme} isDarkMode={isDarkMode} sub="Busiest weekday" />
+            <StatCard label="Total Visits" value={s.total_visits ?? 0} icon="" color="#6366f1" theme={theme} isDarkMode={isDarkMode} sub={`${MONTHS[month-1]} ${year}`} />
+            <StatCard label="Member Visits" value={s.total_members ?? 0} icon="" color="#3b82f6" theme={theme} isDarkMode={isDarkMode} sub="Registered members" />
+            <StatCard label="Walk-in Visits" value={s.total_walkins ?? 0} icon="" color="#a855f7" theme={theme} isDarkMode={isDarkMode} sub="Guest check-ins" />
+            <StatCard label="Avg Per Day" value={s.avg_per_day ?? 0} icon="" color="#22c55e" theme={theme} isDarkMode={isDarkMode} sub="Daily average" />
+            <StatCard label="Peak Hour" value={s.peak_hour !== null ? fmtHour(s.peak_hour) : "—"} icon="" color="#f59e0b" theme={theme} isDarkMode={isDarkMode} sub="Busiest time" />
+            <StatCard label="Peak Day" value={s.peak_day ?? "—"} icon="" color="#ef4444" theme={theme} isDarkMode={isDarkMode} sub="Busiest weekday" />
           </div>
 
           {/* Daily Visits Chart */}
           <div style={cardStyle}>
-            <h3 style={{ margin: "0 0 16px", color: theme.text, fontSize: 16 }}>📅 Daily Visits — {MONTHS[month - 1]} {year}</h3>
+            <h3 style={{ margin: "0 0 16px", color: theme.text, fontSize: 16 }}>Daily Visits — {MONTHS[month - 1]} {year}</h3>
             <BarChart
               data={data.daily}
               labelKey="visit_date"
@@ -160,7 +160,7 @@ export default function AttendanceReport({ theme, isDarkMode }) {
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20, marginBottom: 20 }}>
             {/* Peak Hours */}
             <div style={{ ...cardStyle, marginBottom: 0 }}>
-              <h3 style={{ margin: "0 0 16px", color: theme.text, fontSize: 16 }}>⏰ Peak Hours</h3>
+              <h3 style={{ margin: "0 0 16px", color: theme.text, fontSize: 16 }}>Peak Hours</h3>
               <BarChart
                 data={data.hours.map((h) => ({ ...h, label: fmtHour(h.hour) }))}
                 labelKey="label"
@@ -173,7 +173,7 @@ export default function AttendanceReport({ theme, isDarkMode }) {
 
             {/* Most Active Days */}
             <div style={{ ...cardStyle, marginBottom: 0 }}>
-              <h3 style={{ margin: "0 0 16px", color: theme.text, fontSize: 16 }}>📆 Most Active Days</h3>
+              <h3 style={{ margin: "0 0 16px", color: theme.text, fontSize: 16 }}>Most Active Days</h3>
               <BarChart
                 data={data.weekdays}
                 labelKey="day_name"
@@ -187,7 +187,7 @@ export default function AttendanceReport({ theme, isDarkMode }) {
 
           {/* Top Members */}
           <div style={cardStyle}>
-            <h3 style={{ margin: "0 0 16px", color: theme.text, fontSize: 16 }}>🏆 Most Frequent Members</h3>
+            <h3 style={{ margin: "0 0 16px", color: theme.text, fontSize: 16 }}>Most Frequent Members</h3>
             {data.top_members.length === 0 ? (
               <p style={{ color: theme.textMuted, textAlign: "center", padding: 20 }}>No member visits recorded.</p>
             ) : (
@@ -195,7 +195,7 @@ export default function AttendanceReport({ theme, isDarkMode }) {
                 {data.top_members.map((m, i) => {
                   const maxVisits = data.top_members[0].visits;
                   const pct = (m.visits / maxVisits) * 100;
-                  const medals = ["🥇", "🥈", "🥉"];
+                  const medals = ["1", "2", "3"];
                   return (
                     <div key={i} style={{ display: "flex", alignItems: "center", gap: 12 }}>
                       <span style={{ fontSize: 16, width: 24 }}>{medals[i] || `${i + 1}.`}</span>

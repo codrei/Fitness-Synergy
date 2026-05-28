@@ -79,7 +79,7 @@ function WalkInModal({
           }}
         >
           <h2 style={{ margin: 0, fontSize: "20px" }}>
-            🚶 Register Walk-in Guest
+            Register Walk-in Guest
           </h2>
           <button
             onClick={onClose}
@@ -90,7 +90,7 @@ function WalkInModal({
               cursor: "pointer",
             }}
           >
-            ❌
+            ×
           </button>
         </div>
 
@@ -187,27 +187,27 @@ function WalkInModal({
                 padding: "0 8px",
               }}
             >
-              💳 PAYMENT DETAILS
+              PAYMENT DETAILS
             </legend>
 
             <div>
-              <label style={labelStyle}>💳 Payment Method</label>
+              <label style={labelStyle}>Payment Method</label>
               <select
                 value={walkInForm.paymentMethod}
                 onChange={(e) => update("paymentMethod", e.target.value)}
                 style={inputStyle}
               >
-                <option value="Cash">💵 Cash</option>
-                <option value="GCash">📱 GCash</option>
-                <option value="Maya">🟢 Maya</option>
-                <option value="Bank Transfer">🏦 Bank Transfer</option>
-                <option value="Debit Card">💳 Debit Card</option>
-                <option value="Credit Card">💳 Credit Card</option>
+                <option value="Cash">Cash</option>
+                <option value="GCash">GCash</option>
+                <option value="Maya">Maya</option>
+                <option value="Bank Transfer">Bank Transfer</option>
+                <option value="Debit Card">Debit Card</option>
+                <option value="Credit Card">Credit Card</option>
               </select>
             </div>
 
             <div>
-              <label style={labelStyle}>🔖 Reference Number</label>
+              <label style={labelStyle}>Reference Number</label>
               <input
                 type="text"
                 value={walkInForm.referenceNumber}
@@ -235,7 +235,7 @@ function WalkInModal({
               opacity: submitting ? 0.7 : 1,
             }}
           >
-            {submitting ? "Saving…" : "🚶 Complete Walk-in Registration"}
+            {submitting ? "Saving…" : "Complete Walk-in Registration"}
           </button>
         </form>
       </div>

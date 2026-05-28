@@ -1007,7 +1007,6 @@ function App() {
               boxShadow: "0 20px 60px rgba(0,0,0,0.7)",
             }}
           >
-            <div style={{ fontSize: "48px", marginBottom: "12px" }}>✅</div>
             <h2 style={{ margin: "0 0 6px", fontSize: "20px", color: theme.text }}>
               Registration Complete!
             </h2>
@@ -1029,7 +1028,7 @@ function App() {
                   cursor: "pointer", fontWeight: "bold", fontSize: "14px",
                 }}
               >
-                📷 Upload Photo Now
+                Upload Photo Now
               </button>
               <button
                 onClick={() => {
@@ -1090,7 +1089,6 @@ function App() {
               boxShadow: "0 20px 60px rgba(0,0,0,0.5)",
             }}
           >
-            <div style={{ fontSize: "48px", marginBottom: "12px" }}>🏆</div>
             <h2
               style={{
                 margin: "0 0 10px",

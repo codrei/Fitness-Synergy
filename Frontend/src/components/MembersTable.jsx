@@ -61,7 +61,7 @@ function MembersTable({
 
         <input
           type="text"
-          placeholder="🔍 Search clients..."
+          placeholder="Search clients..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           style={{
@@ -131,7 +131,6 @@ function MembersTable({
                           flexShrink: 0,
                         }}
                       >
-                        🚶
                       </div>
                       <div>
                         <span style={{ fontWeight: "bold" }}>
@@ -202,7 +201,7 @@ function MembersTable({
                         marginRight: "8px",
                       }}
                     >
-                      🚶 Walk-in Again
+                      Walk-in Again
                     </button>
                     <button
                       onClick={() => convertWalkIn(member)}
@@ -217,7 +216,7 @@ function MembersTable({
                         fontSize: "12px",
                       }}
                     >
-                      ➕ Member
+                      + New Member
                     </button>
                   </td>
                 </tr>
@@ -251,12 +250,12 @@ function MembersTable({
                 : "#00e676";
 
             const statusLabel = isExpired
-              ? "❌ EXPIRED"
+              ? "EXPIRED"
               : daysLeft === "Expires Today"
-                ? "⚠️ EXPIRES TODAY"
+                ? "EXPIRES TODAY"
                 : daysLeft === "No Expiration"
-                  ? "✅ NO EXPIRATION"
-                  : `✅ ${daysLeft}`;
+                  ? "NO EXPIRATION"
+                  : `${daysLeft} days`;
 
             return (
               <tr
@@ -301,7 +300,7 @@ function MembersTable({
                           flexShrink: 0,
                         }}
                       >
-                        👤
+                        No Photo
                       </div>
                     )}
                     <div>
@@ -378,7 +377,7 @@ function MembersTable({
                       opacity: isTimedIn ? 0.85 : 1,
                     }}
                   >
-                    {isTimedIn ? "✅ CHECKED IN" : "TIME IN"}
+                    {isTimedIn ? "CHECKED IN" : "TIME IN"}
                   </button>
 
                   <button
@@ -393,7 +392,7 @@ function MembersTable({
                       marginRight: "8px",
                     }}
                   >
-                    👤
+                    Profile
                   </button>
 
                   <button
@@ -410,7 +409,7 @@ function MembersTable({
                       fontSize: "12px",
                     }}
                   >
-                    🔄 Renew
+                    Renew
                   </button>
 
                   <button
@@ -426,7 +425,7 @@ function MembersTable({
                       cursor: "pointer",
                     }}
                   >
-                    🗑️
+                    Delete
                   </button>
                 </td>
               </tr>

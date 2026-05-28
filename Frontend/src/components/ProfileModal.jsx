@@ -151,7 +151,7 @@ function ProfileModal({
                   cursor: "pointer",
                 }}
               >
-                👤
+                No Photo
               </div>
             )}
             {/* Camera badge — always triggers upload */}
@@ -178,7 +178,7 @@ function ProfileModal({
                 padding: 0,
               }}
             >
-              📷
+              Upload
             </button>
           </div>
 
@@ -244,7 +244,7 @@ function ProfileModal({
                     opacity: deletingPhoto ? 0.6 : 1,
                   }}
                 >
-                  {deletingPhoto ? "Deleting…" : "🗑️ Delete Photo"}
+                  {deletingPhoto ? "Deleting…" : "Delete Photo"}
                 </button>
                 <span
                   style={{ color: "rgba(255,255,255,0.35)", fontSize: "12px" }}
@@ -273,7 +273,7 @@ function ProfileModal({
                 fontSize: "13px",
               }}
             >
-              ✏️ Edit Info
+              Edit Info
             </button>
             <button
               onClick={closeProfile}
@@ -285,7 +285,7 @@ function ProfileModal({
                 cursor: "pointer",
               }}
             >
-              ❌
+              ×
             </button>
           </div>
         </div>
@@ -436,7 +436,7 @@ function ProfileModal({
                   fontWeight: "bold",
                 }}
               >
-                💰 INSTALLMENT PLAN
+                INSTALLMENT PLAN
               </span>
               <button
                 onClick={() => onAddInstallmentPayment(m)}
@@ -451,7 +451,7 @@ function ProfileModal({
                   fontSize: "12px",
                 }}
               >
-                ➕ Add Payment
+                Add Payment
               </button>
             </div>
             <div
@@ -532,7 +532,7 @@ function ProfileModal({
               marginBottom: "14px",
             }}
           >
-            🪪 Personal Information
+            Personal Information
           </div>
           <div
             style={{
@@ -588,7 +588,7 @@ function ProfileModal({
             textTransform: "uppercase",
           }}
         >
-          💳 Billing History
+          Billing History
         </h3>
         <div
           style={{
@@ -664,7 +664,7 @@ function ProfileModal({
                     fontWeight: "bold",
                   }}
                 >
-                  📄 Print
+                  Print
                 </button>
               </div>
             ))
@@ -691,7 +691,7 @@ function ProfileModal({
             textTransform: "uppercase",
           }}
         >
-          📅 Attendance History
+          Attendance History
         </h3>
         <div
           style={{
@@ -716,8 +716,8 @@ function ProfileModal({
                   fontSize: "14px",
                 }}
               >
-                📆 {new Date(log.time_in).toLocaleDateString()}{" "}
-                <span style={{ color: theme.textMuted }}>at</span> ⏰{" "}
+                {new Date(log.time_in).toLocaleDateString()}{" "}
+                <span style={{ color: theme.textMuted }}>at</span>{" "}
                 {new Date(log.time_in).toLocaleTimeString()}
               </div>
             ))

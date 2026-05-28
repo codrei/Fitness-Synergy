@@ -123,7 +123,7 @@ function PromosManager({ theme }) {
           marginBottom: "24px",
         }}
       >
-        <h1 style={{ margin: 0, fontSize: "26px" }}>🎁 Promos Management</h1>
+        <h1 style={{ margin: 0, fontSize: "26px" }}>Promos Management</h1>
         <button
           onClick={openAdd}
           style={{
@@ -137,7 +137,7 @@ function PromosManager({ theme }) {
             fontSize: "14px",
           }}
         >
-          ➕ Add New Promo
+          Add New Promo
         </button>
       </div>
 
@@ -209,7 +209,7 @@ function PromosManager({ theme }) {
                         border: "1px solid #22c55e",
                       }}
                     >
-                      🎁 FREE
+                      FREE
                     </span>
                   ) : (
                     <span
@@ -307,7 +307,7 @@ function PromosManager({ theme }) {
                       marginRight: "8px",
                     }}
                   >
-                    ✏️ Edit
+                    Edit
                   </button>
                   <button
                     onClick={() => handleDelete(promo)}
@@ -324,7 +324,7 @@ function PromosManager({ theme }) {
                       opacity: deleting === promo.promo_id ? 0.6 : 1,
                     }}
                   >
-                    🗑️
+                    Delete
                   </button>
                 </td>
               </tr>
@@ -366,7 +366,7 @@ function PromosManager({ theme }) {
               }}
             >
               <h2 style={{ margin: 0, fontSize: "18px" }}>
-                {modal.mode === "add" ? "➕ Add New Promo" : "✏️ Edit Promo"}
+                {modal.mode === "add" ? "Add New Promo" : "Edit Promo"}
               </h2>
               <button
                 onClick={closeModal}
@@ -377,7 +377,7 @@ function PromosManager({ theme }) {
                   cursor: "pointer",
                 }}
               >
-                ❌
+                ×
               </button>
             </div>
             <form
@@ -429,7 +429,7 @@ function PromosManager({ theme }) {
                   }
                   style={{ width: "16px", height: "16px" }}
                 />
-                🎁 Free Promo — no payment required
+                Free Promo — no payment required
               </label>
 
               {!modal.form.is_free && (
@@ -505,7 +505,7 @@ function PromosManager({ theme }) {
                   fontSize: "14px",
                 }}
               >
-                💾 Save Promo
+                Save Promo
               </button>
             </form>
           </div>

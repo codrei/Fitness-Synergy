@@ -254,7 +254,7 @@ function PlansManager({ theme }) {
                       marginRight: 8,
                     }}
                   >
-                    ✏️ Edit
+                    Edit
                   </button>
                   <button
                     onClick={() => handleDelete(plan)}
@@ -271,7 +271,7 @@ function PlansManager({ theme }) {
                       opacity: deleting === plan.plan_id ? 0.6 : 1,
                     }}
                   >
-                    🗑️
+                    Delete
                   </button>
                 </td>
               </tr>
@@ -294,7 +294,7 @@ function PlansManager({ theme }) {
       >
         {/* FIX: Added explicit theme.text color to heading */}
         <h1 style={{ margin: 0, fontSize: 26, color: theme.text }}>
-          📋 Plans Management
+          Plans Management
         </h1>
         <button
           onClick={openAdd}
@@ -309,34 +309,34 @@ function PlansManager({ theme }) {
             fontSize: 14,
           }}
         >
-          ➕ Add New Plan
+          Add New Plan
         </button>
       </div>
 
       {/* Walk-in Plan */}
       <PlanTable
-        title="🚶 Walk-in / Daily Plan"
+        title="Walk-in / Daily Plan"
         plans={walkinPlan}
         accent="#f59e0b"
       />
 
       {/* Free Trial Plans */}
       <PlanTable
-        title="🎟️ Free Trial Plans"
+        title="Free Trial Plans"
         plans={freeTrialPlans}
         accent="#00e676"
       />
 
       {/* Standard Plans */}
       <PlanTable
-        title="💪 Standard Plans"
+        title="Standard Plans"
         plans={standardPlans}
         accent={theme.primary}
       />
 
       {/* Student / Senior Plans */}
       <PlanTable
-        title="🎓 Student / Senior Plans"
+        title="Student / Senior Plans"
         plans={studentSeniorPlans}
         accent="#00e676"
       />
@@ -376,7 +376,7 @@ function PlansManager({ theme }) {
             >
               {/* FIX: Added explicit theme.text color to modal title */}
               <h2 style={{ margin: 0, fontSize: 18, color: theme.text }}>
-                {modal.mode === "add" ? "➕ Add New Plan" : "✏️ Edit Plan"}
+                {modal.mode === "add" ? "Add New Plan" : "Edit Plan"}
               </h2>
               {/* FIX: Styled modal close cross to adjust automatically to the active theme */}
               <button
@@ -389,7 +389,7 @@ function PlansManager({ theme }) {
                   color: theme.text,
                 }}
               >
-                ❌
+                ×
               </button>
             </div>
 
@@ -472,7 +472,7 @@ function PlansManager({ theme }) {
                   fontSize: 14,
                 }}
               >
-                💾 Save Plan
+                Save Plan
               </button>
             </form>
           </div>

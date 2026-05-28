@@ -117,7 +117,7 @@ function InstallmentPaymentModal({
           }}
         >
           <h2 style={{ margin: 0, fontSize: "18px" }}>
-            💰 Add Installment Payment
+            Add Installment Payment
           </h2>
           <button
             onClick={onClose}
@@ -128,7 +128,7 @@ function InstallmentPaymentModal({
               cursor: "pointer",
             }}
           >
-            ❌
+            ×
           </button>
         </div>
         <p
@@ -235,22 +235,22 @@ function InstallmentPaymentModal({
             }}
           >
             <div>
-              <label style={labelStyle}>💳 Payment Method</label>
+              <label style={labelStyle}>Payment Method</label>
               <select
                 value={form.paymentMethod}
                 onChange={(e) => update("paymentMethod", e.target.value)}
                 style={inputStyle}
               >
-                <option value="Cash">💵 Cash</option>
-                <option value="GCash">📱 GCash</option>
-                <option value="Maya">🟢 Maya</option>
-                <option value="Bank Transfer">🏦 Bank Transfer</option>
-                <option value="Debit Card">💳 Debit Card</option>
-                <option value="Credit Card">💳 Credit Card</option>
+                <option value="Cash">Cash</option>
+                <option value="GCash">GCash</option>
+                <option value="Maya">Maya</option>
+                <option value="Bank Transfer">Bank Transfer</option>
+                <option value="Debit Card">Debit Card</option>
+                <option value="Credit Card">Credit Card</option>
               </select>
             </div>
             <div>
-              <label style={labelStyle}>💵 Amount (₱)</label>
+              <label style={labelStyle}>Amount (₱)</label>
               <input
                 type="number"
                 step="0.01"
@@ -264,7 +264,7 @@ function InstallmentPaymentModal({
             </div>
           </div>
           <div>
-            <label style={labelStyle}>🔖 Reference Number</label>
+            <label style={labelStyle}>Reference Number</label>
             <input
               type="text"
               value={form.referenceNumber}
@@ -316,7 +316,7 @@ function InstallmentPaymentModal({
               opacity: saving ? 0.7 : 1,
             }}
           >
-            {saving ? "Saving…" : "💾 Record Payment"}
+            {saving ? "Saving…" : "Record Payment"}
           </button>
         </form>
       </div>

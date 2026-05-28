@@ -28,7 +28,6 @@ function ConfirmModal({ theme, name, onConfirm, onCancel }) {
           textAlign: "center",
         }}
       >
-        <div style={{ fontSize: "48px", marginBottom: "16px" }}>🗑️</div>
         <h3
           style={{
             margin: "0 0 10px",

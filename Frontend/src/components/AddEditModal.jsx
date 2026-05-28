@@ -113,8 +113,8 @@ function AddEditModal({
         >
           <h2 style={{ margin: 0, fontSize: "20px" }}>
             {editingId
-              ? "✏️ Edit Profile & Status"
-              : "➕ Register System Member"}
+              ? "Edit Profile & Status"
+              : "Register Member"}
           </h2>
           <button
             onClick={() => {
@@ -128,7 +128,7 @@ function AddEditModal({
               cursor: "pointer",
             }}
           >
-            ❌
+            ×
           </button>
         </div>
 
@@ -251,7 +251,7 @@ function AddEditModal({
 
           {promos.length > 0 && (
             <div>
-              <label style={labelStyle}>🎁 Apply Promo (Optional)</label>
+              <label style={labelStyle}>Apply Promo (Optional)</label>
               <select
                 value={memberForm.promoId || ""}
                 onChange={(e) => {
@@ -621,7 +621,7 @@ function AddEditModal({
                     onChange={(e) => update("isInstallment", e.target.checked)}
                     style={{ width: "16px", height: "16px" }}
                   />
-                  💰 Installment Plan
+                  Installment Plan
                 </label>
                 {memberForm.isInstallment && (
                   <div style={{ marginTop: "12px" }}>
@@ -664,28 +664,28 @@ function AddEditModal({
                   padding: "0 8px",
                 }}
               >
-                💳 PAYMENT DETAILS
+                PAYMENT DETAILS
               </legend>
 
               <div>
-                <label style={labelStyle}>💳 Payment Method</label>
+                <label style={labelStyle}>Payment Method</label>
                 <select
                   value={memberForm.paymentMethod}
                   onChange={(e) => update("paymentMethod", e.target.value)}
                   style={inputStyle}
                 >
-                  <option value="Cash">💵 Cash</option>
-                  <option value="GCash">📱 GCash</option>
-                  <option value="Maya">🟢 Maya</option>
-                  <option value="Bank Transfer">🏦 Bank Transfer</option>
-                  <option value="Debit Card">💳 Debit Card</option>
-                  <option value="Credit Card">💳 Credit Card</option>
+                  <option value="Cash">Cash</option>
+                  <option value="GCash">GCash</option>
+                  <option value="Maya">Maya</option>
+                  <option value="Bank Transfer">Bank Transfer</option>
+                  <option value="Debit Card">Debit Card</option>
+                  <option value="Credit Card">Credit Card</option>
                 </select>
               </div>
 
               {memberForm.isInstallment && (
                 <div>
-                  <label style={labelStyle}>💰 Downpayment Amount (₱)</label>
+                  <label style={labelStyle}>Downpayment Amount (₱)</label>
                   <input
                     type="number"
                     step="0.01"
@@ -700,7 +700,7 @@ function AddEditModal({
               )}
 
               <div>
-                <label style={labelStyle}>🔖 Reference Number</label>
+                <label style={labelStyle}>Reference Number</label>
                 <input
                   type="text"
                   value={memberForm.referenceNumber}
@@ -732,8 +732,8 @@ function AddEditModal({
             {submitting
               ? "Saving…"
               : editingId
-                ? "💾 Save Changes & Update"
-                : "🚀 Complete Registration Process"}
+                ? "Save Changes & Update"
+                : "Complete Registration"}
           </button>
         </form>
       </div>

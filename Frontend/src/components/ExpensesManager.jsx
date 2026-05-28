@@ -145,7 +145,7 @@ export default function ExpensesManager({ theme }) {
           gap: 12,
         }}
       >
-        <h1 style={{ margin: 0, fontSize: 28 }}>💸 Expenses</h1>
+        <h1 style={{ margin: 0, fontSize: 28 }}>Expenses</h1>
         <div
           style={{
             display: "flex",
@@ -189,7 +189,7 @@ export default function ExpensesManager({ theme }) {
               fontSize: 13,
             }}
           >
-            ➕ Add Expense
+            Add Expense
           </button>
         </div>
       </div>
@@ -273,7 +273,7 @@ export default function ExpensesManager({ theme }) {
           <div
             style={{ padding: 40, textAlign: "center", color: theme.textMuted }}
           >
-            No expenses recorded for {MONTHS[month - 1]} {year}. Click "➕ Add
+            No expenses recorded for {MONTHS[month - 1]} {year}. Click "Add
             Expense" to log one.
           </div>
         ) : (
@@ -366,7 +366,7 @@ export default function ExpensesManager({ theme }) {
                           fontWeight: "bold",
                         }}
                       >
-                        ✏️ Edit
+                        Edit
                       </button>
                       <button
                         onClick={() => handleDelete(e.expense_id)}
@@ -381,7 +381,7 @@ export default function ExpensesManager({ theme }) {
                           fontWeight: "bold",
                         }}
                       >
-                        🗑️
+                        Delete
                       </button>
                     </div>
                   </td>
@@ -457,7 +457,7 @@ export default function ExpensesManager({ theme }) {
               }}
             >
               <h2 style={{ margin: 0, fontSize: 18 }}>
-                {modal.mode === "add" ? "➕ Add Expense" : "✏️ Edit Expense"}
+                {modal.mode === "add" ? "Add Expense" : "Edit Expense"}
               </h2>
               <button
                 onClick={() => setModal(null)}
@@ -468,7 +468,7 @@ export default function ExpensesManager({ theme }) {
                   cursor: "pointer",
                 }}
               >
-                ❌
+                ×
               </button>
             </div>
             {error && (
@@ -553,7 +553,7 @@ export default function ExpensesManager({ theme }) {
                   fontSize: 14,
                 }}
               >
-                {modal.mode === "add" ? "➕ Add Expense" : "💾 Save Changes"}
+                {modal.mode === "add" ? "Add Expense" : "Save Changes"}
               </button>
             </form>
           </div>

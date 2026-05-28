@@ -57,7 +57,7 @@ function EditInfoModal({ theme, infoForm, setInfoForm, onSubmit, onClose }) {
             marginBottom: "25px",
           }}
         >
-          <h2 style={{ margin: 0, fontSize: "20px" }}>✏️ Edit Member Info</h2>
+          <h2 style={{ margin: 0, fontSize: "20px" }}>Edit Member Info</h2>
           <button
             onClick={onClose}
             style={{
@@ -67,7 +67,7 @@ function EditInfoModal({ theme, infoForm, setInfoForm, onSubmit, onClose }) {
               cursor: "pointer",
             }}
           >
-            ❌
+            ×
           </button>
         </div>
 
@@ -344,7 +344,7 @@ function EditInfoModal({ theme, infoForm, setInfoForm, onSubmit, onClose }) {
               fontSize: "14px",
             }}
           >
-            💾 Save Changes
+            Save Changes
           </button>
         </form>
       </div>

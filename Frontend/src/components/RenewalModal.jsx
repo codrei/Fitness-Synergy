@@ -75,7 +75,7 @@ function RenewalModal({
             marginBottom: "6px",
           }}
         >
-          <h2 style={{ margin: 0, fontSize: "20px" }}>🔄 Renew Membership</h2>
+          <h2 style={{ margin: 0, fontSize: "20px" }}>Renew Membership</h2>
           <button
             onClick={onClose}
             style={{
@@ -85,7 +85,7 @@ function RenewalModal({
               cursor: "pointer",
             }}
           >
-            ❌
+            ×
           </button>
         </div>
         <p
@@ -136,7 +136,7 @@ function RenewalModal({
 
           {promos.length > 0 && (
             <div>
-              <label style={labelStyle}>🎁 Apply Promo (Optional)</label>
+              <label style={labelStyle}>Apply Promo (Optional)</label>
               <select
                 value={renewalForm.promoId || ""}
                 onChange={(e) => {
@@ -243,7 +243,7 @@ function RenewalModal({
                   onChange={(e) => update("isInstallment", e.target.checked)}
                   style={{ width: "16px", height: "16px" }}
                 />
-                💰 Installment Plan
+                Installment Plan
               </label>
               {renewalForm.isInstallment && (
                 <div style={{ marginTop: "12px" }}>
@@ -282,28 +282,28 @@ function RenewalModal({
                 padding: "0 8px",
               }}
             >
-              💳 PAYMENT DETAILS
+              PAYMENT DETAILS
             </legend>
 
             <div>
-              <label style={labelStyle}>💳 Payment Method</label>
+              <label style={labelStyle}>Payment Method</label>
               <select
                 value={renewalForm.paymentMethod}
                 onChange={(e) => update("paymentMethod", e.target.value)}
                 style={inputStyle}
               >
-                <option value="Cash">💵 Cash</option>
-                <option value="GCash">📱 GCash</option>
-                <option value="Maya">🟢 Maya</option>
-                <option value="Bank Transfer">🏦 Bank Transfer</option>
-                <option value="Debit Card">💳 Debit Card</option>
-                <option value="Credit Card">💳 Credit Card</option>
+                <option value="Cash">Cash</option>
+                <option value="GCash">GCash</option>
+                <option value="Maya">Maya</option>
+                <option value="Bank Transfer">Bank Transfer</option>
+                <option value="Debit Card">Debit Card</option>
+                <option value="Credit Card">Credit Card</option>
               </select>
             </div>
 
             {renewalForm.isInstallment && (
               <div>
-                <label style={labelStyle}>💰 Downpayment Amount (₱)</label>
+                <label style={labelStyle}>Downpayment Amount (₱)</label>
                 <input
                   type="number"
                   step="0.01"
@@ -318,7 +318,7 @@ function RenewalModal({
             )}
 
             <div>
-              <label style={labelStyle}>🔖 Reference Number</label>
+              <label style={labelStyle}>Reference Number</label>
               <input
                 type="text"
                 value={renewalForm.referenceNumber}
@@ -343,7 +343,7 @@ function RenewalModal({
               letterSpacing: "0.5px",
             }}
           >
-            🔄 Confirm Renewal
+            Confirm Renewal
           </button>
         </form>
       </div>

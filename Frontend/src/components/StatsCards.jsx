@@ -8,42 +8,42 @@ function StatsCards({ stats, theme, isDarkMode }) {
       label: "Total Clients",
       val: s.total_clients ?? "—",
       color: "#6366f1",
-      icon: "👥",
+      icon: "",
       sub: "Members + Walk-ins",
     },
     {
       label: "Total Members",
       val: s.total ?? "0",
       color: "#3b82f6",
-      icon: "🏋️",
+      icon: "",
       sub: "Registered members",
     },
     {
       label: "Walk-in Guests",
       val: s.total_walkins ?? "0",
       color: "#a855f7",
-      icon: "🚶",
+      icon: "",
       sub: "Unique guests",
     },
     {
       label: "Active",
       val: s.active ?? "0",
       color: "#22c55e",
-      icon: "✅",
+      icon: "",
       sub: "Valid memberships",
     },
     {
       label: "Expired",
       val: s.expired ?? "0",
       color: "#ef4444",
-      icon: "⚠️",
+      icon: "",
       sub: "Needs renewal",
     },
     {
       label: "Today's Visits",
       val: s.checkins ?? "0",
       color: "#f59e0b",
-      icon: "📍",
+      icon: "",
       sub: "Check-ins today",
     },
   ];
@@ -192,7 +192,6 @@ function StatsCards({ stats, theme, isDarkMode }) {
             }}
           >
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              <span style={{ fontSize: 20 }}>🔔</span>
               <div>
                 <div
                   style={{
@@ -220,8 +219,7 @@ function StatsCards({ stats, theme, isDarkMode }) {
                 borderRadius: 20,
               }}
             >
-              ⚠️ {expiringMembers.length} Alert
-              {expiringMembers.length !== 1 ? "s" : ""}
+              {expiringMembers.length} Expiring Soon
             </span>
           </div>
 
@@ -265,7 +263,6 @@ function StatsCards({ stats, theme, isDarkMode }) {
                         fontSize: 16,
                       }}
                     >
-                      🏋️
                     </div>
                     <div>
                       <div

@@ -223,7 +223,7 @@ function PaymentTable({ payments, theme }) {
                       fontSize: 11,
                     }}
                   >
-                    {senior ? "✅ Yes" : "No"}
+                    {senior ? "Yes" : "No"}
                   </span>
                 </td>
                 <td style={{ padding: "10px 12px", fontSize: 12 }}>
@@ -517,8 +517,8 @@ export default function RevenueReport({ theme, activeTab }) {
         <div class="lbl" style="margin-top:6px">${rows.length} transaction(s)</div>
       </div>
       <div class="grid">
-        <div class="card"><div class="lbl">👥 Members</div><div class="val">${memRows.length} transaction(s)</div></div>
-        <div class="card"><div class="lbl">🚶 Walk-ins</div><div class="val">${wiRows.length} transaction(s)</div></div>
+        <div class="card"><div class="lbl">Members</div><div class="val">${memRows.length} transaction(s)</div></div>
+        <div class="card"><div class="lbl">Walk-ins</div><div class="val">${wiRows.length} transaction(s)</div></div>
       </div>
       ${methods.length > 0 ? `<hr><div style="font-size:12px;color:#555;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Payment Breakdown</div><div class="grid">${methods.map(([lbl, val]) => `<div class="card"><div class="lbl">${lbl}</div><div class="val">₱${val.toLocaleString("en-PH", { minimumFractionDigits: 2 })}</div></div>`).join("")}</div>` : ""}
       <div class="footer">Printed on ${new Date().toLocaleString("en-PH")} · FITNESS SYNERGY LIPA GYM SYSTEM</div>
@@ -661,13 +661,13 @@ export default function RevenueReport({ theme, activeTab }) {
         onClick={() => exportPDF(rows, title)}
         style={btnStyle("#c62828")}
       >
-        📄 PDF
+        PDF
       </button>
       <button
         onClick={() => exportExcel(rows, title, filename)}
         style={btnStyle("#1d6f42")}
       >
-        📊 Excel
+        Excel
       </button>
     </div>
   );
@@ -719,7 +719,7 @@ export default function RevenueReport({ theme, activeTab }) {
     const weekRange = `${monday.toLocaleDateString("en-PH", { month: "short", day: "numeric" })} – ${sunday.toLocaleDateString("en-PH", { month: "short", day: "numeric" })}`;
     return (
       <div style={{ padding: 30 }}>
-        <h1 style={{ margin: "0 0 24px", fontSize: 28 }}>📈 Overview</h1>
+        <h1 style={{ margin: "0 0 24px", fontSize: 28 }}>Overview</h1>
 
         {/* Revenue stat cards */}
         <div
@@ -794,7 +794,7 @@ export default function RevenueReport({ theme, activeTab }) {
               <div
                 style={{ fontWeight: "bold", fontSize: 16, color: theme.text }}
               >
-                🎯 Weekly Sales Target
+                Weekly Sales Target
               </div>
               <div
                 style={{ color: theme.textMuted, fontSize: 12, marginTop: 4 }}
@@ -818,7 +818,7 @@ export default function RevenueReport({ theme, activeTab }) {
                   fontSize: 12,
                 }}
               >
-                ✏️ Set Target
+                Set Target
               </button>
             ) : (
               <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
@@ -966,7 +966,7 @@ export default function RevenueReport({ theme, activeTab }) {
                     }}
                   >
                     {weekRevenue >= weeklyTarget
-                      ? "✅ Reached!"
+                      ? "Reached!"
                       : fmtPHP(weeklyTarget - weekRevenue)}
                   </div>
                 </div>
@@ -1086,7 +1086,7 @@ export default function RevenueReport({ theme, activeTab }) {
             gap: 12,
           }}
         >
-          <h1 style={{ margin: 0, fontSize: 28 }}>📅 Daily Earnings</h1>
+          <h1 style={{ margin: 0, fontSize: 28 }}>Daily Earnings</h1>
           <div
             style={{
               display: "flex",
@@ -1186,7 +1186,7 @@ export default function RevenueReport({ theme, activeTab }) {
                         marginBottom: 6,
                       }}
                     >
-                      📋 Daily Summary
+                      Daily Summary
                     </div>
                     <div
                       style={{
@@ -1219,7 +1219,7 @@ export default function RevenueReport({ theme, activeTab }) {
                       fontSize: 13,
                     }}
                   >
-                    🖨️ Print Summary
+                    Print Summary
                   </button>
                 </div>
                 <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
@@ -1300,7 +1300,7 @@ export default function RevenueReport({ theme, activeTab }) {
                           fontSize: 14,
                         }}
                       >
-                        👥 {filteredMembers.length} Member Transaction(s)
+                        {filteredMembers.length} Member Transaction(s)
                       </span>
                       <span
                         style={{
@@ -1309,7 +1309,7 @@ export default function RevenueReport({ theme, activeTab }) {
                           fontSize: 14,
                         }}
                       >
-                        🚶 {filteredWalkins.length} Walk-in Transaction(s)
+                        {filteredWalkins.length} Walk-in Transaction(s)
                       </span>
                     </div>
                   </div>
@@ -1395,10 +1395,10 @@ export default function RevenueReport({ theme, activeTab }) {
             ? `Filtered — ${new Date(dayFilter + "T00:00:00").toLocaleDateString("en-PH")}`
             : `Total — ${MONTHS[month - 1]} ${year}`,
         )}
-        <h3 style={{ color: theme.text, margin: "0 0 12px" }}>👥 Members</h3>
+        <h3 style={{ color: theme.text, margin: "0 0 12px" }}>Members</h3>
         <PaymentTable payments={filteredMembers} theme={theme} />
         <h3 style={{ color: theme.text, margin: "24px 0 12px" }}>
-          🚶 Walk-ins
+          Walk-ins
         </h3>
         <PaymentTable payments={filteredWalkins} theme={theme} />
       </div>
@@ -1421,7 +1421,7 @@ export default function RevenueReport({ theme, activeTab }) {
           }}
         >
           <h1 style={{ margin: 0, fontSize: 28 }}>
-            🗓️ Monthly Earnings — {year}
+            Monthly Earnings — {year}
           </h1>
           <div style={{ display: "flex", gap: 10 }}>
             <select
@@ -1440,13 +1440,13 @@ export default function RevenueReport({ theme, activeTab }) {
                 onClick={() => exportMonthlyPDF(data.monthly || [], year)}
                 style={btnStyle("#c62828")}
               >
-                📄 PDF
+                PDF
               </button>
               <button
                 onClick={() => exportMonthlyExcel(data.monthly || [], year)}
                 style={btnStyle("#1d6f42")}
               >
-                📊 Excel
+                Excel
               </button>
             </div>
           </div>
@@ -1559,7 +1559,7 @@ export default function RevenueReport({ theme, activeTab }) {
             marginBottom: 24,
           }}
         >
-          <h1 style={{ margin: 0, fontSize: 28 }}>📆 Yearly Earnings</h1>
+          <h1 style={{ margin: 0, fontSize: 28 }}>Yearly Earnings</h1>
           {exportBtns(
             data.payments || [],
             "Yearly Revenue",
@@ -1677,7 +1677,7 @@ export default function RevenueReport({ theme, activeTab }) {
           gap: 12,
         }}
       >
-        <h1 style={{ margin: 0, fontSize: 28 }}>🧾 Payment Logs</h1>
+        <h1 style={{ margin: 0, fontSize: 28 }}>Payment Logs</h1>
         <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
           {monthSelects}
           {exportBtns(
@@ -1688,9 +1688,9 @@ export default function RevenueReport({ theme, activeTab }) {
         </div>
       </div>
       {totalCard(rows, `Total — ${MONTHS[month - 1]} ${year}`)}
-      <h3 style={{ color: theme.text, margin: "0 0 12px" }}>👥 Members</h3>
+      <h3 style={{ color: theme.text, margin: "0 0 12px" }}>Members</h3>
       <PaymentTable payments={members} theme={theme} />
-      <h3 style={{ color: theme.text, margin: "24px 0 12px" }}>🚶 Walk-ins</h3>
+      <h3 style={{ color: theme.text, margin: "24px 0 12px" }}>Walk-ins</h3>
       <PaymentTable payments={walkins} theme={theme} />
     </div>
   );

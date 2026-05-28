@@ -121,7 +121,7 @@ function PhotoCropModal({ theme, memberId, onSuccess, onClose }) {
           }}
         >
           <h2 style={{ margin: 0, fontSize: "18px" }}>
-            📷 Upload Profile Photo
+            Upload Profile Photo
           </h2>
           <button
             onClick={onClose}
@@ -132,7 +132,7 @@ function PhotoCropModal({ theme, memberId, onSuccess, onClose }) {
               cursor: "pointer",
             }}
           >
-            ❌
+            ×
           </button>
         </div>
 
@@ -149,7 +149,6 @@ function PhotoCropModal({ theme, memberId, onSuccess, onClose }) {
               transition: "border-color 0.2s",
             }}
           >
-            <div style={{ fontSize: "48px", marginBottom: "12px" }}>🖼️</div>
             <div style={{ fontWeight: "bold", marginBottom: "6px" }}>
               Click to choose a photo
             </div>
@@ -255,7 +254,7 @@ function PhotoCropModal({ theme, memberId, onSuccess, onClose }) {
                   fontSize: "14px",
                 }}
               >
-                {isUploading ? "Uploading…" : "✅ Upload Photo"}
+                {isUploading ? "Uploading…" : "Upload Photo"}
               </button>
             </div>
           </>

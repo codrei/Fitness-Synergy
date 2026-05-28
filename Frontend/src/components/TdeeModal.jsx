@@ -44,7 +44,7 @@ function TdeeModal({
             marginBottom: "20px",
           }}
         >
-          <h2 style={{ margin: 0, color: theme.primary }}>🔥 TDEE Tool</h2>
+          <h2 style={{ margin: 0, color: theme.primary }}>TDEE Calculator</h2>
           <button
             onClick={() => setShowTdeeModal(false)}
             style={{
@@ -55,7 +55,7 @@ function TdeeModal({
               cursor: "pointer",
             }}
           >
-            ❌
+            ×
           </button>
         </div>
         <form

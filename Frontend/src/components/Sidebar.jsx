@@ -136,7 +136,7 @@ function Sidebar({
           onClick={() => setCurrentView("dashboard")}
           style={navBtn("dashboard")}
         >
-          📊 Dashboard
+          Dashboard
         </button>
 
         {/* Register expandable */}
@@ -149,7 +149,7 @@ function Sidebar({
             alignItems: "center",
           }}
         >
-          <span>➕ Register</span>
+          <span>Register</span>
           <span style={{ fontSize: 11 }}>{registerOpen ? "▲" : "▼"}</span>
         </button>
 
@@ -164,10 +164,10 @@ function Sidebar({
             }}
           >
             <button onClick={openAddModal} style={subBtn("_never_")}>
-              👤 Membership
+              Membership
             </button>
             <button onClick={openWalkInModal} style={subBtn("_never_")}>
-              🚶 Walk-in Guest
+              Walk-in Guest
             </button>
           </div>
         )}
@@ -195,7 +195,7 @@ function Sidebar({
                 : "normal",
           }}
         >
-          <span>📊 Reports</span>
+          <span>Reports</span>
           <span style={{ fontSize: 11 }}>{revenueOpen ? "▲" : "▼"}</span>
         </button>
 
@@ -218,37 +218,37 @@ function Sidebar({
                 letterSpacing: 1,
               }}
             >
-              💰 Revenue
+              Revenue
             </div>
             <button
               onClick={() => setCurrentView("revenue-overview")}
               style={subBtn("revenue-overview")}
             >
-              📈 Overview
+              Overview
             </button>
             <button
               onClick={() => setCurrentView("revenue-daily")}
               style={subBtn("revenue-daily")}
             >
-              📅 Daily Earnings
+              Daily Earnings
             </button>
             <button
               onClick={() => setCurrentView("revenue-monthly")}
               style={subBtn("revenue-monthly")}
             >
-              🗓️ Monthly Earnings
+              Monthly Earnings
             </button>
             <button
               onClick={() => setCurrentView("revenue-yearly")}
               style={subBtn("revenue-yearly")}
             >
-              <code>📆</code> Yearly Earnings
+              Yearly Earnings
             </button>
             <button
               onClick={() => setCurrentView("revenue-logs")}
               style={subBtn("revenue-logs")}
             >
-              🧾 Payment Logs
+              Payment Logs
             </button>
 
             <div
@@ -261,13 +261,13 @@ function Sidebar({
                 marginTop: 4,
               }}
             >
-              📅 Attendance
+              Attendance
             </div>
             <button
               onClick={() => setCurrentView("attendance-report")}
               style={subBtn("attendance-report")}
             >
-              📊 Attendance Report
+              Attendance Report
             </button>
           </div>
         )}
@@ -289,7 +289,7 @@ function Sidebar({
             fontWeight: isPlansActive ? "bold" : "normal",
           }}
         >
-          <span>📋 Plans</span>
+          <span>Plans</span>
           <span style={{ fontSize: 11 }}>{plansOpen ? "▲" : "▼"}</span>
         </button>
 
@@ -307,13 +307,13 @@ function Sidebar({
               onClick={() => setCurrentView("plans")}
               style={subBtn("plans")}
             >
-              📄 Regular Plans
+              Regular Plans
             </button>
             <button
               onClick={() => setCurrentView("promos")}
               style={subBtn("promos")}
             >
-              🎁 Promos
+              Promos
             </button>
           </div>
         )}
@@ -322,7 +322,7 @@ function Sidebar({
           onClick={() => setCurrentView("expenses")}
           style={navBtn("expenses")}
         >
-          💸 Expenses
+          Expenses
         </button>
       </div>
 
@@ -379,7 +379,7 @@ function Sidebar({
                 (e.target.style.backgroundColor = "transparent")
               }
             >
-              ⚙️ Account Profile
+              Account Profile
             </button>
 
             <button
@@ -407,7 +407,7 @@ function Sidebar({
                 (e.target.style.backgroundColor = "transparent")
               }
             >
-              🧮 TDEE Tools
+              TDEE Calculator
             </button>
 
             <button
@@ -435,7 +435,7 @@ function Sidebar({
                 (e.target.style.backgroundColor = "transparent")
               }
             >
-              {isDarkMode ? "☀️ Switch to Light" : "🌙 Switch to Dark"}
+              {isDarkMode ? "Light Mode" : "Dark Mode"}
             </button>
 
             <div
@@ -461,7 +461,7 @@ function Sidebar({
                 width: "100%",
               }}
             >
-              🚪 Logout
+              Logout
             </button>
           </div>
         )}

@@ -137,7 +137,6 @@ function AdminSettingsModal({ theme, onClose, onLogout }) {
         {/* CONFIRMATION OVERLAY */}
         {showConfirmStep && (
           <div style={{ position: "absolute", inset: 0, backgroundColor: theme.surface, display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", padding: "30px", zIndex: 10, textAlign: "center", boxSizing: "border-box" }}>
-            <div style={{ fontSize: "40px", marginBottom: "10px" }}>🛡️</div>
             <h3 style={{ margin: "0 0 10px 0", color: theme.text }}>Commit Security Override?</h3>
             <p style={{ color: theme.textMuted, fontSize: "13px", margin: "0 0 24px 0", lineHeight: "1.4" }}>
               Are you sure you want to write these credential variables to the core system table? Changing these values will terminate current active sessions.
@@ -155,8 +154,8 @@ function AdminSettingsModal({ theme, onClose, onLogout }) {
 
         {/* HEADER */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
-          <h3 style={{ margin: 0, fontSize: "17px", color: theme.text }}>⚙️ Core System Configuration</h3>
-          <button type="button" onClick={onClose} style={{ background: "none", border: "none", color: theme.textMuted, fontSize: "16px", cursor: "pointer" }}>❌</button>
+          <h3 style={{ margin: 0, fontSize: "17px", color: theme.text }}>System Configuration</h3>
+          <button type="button" onClick={onClose} style={{ background: "none", border: "none", color: theme.textMuted, fontSize: "16px", cursor: "pointer" }}>×</button>
         </div>
 
         {/* STATUS MESSAGE */}
@@ -178,7 +177,7 @@ function AdminSettingsModal({ theme, onClose, onLogout }) {
               <label style={{ fontSize: "11px", color: theme.textMuted, fontWeight: "bold", letterSpacing: "0.5px" }}>ADMINISTRATOR USERNAME</label>
               {!isEditing && (
                 <button type="button" onClick={() => setIsEditing(true)} style={{ background: "none", border: "none", color: theme.primary, fontSize: "12px", cursor: "pointer", fontWeight: "bold", padding: 0 }}>
-                  ✏️ Edit Settings
+                  Edit Settings
                 </button>
               )}
             </div>
@@ -206,7 +205,7 @@ function AdminSettingsModal({ theme, onClose, onLogout }) {
                     style={inputStyle}
                   />
                   <button type="button" onClick={() => setShowNewPassword(!showNewPassword)} style={inlineEyeBtn}>
-                    {showNewPassword ? "🙈" : "👁️"}
+                    {showNewPassword ? "Hide" : "Show"}
                   </button>
                 </div>
                 {isPasswordChanged && (
@@ -236,7 +235,7 @@ function AdminSettingsModal({ theme, onClose, onLogout }) {
                     style={{ ...inputStyle, border: `1px solid ${theme.primary}`, color: theme.text, backgroundColor: theme.bg }}
                   />
                   <button type="button" onClick={() => setShowCurrentPassword(!showCurrentPassword)} style={inlineEyeBtn}>
-                    {showCurrentPassword ? "🙈" : "👁️"}
+                    {showCurrentPassword ? "Hide" : "Show"}
                   </button>
                 </div>
               </div>
