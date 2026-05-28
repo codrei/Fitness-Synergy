@@ -17,7 +17,8 @@ import TimeInConfirmModal from "./components/TimeInConfirmModal";
 import InstallmentPaymentModal from "./components/InstallmentPaymentModal";
 import TdeeModal from "./components/TdeeModal";
 import ConfirmModal from "./components/ConfirmModal";
-import AdminSettingsModal from "./components/AdminSettingsModal"; // 1. IMPORT NEW MODAL
+import AdminSettingsModal from "./components/AdminSettingsModal";
+import PhotoCropModal from "./components/PhotoCropModal"; // 1. IMPORT NEW MODAL
 import bgTexture from "./assets/geomblue.png";
 import { apiFetch } from "./api";
 import AttendanceReport from "./components/AttendanceReport";
@@ -32,7 +33,7 @@ const WALKIN_FORM_DEFAULT = {
   referenceNumber: "",
 };
 
-const RRENEWAL_FORM_DEFAULT = {
+const RENEWAL_FORM_DEFAULT = {
   planId: "",
   promoId: "",
   customPrice: "",
@@ -129,11 +130,13 @@ function App() {
   });
   const [showTdeeModal, setShowTdeeModal] = useState(false);
   const [showAdminSettingsModal, setShowAdminSettingsModal] = useState(false); // 2. STATE FOR MODAL
+  const [postRegPhotoPrompt, setPostRegPhotoPrompt] = useState(null);
+  const [postRegPhotoUpload, setPostRegPhotoUpload] = useState(null);
   const [currentView, setCurrentView] = useState("dashboard");
   const [editingId, setEditingId] = useState(null);
   const [showRenewalModal, setShowRenewalModal] = useState(false);
   const [renewalMember, setRenewalMember] = useState(null);
-  const [renewalForm, setRenewalForm] = useState(RRENEWAL_FORM_DEFAULT);
+  const [renewalForm, setRenewalForm] = useState(RENEWAL_FORM_DEFAULT);
   const [showEditInfoModal, setShowEditInfoModal] = useState(false);
   const [editInfoMember, setEditInfoMember] = useState(null);
   const [infoForm, setInfoForm] = useState({});
@@ -363,9 +366,15 @@ function App() {
 
       if (res.success) {
         setShowMemberModal(false);
-        clearMemberForm();
         fetchData();
-        showToast(editingId ? "Member Updated" : "Member Added");
+        if (!editingId && res.member_id) {
+          const savedName = memberForm.name;
+          clearMemberForm();
+          setPostRegPhotoPrompt({ memberId: res.member_id, memberName: savedName });
+        } else {
+          clearMemberForm();
+          showToast(editingId ? "Member Updated" : "Member Added");
+        }
       } else {
         showToast(res.error || "Submission Failed", "error");
       }
@@ -949,6 +958,87 @@ function App() {
             } catch {
               showToast("Delete failed. Check your connection.", "error");
             }
+          }}
+        />
+      )}
+
+      {/* Post-registration photo prompt */}
+      {postRegPhotoPrompt && !postRegPhotoUpload && (
+        <div
+          onClick={() => {
+            setPostRegPhotoPrompt(null);
+            showToast("Member Added");
+          }}
+          style={{
+            position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.82)",
+            display: "flex", justifyContent: "center", alignItems: "center",
+            zIndex: 1300, backdropFilter: "blur(4px)",
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              backgroundColor: theme.surface, borderRadius: "16px",
+              padding: "36px 32px", width: "380px", textAlign: "center",
+              border: `1px solid ${theme.border}`,
+              boxShadow: "0 20px 60px rgba(0,0,0,0.7)",
+            }}
+          >
+            <div style={{ fontSize: "48px", marginBottom: "12px" }}>✅</div>
+            <h2 style={{ margin: "0 0 6px", fontSize: "20px", color: theme.text }}>
+              Registration Complete!
+            </h2>
+            <p style={{ margin: "0 0 6px", fontWeight: "bold", color: theme.primary, fontSize: "15px" }}>
+              {postRegPhotoPrompt.memberName}
+            </p>
+            <p style={{ margin: "0 0 24px", color: theme.textMuted, fontSize: "13px", lineHeight: 1.5 }}>
+              Add a profile photo now so staff can verify identity at the front desk.
+            </p>
+            <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+              <button
+                onClick={() => {
+                  setPostRegPhotoUpload(postRegPhotoPrompt.memberId);
+                  setPostRegPhotoPrompt(null);
+                }}
+                style={{
+                  padding: "13px", backgroundColor: theme.primary,
+                  color: theme.primaryText, border: "none", borderRadius: "8px",
+                  cursor: "pointer", fontWeight: "bold", fontSize: "14px",
+                }}
+              >
+                📷 Upload Photo Now
+              </button>
+              <button
+                onClick={() => {
+                  setPostRegPhotoPrompt(null);
+                  showToast("Member Added");
+                }}
+                style={{
+                  padding: "11px", backgroundColor: "transparent",
+                  color: theme.textMuted, border: `1px solid ${theme.border}`,
+                  borderRadius: "8px", cursor: "pointer", fontSize: "13px",
+                }}
+              >
+                Skip for now
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Post-registration photo upload */}
+      {postRegPhotoUpload && (
+        <PhotoCropModal
+          theme={theme}
+          memberId={postRegPhotoUpload}
+          onSuccess={() => {
+            setPostRegPhotoUpload(null);
+            fetchData();
+            showToast("Member Added & Photo Uploaded");
+          }}
+          onClose={() => {
+            setPostRegPhotoUpload(null);
+            showToast("Member Added");
           }}
         />
       )}

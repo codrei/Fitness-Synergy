@@ -127,7 +127,7 @@ if (!empty($data->full_name)) {
         ]);
         }
 
-        echo json_encode(["success" => true, "message" => "Member added successfully!", "contract_id" => $contract_id]);
+        echo json_encode(["success" => true, "message" => "Member added successfully!", "contract_id" => $contract_id, "member_id" => (int)$new_member_id]);
     } catch (PDOException $e) {
         if (isset($e->errorInfo[1]) && $e->errorInfo[1] == 1062) {
             echo json_encode(["success" => false, "error" => "Contract ID already exists."]);
