@@ -22,6 +22,24 @@ $custom_price     = isset($data->custom_price) && $data->custom_price !== '' ? (
 $payment_method   = !empty($data->payment_method)   ? $data->payment_method       : 'Cash';
 $reference_number = !empty($data->reference_number) ? $data->reference_number     : null;
 
+// Required-field validation (defense-in-depth; UI also enforces)
+if ($guest_age === null || $guest_age < 1 || $guest_age > 120) {
+    http_response_code(422);
+    echo json_encode([
+        "success" => false,
+        "error"   => "Age is required and must be between 1 and 120.",
+    ]);
+    exit;
+}
+if ($guest_contact === null || !preg_match('/^09\d{9}$/', $guest_contact)) {
+    http_response_code(422);
+    echo json_encode([
+        "success" => false,
+        "error"   => "Contact number must be exactly 11 digits starting with 09.",
+    ]);
+    exit;
+}
+
 try {
     // Same-day duplicate check.
     // If contact was provided, match on (contact + name).

@@ -1,4 +1,9 @@
 import React, { useState, useRef } from "react";
+import {
+  PHONE_PATTERN_STR,
+  sanitizePhoneInput,
+  isValidPhilippinePhone,
+} from "../utils/phone";
 
 function AddEditModal({
   theme,
@@ -233,21 +238,35 @@ function AddEditModal({
 
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px" }}>
             <div>
-              <label style={labelStyle}>Contact Number</label>
+              <label style={labelStyle}>Contact Number <Req /></label>
               <input
-                type="text"
+                type="tel"
+                inputMode="numeric"
+                pattern={PHONE_PATTERN_STR}
+                maxLength={11}
+                required={!editingId}
+                title="Must be exactly 11 digits starting with 09"
                 value={memberForm.contactNumber}
-                onChange={(e) => update("contactNumber", e.target.value)}
-                placeholder="e.g., 0917XXXXXXX"
+                onChange={(e) =>
+                  update("contactNumber", sanitizePhoneInput(e.target.value))
+                }
+                placeholder="09171234567"
                 style={inputStyle}
               />
+              {memberForm.contactNumber &&
+                !isValidPhilippinePhone(memberForm.contactNumber) && (
+                  <div style={{ fontSize: 11, color: theme.danger, marginTop: 4 }}>
+                    Must be 11 digits starting with 09
+                  </div>
+                )}
             </div>
             <div>
-              <label style={labelStyle}>Age</label>
+              <label style={labelStyle}>Age <Req /></label>
               <input
                 type="number"
                 min="1"
                 max="120"
+                required={!editingId}
                 value={memberForm.age}
                 onChange={(e) => update("age", e.target.value)}
                 placeholder="e.g., 25"

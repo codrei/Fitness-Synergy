@@ -41,8 +41,26 @@ $discount_id              = !empty($data->discount_id)               ? $data->di
 $discount_id_type         = !empty($data->discount_id_type)          ? $data->discount_id_type         : null;
 $discount_school_name     = !empty($data->discount_school_name)      ? $data->discount_school_name     : null;
 
+// ── 2. Required-field validation (defense-in-depth; UI also enforces) ──
+if ($contact_number === null || !preg_match('/^09\d{9}$/', $contact_number)) {
+    http_response_code(422);
+    echo json_encode([
+        "success" => false,
+        "error"   => "Contact number must be exactly 11 digits starting with 09.",
+    ]);
+    exit;
+}
+if ($age === null || $age < 1 || $age > 120) {
+    http_response_code(422);
+    echo json_encode([
+        "success" => false,
+        "error"   => "Age is required and must be between 1 and 120.",
+    ]);
+    exit;
+}
+
 try {
-    // ── 2. Duplicate-member check (now $contact_number is guaranteed defined) ──
+    // ── 3. Duplicate-member check ──
     if (!$force && $contact_number !== null) {
         $dupCheck = $conn->prepare("
             SELECT member_id, full_name, contract_id

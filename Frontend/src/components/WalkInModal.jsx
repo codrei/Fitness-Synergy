@@ -1,4 +1,9 @@
 import React, { useState } from "react";
+import {
+  PHONE_PATTERN_STR,
+  sanitizePhoneInput,
+  isValidPhilippinePhone,
+} from "../utils/phone";
 
 function WalkInModal({
   theme,
@@ -111,7 +116,9 @@ function WalkInModal({
             }}
           >
             <div>
-              <label style={labelStyle}>Guest Name</label>
+              <label style={labelStyle}>
+                Guest Name <span style={{ color: theme.danger }}>*</span>
+              </label>
               <input
                 type="text"
                 value={walkInForm.guestName}
@@ -123,27 +130,46 @@ function WalkInModal({
               />
             </div>
             <div>
-              <label style={labelStyle}>Age (Optional)</label>
+              <label style={labelStyle}>
+                Age <span style={{ color: theme.danger }}>*</span>
+              </label>
               <input
                 type="number"
                 value={walkInForm.guestAge}
                 onChange={(e) => update("guestAge", e.target.value)}
                 placeholder="e.g., 25"
                 min="1"
+                max="120"
+                required
                 style={inputStyle}
               />
             </div>
           </div>
 
           <div>
-            <label style={labelStyle}>Contact Number</label>
+            <label style={labelStyle}>
+              Contact Number <span style={{ color: theme.danger }}>*</span>
+            </label>
             <input
-              type="text"
+              type="tel"
+              inputMode="numeric"
+              pattern={PHONE_PATTERN_STR}
+              maxLength={11}
+              required
+              title="Must be exactly 11 digits starting with 09"
               value={walkInForm.guestContact}
-              onChange={(e) => update("guestContact", e.target.value)}
-              placeholder="e.g., 09171234567 — used to track repeat visits"
+              onChange={(e) =>
+                update("guestContact", sanitizePhoneInput(e.target.value))
+              }
+              placeholder="09171234567 — used to track repeat visits"
               style={inputStyle}
             />
+            {walkInForm.guestContact &&
+              !isValidPhilippinePhone(walkInForm.guestContact) && (
+                <div style={{ fontSize: 11, color: theme.danger, marginTop: 4 }}>
+                  Must be 11 digits starting with 09
+                </div>
+              )}
           </div>
 
           <div>
