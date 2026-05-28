@@ -15,6 +15,7 @@ function MembersTable({
   searchQuery,
   setSearchQuery,
   filteredMembers,
+  plans = [],
   getDaysRemaining,
   confirmTimeIn,
   attendanceLogs,
@@ -28,6 +29,11 @@ function MembersTable({
   const [currentPage, setCurrentPage] = useState(1);
   const [statusFilter, setStatusFilter] = useState("all");
   const [openDropdown, setOpenDropdown] = useState(null);
+  const [attrFilters, setAttrFilters] = useState({ gender: null, planDuration: null, discount: null });
+
+  const toggleAttr = (group, value) =>
+    setAttrFilters((f) => ({ ...f, [group]: f[group] === value ? null : value }));
+  const hasAttrFilter = Object.values(attrFilters).some(Boolean);
 
   useEffect(() => {
     const handle = () => setOpenDropdown(null);
@@ -37,7 +43,7 @@ function MembersTable({
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [filteredMembers.length, searchQuery, statusFilter]);
+  }, [filteredMembers.length, searchQuery, statusFilter, attrFilters.gender, attrFilters.planDuration, attrFilters.discount]);
 
   // Filter counts for tabs
   const counts = {
@@ -67,10 +73,39 @@ function MembersTable({
     return true;
   });
 
-  const totalPages = Math.max(1, Math.ceil(displayMembers.length / PAGE_SIZE));
+  // Counts for attribute chips (from status-filtered list, before attr filters)
+  const attrCounts = {
+    male: displayMembers.filter((m) => (m.gender || "").toLowerCase() === "male").length,
+    female: displayMembers.filter((m) => (m.gender || "").toLowerCase() === "female").length,
+    threeMonths: displayMembers.filter((m) => {
+      const plan = plans.find((p) => String(p.plan_id) === String(m.plan_id));
+      const days = plan ? parseInt(plan.duration_days) : 0;
+      return days >= 80 && days <= 100;
+    }).length,
+    discounted: displayMembers.filter(
+      (m) => m.discount_type && m.discount_type !== "None",
+    ).length,
+  };
+
+  // Apply attribute filters on top of status filter
+  const attrFiltered = displayMembers.filter((m) => {
+    if (attrFilters.gender && (m.gender || "").toLowerCase() !== attrFilters.gender.toLowerCase())
+      return false;
+    if (attrFilters.planDuration === "3months") {
+      const plan = plans.find((p) => String(p.plan_id) === String(m.plan_id));
+      const days = plan ? parseInt(plan.duration_days) : 0;
+      if (days < 80 || days > 100) return false;
+    }
+    if (attrFilters.discount === "discounted") {
+      if (!m.discount_type || m.discount_type === "None") return false;
+    }
+    return true;
+  });
+
+  const totalPages = Math.max(1, Math.ceil(attrFiltered.length / PAGE_SIZE));
   const safeCurrentPage = Math.min(currentPage, totalPages);
   const startIdx = (safeCurrentPage - 1) * PAGE_SIZE;
-  const pageMembers = displayMembers.slice(startIdx, startIdx + PAGE_SIZE);
+  const pageMembers = attrFiltered.slice(startIdx, startIdx + PAGE_SIZE);
 
   const filterTabs = [
     { key: "all", label: "All" },
@@ -172,6 +207,113 @@ function MembersTable({
               </button>
             );
           })}
+        </div>
+
+        {/* Attribute Quick Filters */}
+        <div style={{ display: "flex", gap: "5px", flexWrap: "wrap", alignItems: "center", marginTop: "8px", paddingTop: "8px", borderTop: `1px dashed ${theme.border}` }}>
+          <span style={{ fontSize: "10px", color: theme.textMuted, textTransform: "uppercase", letterSpacing: "0.8px", marginRight: "2px", whiteSpace: "nowrap" }}>
+            Filter:
+          </span>
+
+          {/* Gender chips */}
+          {[
+            { key: "Male", color: "#60a5fa" },
+            { key: "Female", color: "#f472b6" },
+          ].map(({ key, color }) => {
+            const active = attrFilters.gender === key;
+            const count = attrCounts[key.toLowerCase()];
+            return (
+              <button
+                key={key}
+                onClick={() => toggleAttr("gender", key)}
+                style={{
+                  padding: "3px 10px",
+                  borderRadius: "20px",
+                  border: `1px solid ${active ? color : theme.border}`,
+                  backgroundColor: active ? color : "transparent",
+                  color: active ? "#fff" : theme.textMuted,
+                  cursor: "pointer",
+                  fontSize: "11px",
+                  fontWeight: active ? "bold" : "normal",
+                  transition: "all 0.15s ease",
+                }}
+              >
+                {key === "Male" ? "♂" : "♀"} {key}{" "}
+                <span style={{ opacity: 0.75 }}>{count}</span>
+              </button>
+            );
+          })}
+
+          <div style={{ width: "1px", height: "14px", backgroundColor: theme.border, margin: "0 2px", flexShrink: 0 }} />
+
+          {/* 3-Month Plan chip */}
+          {(() => {
+            const active = attrFilters.planDuration === "3months";
+            return (
+              <button
+                onClick={() => toggleAttr("planDuration", "3months")}
+                style={{
+                  padding: "3px 10px",
+                  borderRadius: "20px",
+                  border: `1px solid ${active ? "#f59e0b" : theme.border}`,
+                  backgroundColor: active ? "#f59e0b" : "transparent",
+                  color: active ? "#000" : theme.textMuted,
+                  cursor: "pointer",
+                  fontSize: "11px",
+                  fontWeight: active ? "bold" : "normal",
+                  transition: "all 0.15s ease",
+                }}
+              >
+                3-Month Plan{" "}
+                <span style={{ opacity: 0.75 }}>{attrCounts.threeMonths}</span>
+              </button>
+            );
+          })()}
+
+          <div style={{ width: "1px", height: "14px", backgroundColor: theme.border, margin: "0 2px", flexShrink: 0 }} />
+
+          {/* Student / Senior / Promo chip */}
+          {(() => {
+            const active = attrFilters.discount === "discounted";
+            return (
+              <button
+                onClick={() => toggleAttr("discount", "discounted")}
+                style={{
+                  padding: "3px 10px",
+                  borderRadius: "20px",
+                  border: `1px solid ${active ? "#a78bfa" : theme.border}`,
+                  backgroundColor: active ? "#a78bfa" : "transparent",
+                  color: active ? "#fff" : theme.textMuted,
+                  cursor: "pointer",
+                  fontSize: "11px",
+                  fontWeight: active ? "bold" : "normal",
+                  transition: "all 0.15s ease",
+                }}
+              >
+                Student / Senior{" "}
+                <span style={{ opacity: 0.75 }}>{attrCounts.discounted}</span>
+              </button>
+            );
+          })()}
+
+          {/* Clear attr filters */}
+          {hasAttrFilter && (
+            <button
+              onClick={() => setAttrFilters({ gender: null, planDuration: null, discount: null })}
+              style={{
+                marginLeft: "auto",
+                padding: "3px 10px",
+                borderRadius: "20px",
+                border: `1px solid ${theme.border}`,
+                backgroundColor: "transparent",
+                color: theme.textMuted,
+                cursor: "pointer",
+                fontSize: "11px",
+              }}
+            >
+              × Clear
+            </button>
+          )}
         </div>
       </div>
 
@@ -606,9 +748,9 @@ function MembersTable({
         }}
       >
         <span>
-          Showing {displayMembers.length === 0 ? 0 : startIdx + 1}–
-          {Math.min(startIdx + PAGE_SIZE, displayMembers.length)} of {displayMembers.length}{" "}
-          {displayMembers.length !== 1 ? "entries" : "entry"}
+          Showing {attrFiltered.length === 0 ? 0 : startIdx + 1}–
+          {Math.min(startIdx + PAGE_SIZE, attrFiltered.length)} of {attrFiltered.length}{" "}
+          {attrFiltered.length !== 1 ? "entries" : "entry"}
         </span>
 
         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>

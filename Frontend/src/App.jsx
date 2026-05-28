@@ -810,6 +810,7 @@ function App() {
                   searchQuery={searchQuery}
                   setSearchQuery={setSearchQuery}
                   filteredMembers={filteredMembers}
+                  plans={plans}
                   getDaysRemaining={getDaysRemaining}
                   confirmTimeIn={(member) => setTimeInConfirmMember(member)}
                   attendanceLogs={attendanceLogs}
