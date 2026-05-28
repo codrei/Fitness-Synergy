@@ -5,7 +5,7 @@
 // =====================================================================
 
 $SECRET_CODE = "FSreset2026";
-$NEW_PASSWORD = "FSlipa2026";
+$NEW_PASSWORD = "FSLipa2026";
 
 $provided = $_GET['code'] ?? '';
 

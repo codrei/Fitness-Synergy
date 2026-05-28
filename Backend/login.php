@@ -22,6 +22,10 @@ try {
     $admin = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if ($admin && password_verify($passIn, $admin['password'])) {
+        // Clean up this admin's expired sessions before creating a new one
+        $conn->prepare("DELETE FROM sessions WHERE admin_id = :id AND expires_at < NOW()")
+             ->execute([':id' => $admin['admin_id']]);
+
         $token   = bin2hex(random_bytes(32));
         $expires = date('Y-m-d H:i:s', strtotime('+24 hours'));
 
