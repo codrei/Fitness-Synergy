@@ -88,7 +88,7 @@ export default function BranchSalesReport({ theme }) {
   const fetchInstallments = useCallback(async () => {
     setInstallLoading(true);
     try {
-      const res = await apiFetch("get_installment_tracker.php").then(r => r.json());
+      const res = await apiFetch("get_installments.php").then(r => r.json());
       if (res.success) setInstallments(res.installments);
     } catch {}
     finally { setInstallLoading(false); }
