@@ -36,6 +36,7 @@ try {
 
     echo json_encode($stats);
 } catch(PDOException $e) {
+    error_log('[get_stats] ' . $e->getMessage());
     http_response_code(500);
-    echo json_encode(["error" => "Database Error: " . $e->getMessage()]);
+    echo json_encode(["error" => "Failed to load dashboard statistics."]);
 }

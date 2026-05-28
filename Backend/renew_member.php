@@ -98,6 +98,10 @@ try {
         "new_expiration" => $newExpiration,
     ]);
 } catch (PDOException $e) {
-    $conn->rollBack();
-    echo json_encode(["success" => false, "error" => $e->getMessage()]);
+    if ($conn->inTransaction()) {
+        $conn->rollBack();
+    }
+    error_log('[renew_member] ' . $e->getMessage());
+    http_response_code(500);
+    echo json_encode(["success" => false, "error" => "Failed to renew membership. Please try again."]);
 }
