@@ -106,7 +106,7 @@ export default function AttendanceReport({ theme, isDarkMode }) {
     <div style={{ padding: 30 }}>
       {/* Header */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 28, flexWrap: "wrap", gap: 12 }}>
-        <h1 style={{ margin: 0, fontSize: 26 }}>Attendance Report</h1>
+        <h1 style={{ margin: 0, fontSize: 26, color: theme.text }}>Attendance Report</h1>
         <div style={{ display: "flex", gap: 10 }}>
           <select value={month} onChange={(e) => setMonth(Number(e.target.value))} style={selectStyle}>
             {MONTHS.map((m, i) => <option key={i} value={i + 1}>{m}</option>)}
@@ -125,12 +125,12 @@ export default function AttendanceReport({ theme, isDarkMode }) {
         <>
           {/* Summary Cards */}
           <div style={{ display: "flex", gap: 14, flexWrap: "wrap", marginBottom: 24 }}>
-            <StatCard label="Total Visits" value={s.total_visits ?? 0} icon="" color="#6366f1" theme={theme} isDarkMode={isDarkMode} sub={`${MONTHS[month-1]} ${year}`} />
-            <StatCard label="Member Visits" value={s.total_members ?? 0} icon="" color="#3b82f6" theme={theme} isDarkMode={isDarkMode} sub="Registered members" />
-            <StatCard label="Walk-in Visits" value={s.total_walkins ?? 0} icon="" color="#a855f7" theme={theme} isDarkMode={isDarkMode} sub="Guest check-ins" />
-            <StatCard label="Avg Per Day" value={s.avg_per_day ?? 0} icon="" color="#22c55e" theme={theme} isDarkMode={isDarkMode} sub="Daily average" />
-            <StatCard label="Peak Hour" value={s.peak_hour !== null ? fmtHour(s.peak_hour) : "—"} icon="" color="#f59e0b" theme={theme} isDarkMode={isDarkMode} sub="Busiest time" />
-            <StatCard label="Peak Day" value={s.peak_day ?? "—"} icon="" color="#ef4444" theme={theme} isDarkMode={isDarkMode} sub="Busiest weekday" />
+            <StatCard label="Total Visits" value={s.total_visits ?? 0} icon="📊" color="#6366f1" theme={theme} isDarkMode={isDarkMode} sub={`${MONTHS[month-1]} ${year}`} />
+            <StatCard label="Member Visits" value={s.total_members ?? 0} icon="👤" color="#3b82f6" theme={theme} isDarkMode={isDarkMode} sub="Registered members" />
+            <StatCard label="Walk-in Visits" value={s.total_walkins ?? 0} icon="🚶" color="#a855f7" theme={theme} isDarkMode={isDarkMode} sub="Guest check-ins" />
+            <StatCard label="Avg Per Day" value={s.avg_per_day ?? 0} icon="📈" color="#22c55e" theme={theme} isDarkMode={isDarkMode} sub="Daily average" />
+            <StatCard label="Peak Hour" value={s.peak_hour !== null ? fmtHour(s.peak_hour) : "—"} icon="⏰" color="#f59e0b" theme={theme} isDarkMode={isDarkMode} sub="Busiest time" />
+            <StatCard label="Peak Day" value={s.peak_day ?? "—"} icon="📅" color="#ef4444" theme={theme} isDarkMode={isDarkMode} sub="Busiest weekday" />
           </div>
 
           {/* Daily Visits Chart */}

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 
 function TimeInConfirmModal({
   theme,
@@ -7,6 +7,12 @@ function TimeInConfirmModal({
   onConfirm,
   onClose,
 }) {
+  useEffect(() => {
+    const handler = (e) => { if (e.key === "Enter") onConfirm(); };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [onConfirm]);
+
   const daysLeft = getDaysRemaining(member.expiration_date);
   const isExpired = member.status === "Expired" || daysLeft === "Expired";
 

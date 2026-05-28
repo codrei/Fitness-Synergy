@@ -117,6 +117,7 @@ function WalkInModal({
                 value={walkInForm.guestName}
                 onChange={(e) => update("guestName", e.target.value)}
                 required
+                autoFocus
                 placeholder="Full Name"
                 style={inputStyle}
               />

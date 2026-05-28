@@ -138,6 +138,7 @@ function RenewalModal({
                 }));
               }}
               required
+              autoFocus
               style={inputStyle}
             >
               <option value="" disabled>Select a Plan...</option>

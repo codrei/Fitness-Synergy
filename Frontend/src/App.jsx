@@ -133,6 +133,7 @@ function App() {
   const [postRegPhotoPrompt, setPostRegPhotoPrompt] = useState(null);
   const [postRegPhotoUpload, setPostRegPhotoUpload] = useState(null);
   const [currentView, setCurrentView] = useState("dashboard");
+  const [memberStatusFilter, setMemberStatusFilter] = useState(null);
   const [editingId, setEditingId] = useState(null);
   const [showRenewalModal, setShowRenewalModal] = useState(false);
   const [renewalMember, setRenewalMember] = useState(null);
@@ -803,6 +804,7 @@ function App() {
                   stats={stats}
                   theme={theme}
                   isDarkMode={isDarkMode}
+                  onNavigate={(filter) => setMemberStatusFilter(filter)}
                 />
                 <MembersTable
                   theme={theme}
@@ -822,6 +824,7 @@ function App() {
                   handleDelete={(id, name) => {
                     setDeleteConfirm({ show: true, id, name });
                   }}
+                  externalStatusFilter={memberStatusFilter}
                 />
               </div>
               <div

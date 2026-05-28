@@ -25,11 +25,19 @@ function MembersTable({
   convertWalkIn,
   showToast,
   handleDelete,
+  externalStatusFilter,
 }) {
   const [currentPage, setCurrentPage] = useState(1);
   const [statusFilter, setStatusFilter] = useState("all");
   const [openDropdown, setOpenDropdown] = useState(null);
   const [attrFilters, setAttrFilters] = useState({ gender: null, planDuration: null, discount: null });
+
+  useEffect(() => {
+    if (externalStatusFilter) {
+      setStatusFilter(externalStatusFilter);
+      setCurrentPage(1);
+    }
+  }, [externalStatusFilter]);
 
   const toggleAttr = (group, value) =>
     setAttrFilters((f) => ({ ...f, [group]: f[group] === value ? null : value }));

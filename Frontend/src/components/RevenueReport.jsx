@@ -26,7 +26,7 @@ function BarChart({ data, labelKey, valueKey, theme }) {
   return (
     <div style={{ overflowX: "auto" }}>
       <svg
-        width={Math.max(data.length * 60, 400)}
+        width={Math.max(data.length * 60 + 10, 400)}
         height={200}
         style={{ display: "block" }}
       >
@@ -428,13 +428,13 @@ export default function RevenueReport({ theme, activeTab }) {
         body{font-family:Arial,sans-serif;padding:24px;color:#111;font-size:12px}
         h1{font-size:18px;margin:0}h2{font-size:13px;color:#555;margin:4px 0 16px}
         table{width:100%;border-collapse:collapse;margin-top:10px;font-size:11px}
-        th{background:#0d1b2a;color:white;padding:8px 6px;text-align:left}
+        th{background:#006666;color:white;padding:8px 6px;text-align:left}
         td{padding:7px 6px;border-bottom:1px solid #ddd}
         tr:nth-child(even){background:#f9f9f9}
         .senior{color:#e65100;font-weight:bold}
         .walkin{color:#0288d1}
         .total-row{font-weight:bold;background:#e8f5e9}
-        .badge{margin:12px 0;padding:10px 16px;background:#0d1b2a;color:white;display:inline-block;border-radius:6px}
+        .badge{margin:12px 0;padding:10px 16px;background:#006666;color:white;display:inline-block;border-radius:6px}
       </style></head><body>
       <h1>FITNESS SYNERGY LIPA — GYM SYSTEM</h1>
       <h2>${title}</h2>
@@ -498,13 +498,13 @@ export default function RevenueReport({ theme, activeTab }) {
         body{font-family:Arial,sans-serif;padding:32px;max-width:580px;margin:0 auto;color:#111;font-size:13px}
         h1{font-size:22px;text-align:center;margin:0}
         .sub{text-align:center;color:#555;margin-bottom:20px;font-size:13px}
-        .total-box{background:#0d1b2a;color:white;padding:20px;border-radius:8px;text-align:center;margin:16px 0}
+        .total-box{background:#006666;color:white;padding:20px;border-radius:8px;text-align:center;margin:16px 0}
         .total-box .lbl{font-size:11px;letter-spacing:1px;text-transform:uppercase;opacity:.7}
         .total-box .amt{font-size:36px;font-weight:bold;margin-top:4px}
         .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0}
         .card{border:1px solid #ddd;border-radius:6px;padding:12px 16px}
         .card .lbl{font-size:11px;color:#888;text-transform:uppercase}
-        .card .val{font-size:18px;font-weight:bold;color:#0d1b2a;margin-top:4px}
+        .card .val{font-size:18px;font-weight:bold;color:#006666;margin-top:4px}
         hr{border:none;border-top:1px dashed #ccc;margin:16px 0}
         .footer{text-align:center;color:#999;font-size:11px;margin-top:20px}
         @media print{button{display:none}}
@@ -620,11 +620,11 @@ export default function RevenueReport({ theme, activeTab }) {
         body{font-family:Arial,sans-serif;padding:24px;color:#111;font-size:12px}
         h1{font-size:18px;margin:0}h2{font-size:13px;color:#555;margin:4px 0 16px}
         table{width:100%;border-collapse:collapse;margin-top:10px}
-        th{background:#0d1b2a;color:white;padding:8px 6px;text-align:left}
+        th{background:#006666;color:white;padding:8px 6px;text-align:left}
         td{padding:7px 6px;border-bottom:1px solid #ddd}
         tr:nth-child(even){background:#f9f9f9}
         .total-row{font-weight:bold;background:#e8f5e9}
-        .badge{margin:12px 0;padding:10px 16px;background:#0d1b2a;color:white;display:inline-block;border-radius:6px}
+        .badge{margin:12px 0;padding:10px 16px;background:#006666;color:white;display:inline-block;border-radius:6px}
       </style></head><body>
       <h1>FITNESS SYNERGY LIPA — GYM SYSTEM</h1>
       <h2>Monthly Earnings — ${yr}</h2>
@@ -719,7 +719,7 @@ export default function RevenueReport({ theme, activeTab }) {
     const weekRange = `${monday.toLocaleDateString("en-PH", { month: "short", day: "numeric" })} – ${sunday.toLocaleDateString("en-PH", { month: "short", day: "numeric" })}`;
     return (
       <div style={{ padding: 30 }}>
-        <h1 style={{ margin: "0 0 24px", fontSize: 28 }}>Overview</h1>
+        <h1 style={{ margin: "0 0 24px", fontSize: 28, color: theme.text }}>Overview</h1>
 
         {/* Revenue stat cards */}
         <div
@@ -1086,7 +1086,7 @@ export default function RevenueReport({ theme, activeTab }) {
             gap: 12,
           }}
         >
-          <h1 style={{ margin: 0, fontSize: 28 }}>Daily Earnings</h1>
+          <h1 style={{ margin: 0, fontSize: 28, color: theme.text }}>Daily Earnings</h1>
           <div
             style={{
               display: "flex",
@@ -1420,7 +1420,7 @@ export default function RevenueReport({ theme, activeTab }) {
             gap: 12,
           }}
         >
-          <h1 style={{ margin: 0, fontSize: 28 }}>
+          <h1 style={{ margin: 0, fontSize: 28, color: theme.text }}>
             Monthly Earnings — {year}
           </h1>
           <div style={{ display: "flex", gap: 10 }}>
@@ -1559,7 +1559,7 @@ export default function RevenueReport({ theme, activeTab }) {
             marginBottom: 24,
           }}
         >
-          <h1 style={{ margin: 0, fontSize: 28 }}>Yearly Earnings</h1>
+          <h1 style={{ margin: 0, fontSize: 28, color: theme.text }}>Yearly Earnings</h1>
           {exportBtns(
             data.payments || [],
             "Yearly Revenue",
@@ -1677,7 +1677,7 @@ export default function RevenueReport({ theme, activeTab }) {
           gap: 12,
         }}
       >
-        <h1 style={{ margin: 0, fontSize: 28 }}>Payment Logs</h1>
+        <h1 style={{ margin: 0, fontSize: 28, color: theme.text }}>Payment Logs</h1>
         <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
           {monthSelects}
           {exportBtns(

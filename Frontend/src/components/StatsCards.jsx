@@ -1,6 +1,6 @@
 import React from "react";
 
-function StatsCards({ stats, theme, isDarkMode }) {
+function StatsCards({ stats, theme, isDarkMode, onNavigate }) {
   const s = stats || {};
 
   const cards = [
@@ -9,36 +9,42 @@ function StatsCards({ stats, theme, isDarkMode }) {
       val: s.total ?? "0",
       color: "#3b82f6",
       sub: "Registered members",
+      nav: null,
     },
     {
       label: "Walk-in Guests",
       val: s.total_walkins ?? "0",
       color: "#a855f7",
       sub: "Unique guests",
+      nav: "walkin",
     },
     {
       label: "Active",
       val: s.active ?? "0",
       color: "#22c55e",
-      sub: "Valid memberships",
+      sub: "Click to filter",
+      nav: "active",
     },
     {
       label: "Expired",
       val: s.expired ?? "0",
       color: "#ef4444",
-      sub: "Needs renewal",
+      sub: "Click to filter",
+      nav: "expired",
     },
     {
       label: "Today's Visits",
       val: s.checkins ?? "0",
       color: "#f59e0b",
       sub: "Check-ins today",
+      nav: null,
     },
     {
       label: "Expiring Soon",
       val: s.expiring_soon?.length ?? "0",
       color: "#f97316",
-      sub: "Within 7 days",
+      sub: "Click to filter",
+      nav: "expiring",
     },
   ];
 
@@ -84,7 +90,29 @@ function StatsCards({ stats, theme, isDarkMode }) {
         }}
       >
         {cards.map((card, i) => (
-          <div key={i} style={cardBase}>
+          <div
+            key={i}
+            onClick={() => card.nav && onNavigate && onNavigate(card.nav)}
+            style={{
+              ...cardBase,
+              cursor: card.nav && onNavigate ? "pointer" : "default",
+              transition: "transform 0.1s ease, box-shadow 0.1s ease",
+            }}
+            onMouseEnter={(e) => {
+              if (card.nav && onNavigate) {
+                e.currentTarget.style.transform = "translateY(-2px)";
+                e.currentTarget.style.boxShadow = isDarkMode
+                  ? `0 8px 28px rgba(0,0,0,0.45)`
+                  : `0 6px 18px rgba(0,0,0,0.13)`;
+              }
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = "translateY(0)";
+              e.currentTarget.style.boxShadow = isDarkMode
+                ? "0 4px 20px rgba(0,0,0,0.3)"
+                : "0 4px 12px rgba(0,0,0,0.08)";
+            }}
+          >
             <div
               style={{
                 height: "3px",
@@ -118,7 +146,7 @@ function StatsCards({ stats, theme, isDarkMode }) {
               <div
                 style={{
                   fontSize: "11px",
-                  color: theme.textMuted,
+                  color: card.nav && onNavigate ? card.color : theme.textMuted,
                   marginTop: "6px",
                   opacity: 0.8,
                 }}

@@ -42,6 +42,22 @@ function ProfileModal({
     }
   };
 
+  const daysLeftNum = (() => {
+    if (!m.expiration_date) return null;
+    const today = new Date().setHours(0, 0, 0, 0);
+    const exp = new Date(m.expiration_date + "T00:00:00").setHours(0, 0, 0, 0);
+    return Math.round((exp - today) / (1000 * 60 * 60 * 24));
+  })();
+  const memberStatus = !m.expiration_date
+    ? { label: "No Expiration", color: "#22c55e", bg: "rgba(34,197,94,0.12)" }
+    : daysLeftNum < 0
+      ? { label: "Expired", color: "#ef4444", bg: "rgba(239,68,68,0.12)" }
+      : daysLeftNum === 0
+        ? { label: "Expires Today", color: "#f59e0b", bg: "rgba(245,158,11,0.12)" }
+        : daysLeftNum <= 7
+          ? { label: `${daysLeftNum} days left`, color: "#f97316", bg: "rgba(249,115,22,0.12)" }
+          : { label: `${daysLeftNum} days left`, color: "#22c55e", bg: "rgba(34,197,94,0.12)" };
+
   const paymentsInCycle = paymentHistory.filter(
     (p) => !m.start_date || new Date(p.payment_date) >= new Date(m.start_date),
   );
@@ -302,108 +318,41 @@ function ProfileModal({
           />
         )}
 
-        {/* Plan + visits summary */}
+        {/* Membership Status Card */}
         <div
           style={{
-            display: "flex",
-            gap: "12px",
-            marginBottom: "20px",
-            flexWrap: "wrap",
+            backgroundColor: memberStatus.bg,
+            border: `1px solid ${memberStatus.color}44`,
+            borderRadius: "10px",
+            padding: "14px 18px",
+            marginBottom: "16px",
           }}
         >
-          <div
-            style={{
-              flex: 1,
-              backgroundColor: theme.bg,
-              padding: "10px 15px",
-              borderRadius: "8px",
-              border: `1px solid ${theme.border}`,
-              minWidth: "120px",
-            }}
-          >
-            <div
-              style={{
-                fontSize: "11px",
-                color: theme.textMuted,
-                textTransform: "uppercase",
-                marginBottom: "3px",
-              }}
-            >
-              Current Plan
-            </div>
-            <strong style={{ color: theme.primary, fontSize: "14px" }}>
-              {m.plan_name || "—"}
-            </strong>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
+            <span style={{ fontSize: "11px", color: theme.textMuted, textTransform: "uppercase", fontWeight: "bold", letterSpacing: "0.5px" }}>
+              Membership Status
+            </span>
+            <span style={{ backgroundColor: memberStatus.color, color: "#fff", fontSize: "11px", fontWeight: "bold", padding: "3px 12px", borderRadius: "20px" }}>
+              {memberStatus.label}
+            </span>
           </div>
-          <div
-            style={{
-              flex: 1,
-              backgroundColor: theme.bg,
-              padding: "10px 15px",
-              borderRadius: "8px",
-              border: `1px solid ${theme.border}`,
-              minWidth: "120px",
-            }}
-          >
-            <div
-              style={{
-                fontSize: "11px",
-                color: theme.textMuted,
-                textTransform: "uppercase",
-                marginBottom: "3px",
-              }}
-            >
-              Start Date
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: "10px" }}>
+            <div>
+              <div style={{ fontSize: "10px", color: theme.textMuted, textTransform: "uppercase", marginBottom: "2px" }}>Plan</div>
+              <strong style={{ color: theme.primary, fontSize: "13px" }}>{m.plan_name || "—"}</strong>
             </div>
-            <strong style={{ fontSize: "14px" }}>
-              {m.start_date ? formatSafeDate(m.start_date) : "—"}
-            </strong>
-          </div>
-          <div
-            style={{
-              flex: 1,
-              backgroundColor: theme.bg,
-              padding: "10px 15px",
-              borderRadius: "8px",
-              border: `1px solid ${theme.border}`,
-              minWidth: "120px",
-            }}
-          >
-            <div
-              style={{
-                fontSize: "11px",
-                color: theme.textMuted,
-                textTransform: "uppercase",
-                marginBottom: "3px",
-              }}
-            >
-              Expires
+            <div>
+              <div style={{ fontSize: "10px", color: theme.textMuted, textTransform: "uppercase", marginBottom: "2px" }}>Started</div>
+              <strong style={{ fontSize: "13px", color: theme.text }}>{m.start_date ? formatSafeDate(m.start_date) : "—"}</strong>
             </div>
-            <strong style={{ fontSize: "14px" }}>
-              {m.expiration_date ? formatSafeDate(m.expiration_date) : "—"}
-            </strong>
-          </div>
-          <div
-            style={{
-              flex: 1,
-              backgroundColor: theme.bg,
-              padding: "10px 15px",
-              borderRadius: "8px",
-              border: `1px solid ${theme.border}`,
-              minWidth: "100px",
-            }}
-          >
-            <div
-              style={{
-                fontSize: "11px",
-                color: theme.textMuted,
-                textTransform: "uppercase",
-                marginBottom: "3px",
-              }}
-            >
-              Total Visits
+            <div>
+              <div style={{ fontSize: "10px", color: theme.textMuted, textTransform: "uppercase", marginBottom: "2px" }}>Expires</div>
+              <strong style={{ fontSize: "13px", color: theme.text }}>{m.expiration_date ? formatSafeDate(m.expiration_date) : "—"}</strong>
             </div>
-            <strong style={{ fontSize: "14px" }}>{totalVisits}</strong>
+            <div>
+              <div style={{ fontSize: "10px", color: theme.textMuted, textTransform: "uppercase", marginBottom: "2px" }}>Visits</div>
+              <strong style={{ fontSize: "13px", color: theme.text }}>{totalVisits}</strong>
+            </div>
           </div>
         </div>
 

@@ -226,6 +226,7 @@ function AddEditModal({
               onChange={(e) => update("name", e.target.value)}
               placeholder="First and Last Name"
               required
+              autoFocus
               style={inputStyle}
             />
           </div>
