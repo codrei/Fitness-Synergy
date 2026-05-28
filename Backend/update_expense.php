@@ -13,22 +13,29 @@ $amount       = $data['amount']       ?? 0;
 $expense_date = $data['expense_date'] ?? date('Y-m-d');
 
 if (!$expense_id || !$category || !$amount) {
+    http_response_code(400);
     echo json_encode(['success' => false, 'error' => 'Expense ID, category, and amount are required.']);
     exit;
 }
 
-$stmt = $conn->prepare("
-    UPDATE expenses
-    SET category = :category, description = :description,
-        amount = :amount, expense_date = :expense_date
-    WHERE expense_id = :expense_id
-");
-$stmt->execute([
-    ':category'     => $category,
-    ':description'  => $description,
-    ':amount'       => $amount,
-    ':expense_date' => $expense_date,
-    ':expense_id'   => $expense_id,
-]);
+try {
+    $stmt = $conn->prepare("
+        UPDATE expenses
+        SET category = :category, description = :description,
+            amount = :amount, expense_date = :expense_date
+        WHERE expense_id = :expense_id
+    ");
+    $stmt->execute([
+        ':category'     => $category,
+        ':description'  => $description,
+        ':amount'       => $amount,
+        ':expense_date' => $expense_date,
+        ':expense_id'   => $expense_id,
+    ]);
 
-echo json_encode(['success' => true]);
+    echo json_encode(['success' => true]);
+} catch (PDOException $e) {
+    error_log('[update_expense] ' . $e->getMessage());
+    http_response_code(500);
+    echo json_encode(['success' => false, 'error' => 'Failed to update expense.']);
+}

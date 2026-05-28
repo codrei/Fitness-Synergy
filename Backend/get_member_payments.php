@@ -20,7 +20,9 @@ if (isset($_GET['id'])) {
         
         echo json_encode(["success" => true, "payments" => $query->fetchAll(PDO::FETCH_ASSOC)]);
     } catch (PDOException $e) {
-        echo json_encode(["success" => false, "error" => $e->getMessage()]);
+        error_log('[get_member_payments] ' . $e->getMessage());
+        http_response_code(500);
+        echo json_encode(["success" => false, "error" => "Failed to load payment history."]);
     }
 } else {
     echo json_encode(["success" => false, "error" => "No ID provided"]);

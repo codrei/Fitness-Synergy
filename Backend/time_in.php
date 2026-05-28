@@ -20,8 +20,9 @@ if (!empty($data->member_id)) {
             echo json_encode(["success" => true, "message" => "Time in successful."]);
         }
     } catch(PDOException $e) {
+        error_log('[time_in] ' . $e->getMessage());
         http_response_code(500);
-        echo json_encode(["success" => false, "error" => $e->getMessage()]);
+        echo json_encode(["success" => false, "error" => "Failed to record time-in. Please try again."]);
     }
 } else {
     echo json_encode(["success" => false, "error" => "No member ID provided."]);

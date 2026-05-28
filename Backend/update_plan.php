@@ -24,5 +24,7 @@ try {
     ]);
     echo json_encode(["success" => true]);
 } catch (PDOException $e) {
-    echo json_encode(["success" => false, "error" => $e->getMessage()]);
+    error_log('[update_plan] ' . $e->getMessage());
+    http_response_code(500);
+    echo json_encode(["success" => false, "error" => "Failed to update plan."]);
 }

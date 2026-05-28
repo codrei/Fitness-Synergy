@@ -122,9 +122,12 @@ if (!empty($data->member_id) && !empty($data->full_name)) {
         echo json_encode(["success" => true, "message" => "Member status and customized duration updated!"]);
     } catch(PDOException $e) {
         if (isset($e->errorInfo[1]) && $e->errorInfo[1] == 1062) {
+            http_response_code(409);
             echo json_encode(["success" => false, "error" => "Contract ID matches a pre-existing record."]);
         } else {
-            echo json_encode(["success" => false, "error" => $e->getMessage()]);
+            error_log('[update_member] ' . $e->getMessage());
+            http_response_code(500);
+            echo json_encode(["success" => false, "error" => "Failed to update member. Please try again."]);
         }
     }
 } else {

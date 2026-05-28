@@ -14,8 +14,9 @@ if (isset($_GET['id'])) {
         
         echo json_encode(["success" => true, "logs" => $logs, "total" => count($logs)]);
     } catch (PDOException $e) {
+        error_log('[get_member_attendance] ' . $e->getMessage());
         http_response_code(500);
-        echo json_encode(["success" => false, "error" => $e->getMessage()]);
+        echo json_encode(["success" => false, "error" => "Failed to load attendance history."]);
     }
 } else {
     echo json_encode(["success" => false, "error" => "No member ID provided"]);

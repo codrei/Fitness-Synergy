@@ -32,5 +32,7 @@ try {
     $conn->prepare("DELETE FROM plans WHERE plan_id = :id")->execute([':id' => $id]);
     echo json_encode(["success" => true]);
 } catch (PDOException $e) {
-    echo json_encode(["success" => false, "error" => $e->getMessage()]);
+    error_log('[delete_plan] ' . $e->getMessage());
+    http_response_code(500);
+    echo json_encode(["success" => false, "error" => "Failed to delete plan."]);
 }

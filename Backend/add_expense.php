@@ -12,19 +12,26 @@ $amount       = $data['amount']       ?? 0;
 $expense_date = $data['expense_date'] ?? date('Y-m-d');
 
 if (!$category || !$amount) {
+    http_response_code(400);
     echo json_encode(['success' => false, 'error' => 'Category and amount are required.']);
     exit;
 }
 
-$stmt = $conn->prepare("
-    INSERT INTO expenses (category, description, amount, expense_date)
-    VALUES (:category, :description, :amount, :expense_date)
-");
-$stmt->execute([
-    ':category'     => $category,
-    ':description'  => $description,
-    ':amount'       => $amount,
-    ':expense_date' => $expense_date,
-]);
+try {
+    $stmt = $conn->prepare("
+        INSERT INTO expenses (category, description, amount, expense_date)
+        VALUES (:category, :description, :amount, :expense_date)
+    ");
+    $stmt->execute([
+        ':category'     => $category,
+        ':description'  => $description,
+        ':amount'       => $amount,
+        ':expense_date' => $expense_date,
+    ]);
 
-echo json_encode(['success' => true, 'expense_id' => $conn->lastInsertId()]);
+    echo json_encode(['success' => true, 'expense_id' => $conn->lastInsertId()]);
+} catch (PDOException $e) {
+    error_log('[add_expense] ' . $e->getMessage());
+    http_response_code(500);
+    echo json_encode(['success' => false, 'error' => 'Failed to add expense.']);
+}

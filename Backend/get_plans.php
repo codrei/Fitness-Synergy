@@ -10,5 +10,7 @@ try {
     $query = $conn->query("SELECT * FROM plans");
     echo json_encode($query->fetchAll(PDO::FETCH_ASSOC));
 } catch (PDOException $e) {
-    echo json_encode(["error" => $e->getMessage()]);
+    error_log('[get_plans] ' . $e->getMessage());
+    http_response_code(500);
+    echo json_encode(["error" => "Failed to load plans."]);
 }

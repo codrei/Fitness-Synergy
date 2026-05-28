@@ -16,5 +16,7 @@ try {
     $conn->prepare("DELETE FROM promos WHERE promo_id = :id")->execute([':id' => (int)$data->promo_id]);
     echo json_encode(["success" => true]);
 } catch (PDOException $e) {
-    echo json_encode(["success" => false, "error" => $e->getMessage()]);
+    error_log('[delete_promo] ' . $e->getMessage());
+    http_response_code(500);
+    echo json_encode(["success" => false, "error" => "Failed to delete promo."]);
 }

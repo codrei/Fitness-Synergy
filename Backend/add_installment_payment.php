@@ -61,5 +61,7 @@ try {
 
     echo json_encode(["success" => true, "message" => "Installment payment recorded."]);
 } catch (PDOException $e) {
-    echo json_encode(["success" => false, "error" => $e->getMessage()]);
+    error_log('[add_installment_payment] ' . $e->getMessage());
+    http_response_code(500);
+    echo json_encode(["success" => false, "error" => "Failed to record payment. Please try again."]);
 }

@@ -25,5 +25,7 @@ try {
     ]);
     echo json_encode(["success" => true, "promo_id" => $conn->lastInsertId()]);
 } catch (PDOException $e) {
-    echo json_encode(["success" => false, "error" => $e->getMessage()]);
+    error_log('[add_promo] ' . $e->getMessage());
+    http_response_code(500);
+    echo json_encode(["success" => false, "error" => "Failed to add promo."]);
 }

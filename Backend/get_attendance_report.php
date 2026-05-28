@@ -102,7 +102,8 @@ try {
         ],
     ]);
 } catch (PDOException $e) {
+    error_log('[get_attendance_report] ' . $e->getMessage());
     http_response_code(500);
-    echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+    echo json_encode(['success' => false, 'error' => 'Failed to load attendance report.']);
 }
 ?>

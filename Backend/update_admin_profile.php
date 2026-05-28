@@ -76,7 +76,8 @@ try {
     echo json_encode(["success" => true, "message" => "Profile updated successfully."]);
 
 } catch (PDOException $e) {
+    error_log('[update_admin_profile] ' . $e->getMessage());
     http_response_code(500);
-    echo json_encode(["success" => false, "error" => "Database error: " . $e->getMessage()]);
+    echo json_encode(["success" => false, "error" => "Failed to update profile. Please try again."]);
 }
 exit;
