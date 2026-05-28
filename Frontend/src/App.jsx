@@ -165,16 +165,16 @@ function App() {
 
   const theme = useMemo(
     () => ({
-      bg: isDarkMode ? "#081018" : "#f5f5f5",
-      surface: isDarkMode ? "#1e1e1e" : "#ffffff",
-      border: isDarkMode ? "#333333" : "#e0e0e0",
-      text: isDarkMode ? "#ffffff" : "#333333",
-      textMuted: isDarkMode ? "#9fb3c8" : "#666666",
-      primary: isDarkMode ? "#00bfff" : "#1565c0",
-      primaryText: isDarkMode ? "#000000" : "#ffffff",
-      danger: isDarkMode ? "#ff5252" : "#d32f2f",
-      success: isDarkMode ? "#00e676" : "#2e7d32",
-      sidebar: isDarkMode ? "#07131f" : "#102a43",
+      bg: isDarkMode ? "#091212" : "#ECF8F7",
+      surface: isDarkMode ? "#111E1E" : "#FFFFFF",
+      border: isDarkMode ? "#1C3232" : "#BFE5E3",
+      text: isDarkMode ? "#E8F8F7" : "#0B2424",
+      textMuted: isDarkMode ? "#6AABA8" : "#427A78",
+      primary: isDarkMode ? "#00CCCC" : "#009999",
+      primaryText: "#000000",
+      danger: isDarkMode ? "#FF5252" : "#C62828",
+      success: isDarkMode ? "#00E676" : "#1B6B63",
+      sidebar: isDarkMode ? "#060D0D" : "#091A1A",
     }),
     [isDarkMode],
   );
@@ -185,7 +185,7 @@ function App() {
   }, []);
 
   useEffect(() => {
-    document.body.style.backgroundColor = isDarkMode ? "#050a14" : "#dce6f0";
+    document.body.style.backgroundColor = isDarkMode ? "#060D0D" : "#D8F0EE";
   }, [isDarkMode]);
 
   const showToast = (message, type = "success") => {

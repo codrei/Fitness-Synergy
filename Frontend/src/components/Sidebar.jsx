@@ -158,9 +158,9 @@ function Sidebar({
             style={{
               width: "100%",
               padding: "10px 14px",
-              backgroundColor: "rgba(124,58,237,0.18)",
-              color: "#c4b5fd",
-              border: "1px solid rgba(124,58,237,0.35)",
+              backgroundColor: "rgba(0,204,204,0.1)",
+              color: "#00CCCC",
+              border: "1px solid rgba(0,204,204,0.3)",
               borderRadius: "8px",
               cursor: "pointer",
               fontWeight: "bold",
