@@ -5,51 +5,45 @@ function StatsCards({ stats, theme, isDarkMode }) {
 
   const cards = [
     {
-      label: "Total Clients",
-      val: s.total_clients ?? "—",
-      color: "#6366f1",
-      icon: "",
-      sub: "Members + Walk-ins",
-    },
-    {
       label: "Total Members",
       val: s.total ?? "0",
       color: "#3b82f6",
-      icon: "",
       sub: "Registered members",
     },
     {
       label: "Walk-in Guests",
       val: s.total_walkins ?? "0",
       color: "#a855f7",
-      icon: "",
       sub: "Unique guests",
     },
     {
       label: "Active",
       val: s.active ?? "0",
       color: "#22c55e",
-      icon: "",
       sub: "Valid memberships",
     },
     {
       label: "Expired",
       val: s.expired ?? "0",
       color: "#ef4444",
-      icon: "",
       sub: "Needs renewal",
     },
     {
       label: "Today's Visits",
       val: s.checkins ?? "0",
       color: "#f59e0b",
-      icon: "",
       sub: "Check-ins today",
+    },
+    {
+      label: "Expiring Soon",
+      val: s.expiring_soon?.length ?? "0",
+      color: "#f97316",
+      sub: "Within 7 days",
     },
   ];
 
   const cardBase = {
-    borderRadius: "12px",
+    borderRadius: "10px",
     overflow: "hidden",
     background: isDarkMode
       ? "rgba(15, 23, 42, 0.72)"
@@ -73,14 +67,13 @@ function StatsCards({ stats, theme, isDarkMode }) {
   };
 
   const urgencyLabel = (days) => {
-    if (days === 0) return "Expires Today!";
+    if (days === 0) return "Expires Today";
     if (days === 1) return "Tomorrow";
     return `${days} days left`;
   };
 
   return (
     <>
-      {/* Stats Cards Grid */}
       <div
         className="stats-grid"
         style={{
@@ -98,44 +91,23 @@ function StatsCards({ stats, theme, isDarkMode }) {
                 background: `linear-gradient(90deg, ${card.color}, ${card.color}55)`,
               }}
             />
-            <div style={{ padding: "16px 20px 18px" }}>
-              <div
+            <div style={{ padding: "18px 20px 20px" }}>
+              <span
                 style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
+                  fontSize: "11px",
+                  color: theme.textMuted,
+                  fontWeight: "bold",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.6px",
+                  display: "block",
                   marginBottom: "10px",
                 }}
               >
-                <span
-                  style={{
-                    fontSize: "11px",
-                    color: theme.textMuted,
-                    fontWeight: "bold",
-                    textTransform: "uppercase",
-                    letterSpacing: "0.6px",
-                  }}
-                >
-                  {card.label}
-                </span>
-                <span
-                  style={{
-                    width: "32px",
-                    height: "32px",
-                    borderRadius: "8px",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontSize: "16px",
-                    backgroundColor: `${card.color}22`,
-                  }}
-                >
-                  {card.icon}
-                </span>
-              </div>
+                {card.label}
+              </span>
               <div
                 style={{
-                  fontSize: "34px",
+                  fontSize: "36px",
                   fontWeight: "900",
                   color: card.color,
                   lineHeight: 1,
@@ -158,11 +130,10 @@ function StatsCards({ stats, theme, isDarkMode }) {
         ))}
       </div>
 
-      {/* Expiry Notifications Panel */}
       {expiringMembers.length > 0 && (
         <div
           style={{
-            borderRadius: "12px",
+            borderRadius: "10px",
             overflow: "hidden",
             background: isDarkMode
               ? "rgba(15,23,42,0.72)"
@@ -175,7 +146,6 @@ function StatsCards({ stats, theme, isDarkMode }) {
             marginBottom: "20px",
           }}
         >
-          {/* Header */}
           <div
             style={{
               height: "3px",
@@ -191,22 +161,12 @@ function StatsCards({ stats, theme, isDarkMode }) {
               borderBottom: `1px solid ${theme.border}`,
             }}
           >
-            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              <div>
-                <div
-                  style={{
-                    fontWeight: "bold",
-                    fontSize: 14,
-                    color: theme.text,
-                  }}
-                >
-                  Membership Expiry Alert
-                </div>
-                <div style={{ fontSize: 11, color: theme.textMuted }}>
-                  {expiringMembers.length} member
-                  {expiringMembers.length !== 1 ? "s" : ""} expiring within 7
-                  days
-                </div>
+            <div>
+              <div style={{ fontWeight: "bold", fontSize: 14, color: theme.text }}>
+                Membership Expiry Alert
+              </div>
+              <div style={{ fontSize: 11, color: theme.textMuted }}>
+                {expiringMembers.length} member{expiringMembers.length !== 1 ? "s" : ""} expiring within 7 days
               </div>
             </div>
             <span
@@ -223,7 +183,6 @@ function StatsCards({ stats, theme, isDarkMode }) {
             </span>
           </div>
 
-          {/* Member List */}
           <div
             style={{
               padding: "12px 20px",
@@ -235,6 +194,7 @@ function StatsCards({ stats, theme, isDarkMode }) {
             {expiringMembers.map((m, i) => {
               const days = parseInt(m.days_left);
               const color = urgencyColor(days);
+              const initial = m.full_name?.charAt(0)?.toUpperCase() || "?";
               return (
                 <div
                   key={i}
@@ -248,37 +208,32 @@ function StatsCards({ stats, theme, isDarkMode }) {
                     border: `1px solid ${color}33`,
                   }}
                 >
-                  <div
-                    style={{ display: "flex", alignItems: "center", gap: 10 }}
-                  >
+                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                     <div
                       style={{
                         width: 36,
                         height: 36,
                         borderRadius: "50%",
                         background: `${color}22`,
+                        border: `1px solid ${color}44`,
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
-                        fontSize: 16,
+                        fontSize: 14,
+                        fontWeight: "bold",
+                        color: color,
+                        flexShrink: 0,
                       }}
                     >
+                      {initial}
                     </div>
                     <div>
-                      <div
-                        style={{
-                          fontWeight: "bold",
-                          fontSize: 14,
-                          color: theme.text,
-                        }}
-                      >
+                      <div style={{ fontWeight: "bold", fontSize: 14, color: theme.text }}>
                         {m.full_name}
                       </div>
                       <div style={{ fontSize: 11, color: theme.textMuted }}>
                         Expires:{" "}
-                        {new Date(
-                          m.expiration_date + "T00:00:00",
-                        ).toLocaleDateString("en-PH", {
+                        {new Date(m.expiration_date + "T00:00:00").toLocaleDateString("en-PH", {
                           month: "long",
                           day: "numeric",
                           year: "numeric",

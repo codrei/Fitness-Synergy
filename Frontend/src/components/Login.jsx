@@ -2,30 +2,43 @@ import React, { useState, useEffect } from "react";
 import bg1 from "../assets/logBG1.png";
 import bg2 from "../assets/logBG2.png";
 
-// FIXED: Properly destructure all props within a single object parameter
-function Login({
-  theme,
-  loginUser,
-  setLoginUser,
-  loginPass,
-  setLoginPass,
-  loginError,
-  handleLogin,
-}) {
-  // ==================== BACKGROUND TIMER LOGIC ====================
+const EyeIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+    <circle cx="12" cy="12" r="3" />
+  </svg>
+);
+
+const EyeOffIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+    <line x1="1" y1="1" x2="23" y2="23" />
+  </svg>
+);
+
+function Login({ theme, loginUser, setLoginUser, loginPass, setLoginPass, loginError, handleLogin }) {
   const backgrounds = [bg1, bg2];
   const [currentIndex, setCurrentIndex] = useState(0);
-
-  // 1. ADDED PASSWORD VISIBILITY TOGGLE STATE HERE
   const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentIndex((prevIndex) => (prevIndex + 1) % backgrounds.length);
+      setCurrentIndex((prev) => (prev + 1) % backgrounds.length);
     }, 6000);
-
     return () => clearInterval(interval);
   }, []);
+
+  const inputStyle = {
+    padding: "14px",
+    borderRadius: "6px",
+    border: `1px solid ${theme.border}`,
+    backgroundColor: theme.bg,
+    color: theme.text,
+    fontSize: "16px",
+    outline: "none",
+    width: "100%",
+    boxSizing: "border-box",
+  };
 
   return (
     <div
@@ -57,6 +70,7 @@ function Login({
           }}
         />
       ))}
+
       <div
         style={{
           backgroundColor: theme.surface,
@@ -114,7 +128,6 @@ function Login({
           onSubmit={handleLogin}
           style={{ display: "flex", flexDirection: "column", gap: "15px" }}
         >
-          {/* USERNAME INPUT (Fixed: Added id, name, and autoComplete) */}
           <input
             type="text"
             id="username"
@@ -124,25 +137,10 @@ function Login({
             required
             value={loginUser}
             onChange={(e) => setLoginUser(e.target.value)}
-            style={{
-              padding: "14px",
-              borderRadius: "4px",
-              border: `1px solid ${theme.border}`,
-              backgroundColor: "#e0e0e0",
-              color: "#111111",
-              fontSize: "16px",
-              outline: "none",
-            }}
+            style={inputStyle}
           />
 
-          <div
-            style={{
-              position: "relative",
-              display: "flex",
-              alignItems: "center",
-            }}
-          >
-            {/* PASSWORD INPUT (Fixed: Added id, name, and autoComplete) */}
+          <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
             <input
               type={showPassword ? "text" : "password"}
               id="password"
@@ -152,49 +150,31 @@ function Login({
               required
               value={loginPass}
               onChange={(e) => setLoginPass(e.target.value)}
-              style={{
-                padding: "14px 50px 14px 14px",
-                borderRadius: "4px",
-                border: `1px solid ${theme.border}`,
-                backgroundColor: "#e0e0e0",
-                color: "#111111",
-                fontSize: "16px",
-                width: "100%",
-                boxSizing: "border-box",
-                outline: "none",
-              }}
+              style={{ ...inputStyle, paddingRight: "48px" }}
             />
-            <span
+            <button
+              type="button"
               onClick={() => setShowPassword(!showPassword)}
               style={{
                 position: "absolute",
-                right: "14px",
+                right: "12px",
+                background: "none",
+                border: "none",
                 cursor: "pointer",
+                padding: "4px",
                 display: "flex",
                 alignItems: "center",
-                userSelect: "none",
-                opacity: showPassword ? 1 : 0.5,
-                transition: "opacity 0.2s ease",
+                color: showPassword ? theme.primary : theme.textMuted,
+                transition: "color 0.2s ease",
               }}
+              title={showPassword ? "Hide password" : "Show password"}
             >
-              <svg width="26" height="16" viewBox="0 0 24 12" fill="#111111">
-                <rect x="1" y="2" width="2" height="8" rx="0.5" />
-                <rect x="4" y="0" width="2" height="12" rx="0.5" />
-                <rect x="6" y="4.5" width="12" height="3" />
-                <rect x="18" y="0" width="2" height="12" rx="0.5" />
-                <rect x="21" y="2" width="2" height="8" rx="0.5" />
-              </svg>
-            </span>
+              {showPassword ? <EyeOffIcon /> : <EyeIcon />}
+            </button>
           </div>
 
           {loginError && (
-            <div
-              style={{
-                color: theme.danger,
-                fontSize: "14px",
-                marginTop: "-5px",
-              }}
-            >
+            <div style={{ color: theme.danger, fontSize: "14px", marginTop: "-5px" }}>
               {loginError}
             </div>
           )}
@@ -202,12 +182,12 @@ function Login({
           <button
             type="submit"
             style={{
-              boxShadow: "0 0 20px rgba(84, 202, 241, 0.25)",
+              boxShadow: "0 0 20px rgba(84,202,241,0.25)",
               padding: "14px",
               backgroundColor: theme.primary,
               color: theme.primaryText,
               border: "none",
-              borderRadius: "4px",
+              borderRadius: "6px",
               cursor: "pointer",
               fontSize: "16px",
               fontWeight: "bold",
