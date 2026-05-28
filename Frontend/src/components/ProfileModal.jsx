@@ -353,6 +353,30 @@ function ProfileModal({
                 marginBottom: "3px",
               }}
             >
+              Start Date
+            </div>
+            <strong style={{ fontSize: "14px" }}>
+              {m.start_date ? formatSafeDate(m.start_date) : "—"}
+            </strong>
+          </div>
+          <div
+            style={{
+              flex: 1,
+              backgroundColor: theme.bg,
+              padding: "10px 15px",
+              borderRadius: "8px",
+              border: `1px solid ${theme.border}`,
+              minWidth: "120px",
+            }}
+          >
+            <div
+              style={{
+                fontSize: "11px",
+                color: theme.textMuted,
+                textTransform: "uppercase",
+                marginBottom: "3px",
+              }}
+            >
               Expires
             </div>
             <strong style={{ fontSize: "14px" }}>

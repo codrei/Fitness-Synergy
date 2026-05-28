@@ -113,10 +113,10 @@ if (!empty($data->full_name)) {
         $paymentQuery = $conn->prepare("
             INSERT INTO payments
                 (member_id, customer_type, amount, payment_date, plan_id,
-                 payment_method, reference_number)
+                 payment_method, reference_number, bonus_days)
             VALUES
                 (:member_id, 'Member', :amount, CURRENT_DATE(), :plan_id,
-                 :payment_method, :reference)
+                 :payment_method, :reference, :bonus_days)
         ");
         $paymentQuery->execute([
             ':member_id'      => $new_member_id,
@@ -124,6 +124,7 @@ if (!empty($data->full_name)) {
             ':plan_id'        => $plan_id,
             ':payment_method' => $payment_method,
             ':reference'      => $reference_number,
+            ':bonus_days'     => $bonus_days,
         ]);
         }
 

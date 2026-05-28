@@ -553,6 +553,24 @@ function App() {
       ? `<tr><td>${payment.payment_method}</td><td>₱${parseFloat(payment.amount).toLocaleString("en-PH", { minimumFractionDigits: 2 })}</td></tr>`
       : "";
 
+    const bonusDays = parseInt(payment.bonus_days || 0, 10);
+    const bonusRow = bonusDays > 0
+      ? `<tr><td>Bonus Days</td><td>+${bonusDays} day${bonusDays > 1 ? "s" : ""} (FREE)</td></tr>`
+      : "";
+
+    const requiresSignature = ["Bank Transfer", "Credit Card", "Debit Card"].includes(payment.payment_method);
+    const signatureBlock = requiresSignature
+      ? `<hr>
+         <div style="font-size:11px;margin-top:6px">
+           <strong>SIGNATURE REQUIRED</strong><br>
+           By signing below, the client confirms this ${payment.payment_method} transaction.<br><br>
+           <div style="border-bottom:1px solid #000;margin-top:28px;width:100%"></div>
+           <div style="display:flex;justify-content:space-between;font-size:10px;margin-top:3px">
+             <span>Client Signature</span><span>Date</span>
+           </div>
+         </div>`
+      : "";
+
     const printedAt = new Date();
     const html = `<!DOCTYPE html><html><head><title>Receipt</title>
     <style>
@@ -576,6 +594,7 @@ function App() {
       <tr><td>Member</td><td>${member.full_name}</td></tr>
       ${member.address ? `<tr><td>Address</td><td style="text-align:right;max-width:160px;word-break:break-word">${member.address}</td></tr>` : ""}
       <tr><td>Plan</td><td>${payment.plan_name || member.plan_name || "—"}</td></tr>
+      ${bonusRow}
       ${member.discount_type && member.discount_type !== "None" ? `<tr><td>Discount</td><td>${member.discount_type}</td></tr>` : ""}
     </table>
     <hr>
@@ -583,6 +602,7 @@ function App() {
     <hr>
     <table><tr class="total"><td>TOTAL PAID</td><td>₱${parseFloat(payment.amount).toLocaleString("en-PH", { minimumFractionDigits: 2 })}</td></tr></table>
     ${payment.reference_number ? `<hr><div style="font-size:11px">Ref #: ${payment.reference_number}</div>` : ""}
+    ${signatureBlock}
     <div class="footer">Thank you for choosing Fitness Synergy Lipa!<br>Keep this receipt for your records.</div>
     </body></html>`;
 

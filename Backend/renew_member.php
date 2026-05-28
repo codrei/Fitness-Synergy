@@ -78,16 +78,17 @@ try {
     $conn->prepare("
         INSERT INTO payments
             (member_id, customer_type, amount, payment_date, plan_id,
-             payment_method, reference_number)
+             payment_method, reference_number, bonus_days)
         VALUES
             (:member_id, 'Member', :amount, CURRENT_DATE(), :plan_id,
-             :payment_method, :reference)
+             :payment_method, :reference, :bonus_days)
     ")->execute([
         ':member_id'      => $data->member_id,
         ':amount'         => ($is_installment && $payment_amount !== null) ? $payment_amount : $custom_price,
         ':plan_id'        => $plan_id,
         ':payment_method' => $payment_method,
         ':reference'      => $reference_number,
+        ':bonus_days'     => $bonus_days,
     ]);
 
     $conn->commit();
