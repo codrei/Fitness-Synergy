@@ -22,6 +22,18 @@ try {
     ")->fetchColumn();
     $stats['total_clients'] = $stats['total'] + $stats['total_walkins'];
 
+    // Members expiring in the next 7 days
+    $expiringStmt = $conn->query("
+        SELECT member_id, full_name, expiration_date, plan_id,
+            DATEDIFF(expiration_date, CURRENT_DATE()) as days_left
+        FROM members
+        WHERE expiration_date >= CURRENT_DATE()
+        AND expiration_date <= DATE_ADD(CURRENT_DATE(), INTERVAL 7 DAY)
+        ORDER BY expiration_date ASC
+    ");
+    $stats['expiring_soon'] = $expiringStmt->fetchAll(PDO::FETCH_ASSOC);
+    $stats['expiring_count'] = count($stats['expiring_soon']);
+
     echo json_encode($stats);
 } catch(PDOException $e) {
     http_response_code(500);

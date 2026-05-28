@@ -1,5 +1,12 @@
 <?php
+// auth_check.php
+
 function requireAuth() {
+    // 🔐 CORS PREFLIGHT BYPASS: Allow layout validations to pass through without token screening
+    if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+        return; 
+    }
+
     global $conn;
 
     // Compatible header extraction for Apache, Nginx, and LiteSpeed
@@ -30,6 +37,7 @@ function requireAuth() {
     }
 
     try {
+        // Notice: This matches the PDO connection setup configured in this file
         $stmt = $conn->prepare("SELECT admin_id FROM sessions WHERE session_token = :token AND expires_at > NOW()");
         $stmt->execute([':token' => $token]);
         $session = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -40,6 +48,10 @@ function requireAuth() {
             echo json_encode(["success" => false, "error" => "Session expired. Please log in again."]);
             exit();
         }
+        
+        // Return the active session metadata down to the caller file context script
+        return $session;
+
     } catch (PDOException $e) {
         header("Content-Type: application/json");
         http_response_code(500);
@@ -47,3 +59,4 @@ function requireAuth() {
         exit();
     }
 }
+?>

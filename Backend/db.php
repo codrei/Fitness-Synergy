@@ -1,4 +1,6 @@
 <?php
+// db.php
+
 date_default_timezone_set('Asia/Manila');
 
 $envFile = __DIR__ . '/.env';
@@ -25,14 +27,26 @@ $dbname   = $env['DB_NAME'] ?? '';
 $username = $env['DB_USER'] ?? '';
 $password = $env['DB_PASS'] ?? '';
 
+if (empty($host) || empty($dbname) || empty($username)) {
+    header("Content-Type: application/json; charset=UTF-8");
+    http_response_code(500);
+    echo json_encode([
+        "success" => false,
+        "error"   => "Server misconfiguration: missing DB credentials in .env.",
+        "_debug"  => compact('host', 'dbname', 'username')
+    ]);
+    exit;
+}
+
 try {
     $conn = new PDO(
         "mysql:host=$host;dbname=$dbname;charset=utf8mb4",
         $username,
         $password,
         [
-            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-            PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8mb4, time_zone = '+08:00'"
+        PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+        PDO::ATTR_TIMEOUT            => 5,   
+        PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8mb4, time_zone = '+08:00'"
         ]
     );
 } catch (PDOException $e) {
@@ -40,7 +54,7 @@ try {
     http_response_code(500);
     echo json_encode([
         "success" => false,
-        "error" => "Database connection failed: " . $e->getMessage()
+        "error"   => "Database connection failed: " . $e->getMessage()
     ]);
-    exit();
+    exit;
 }
