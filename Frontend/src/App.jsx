@@ -17,6 +17,7 @@ const PlansManager       = lazy(() => import("./components/PlansManager"));
 const PromosManager      = lazy(() => import("./components/PromosManager"));
 const ExpensesManager    = lazy(() => import("./components/ExpensesManager"));
 const ActivityLogView    = lazy(() => import("./views/ActivityLogView"));
+const ExpiringMembersView = lazy(() => import("./views/ExpiringMembersView"));
 
 // Modals
 import AddEditModal from "./components/AddEditModal";
@@ -538,6 +539,7 @@ function App() {
         }}
         setShowTdeeModal={setShowTdeeModal}
         openAdminModal={() => setShowAdminSettingsModal(true)}
+        expiringUrgentCount={stats?.expiring_urgent_count || 0}
       />
 
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
@@ -650,6 +652,17 @@ function App() {
             <Route path="/promos" element={<PromosManager theme={theme} />} />
             <Route path="/expenses" element={<ExpensesManager theme={theme} />} />
             <Route path="/activity-log" element={<ActivityLogView theme={theme} />} />
+            <Route
+              path="/expiring"
+              element={
+                <ExpiringMembersView
+                  theme={theme}
+                  startRenewal={startRenewal}
+                  showToast={showToast}
+                  fetchData={fetchData}
+                />
+              }
+            />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Suspense>

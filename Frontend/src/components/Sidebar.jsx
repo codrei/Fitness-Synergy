@@ -11,6 +11,7 @@ function Sidebar({
   openWalkInModal,
   setShowTdeeModal,
   openAdminModal,
+  expiringUrgentCount = 0,
 }) {
   const navigate = useNavigate();
   const pathname = useLocation().pathname;
@@ -327,6 +328,38 @@ function Sidebar({
 
         <button onClick={go("/expenses")} style={navBtn("/expenses")}>
           Expenses
+        </button>
+
+        <button
+          onClick={go("/expiring")}
+          style={{
+            ...navBtn("/expiring"),
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          <span>Expiring Soon</span>
+          {expiringUrgentCount > 0 && (
+            <span
+              aria-label={`${expiringUrgentCount} urgent`}
+              style={{
+                minWidth: 22,
+                height: 22,
+                padding: "0 7px",
+                background: "#EF4444",
+                color: "white",
+                borderRadius: 999,
+                fontSize: 11,
+                fontWeight: 700,
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              {expiringUrgentCount}
+            </span>
+          )}
         </button>
 
         <button onClick={go("/activity-log")} style={navBtn("/activity-log")}>

@@ -1,6 +1,7 @@
 import StatsCards from "../components/StatsCards";
 import MembersTable from "../components/MembersTable";
 import LiveFeed from "../components/LiveFeed";
+import ExpiringBanner from "../components/ExpiringBanner";
 
 function DashboardView({
   theme,
@@ -84,6 +85,8 @@ function DashboardView({
           </span>
         </div>
       </header>
+
+      <ExpiringBanner theme={theme} expiringSoon={stats?.expiring_soon} />
 
       <div style={{ display: "flex", gap: "20px", alignItems: "flex-start" }}>
         <div

@@ -22,10 +22,11 @@ try {
     ")->fetchColumn();
     $stats['total_clients'] = $stats['total'] + $stats['total_walkins'];
 
-    // Members expiring in the next 7 days
+    // Members expiring in the next 7 days (includes contact-outreach state for the banner).
     $expiringStmt = $conn->query("
         SELECT member_id, full_name, expiration_date, plan_id,
-            DATEDIFF(expiration_date, CURRENT_DATE()) as days_left
+               renewal_contacted_at,
+               DATEDIFF(expiration_date, CURRENT_DATE()) as days_left
         FROM members
         WHERE expiration_date >= CURRENT_DATE()
         AND expiration_date <= DATE_ADD(CURRENT_DATE(), INTERVAL 7 DAY)
@@ -33,6 +34,18 @@ try {
     ");
     $stats['expiring_soon'] = $expiringStmt->fetchAll(PDO::FETCH_ASSOC);
     $stats['expiring_count'] = count($stats['expiring_soon']);
+
+    // Urgent-only count for the dashboard banner: expires today or tomorrow,
+    // AND hasn't been contacted in the last 14 days.
+    $urgentStmt = $conn->query("
+        SELECT COUNT(*) FROM members
+        WHERE expiration_date IS NOT NULL
+          AND expiration_date >= CURRENT_DATE()
+          AND expiration_date <= DATE_ADD(CURRENT_DATE(), INTERVAL 1 DAY)
+          AND (renewal_contacted_at IS NULL
+               OR renewal_contacted_at < DATE_SUB(NOW(), INTERVAL 14 DAY))
+    ");
+    $stats['expiring_urgent_count'] = (int) $urgentStmt->fetchColumn();
 
     echo json_encode($stats);
 } catch(PDOException $e) {
