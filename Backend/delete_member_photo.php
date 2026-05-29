@@ -19,10 +19,17 @@ try {
     $stmt->execute([':id' => $member_id]);
     $photoUrl = $stmt->fetchColumn();
 
+    // Path-traversal hardening: even though photo_url is written only by
+    // upload_member_photo.php with a sanitized filename, never trust DB data
+    // when it's about to feed unlink(). Refuse to delete anything that
+    // doesn't resolve to a file inside uploads/members/.
     if ($photoUrl) {
-        $filePath = __DIR__ . '/' . $photoUrl;
-        if (file_exists($filePath)) {
-            unlink($filePath);
+        $uploadDir = __DIR__ . '/uploads/members/';
+        $fullPath  = __DIR__ . '/' . $photoUrl;
+        $realFile  = realpath($fullPath);
+        $realDir   = realpath($uploadDir);
+        if ($realFile && $realDir && strpos($realFile, $realDir) === 0 && is_file($realFile)) {
+            @unlink($realFile);
         }
     }
 

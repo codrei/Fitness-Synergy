@@ -41,7 +41,16 @@ try {
         "INSERT INTO login_attempts (ip_address, success) VALUES (:ip, :ok)"
     );
 
-    if ($admin && password_verify($passIn, $admin['password'])) {
+    // Timing-attack mitigation: run password_verify against a dummy bcrypt hash
+    // when no matching admin is found, so response time is the same as a real
+    // wrong-password verification (~100ms bcrypt cost). Without this, attackers
+    // can enumerate valid usernames by measuring response time.
+    $DUMMY_HASH = '$2y$10$abcdefghijklmnopqrstuuJ8nM8.5gXhqKZSrM3RoEugb1nXTbsCMy';
+    $passwordValid = $admin
+        ? password_verify($passIn, $admin['password'])
+        : (password_verify($passIn, $DUMMY_HASH) && false);
+
+    if ($admin && $passwordValid) {
         $recordAttempt->execute([':ip' => $ip, ':ok' => 1]);
 
         // Clean up this admin's expired sessions before issuing a new one

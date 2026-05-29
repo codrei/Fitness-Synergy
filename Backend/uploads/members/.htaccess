@@ -1,0 +1,20 @@
+# Defense-in-depth for the user-uploaded photo directory.
+# Even though upload_member_photo.php validates MIME type via finfo and
+# refuses non-image content, a polyglot file (valid image with code appended)
+# could be uploaded. These rules ensure such files can never be executed
+# even if they somehow slip past the validator.
+
+# Block execution of any script type the hosting stack might recognize.
+<FilesMatch "\.(php|phtml|phar|pl|py|jsp|asp|aspx|sh|cgi|rb|exe)$">
+    Require all denied
+</FilesMatch>
+
+# Prevent the browser from MIME-sniffing content out of declared image type
+# (e.g. interpreting a doctored image as HTML and running embedded JS).
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set Content-Disposition "inline"
+</IfModule>
+
+# Disable any handler the server might map by default for .php / etc.
+RemoveHandler .php .phtml .phar .pl .py .jsp .asp .cgi .rb
