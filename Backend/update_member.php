@@ -39,7 +39,9 @@ if (!empty($data->member_id) && !empty($data->full_name)) {
         
         // PROMO FLEXIBILITY: Read manual changes from the form edit submission
         $bonus_days   = !empty($data->bonus_days) ? (int)$data->bonus_days : 0;
-        $custom_price = !empty($data->custom_price) ? (float)$data->custom_price : null;
+        // isset/!=='' (NOT !empty) so a free price of 0 would be honored if this is ever
+        // wired to a payment record. Currently unused by the UPDATE below.
+        $custom_price = isset($data->custom_price) && $data->custom_price !== '' ? (float)$data->custom_price : null;
 
         // Pull current expiration benchmarks
         $mStmt = $conn->prepare("SELECT plan_id, start_date, expiration_date FROM members WHERE member_id = :id");

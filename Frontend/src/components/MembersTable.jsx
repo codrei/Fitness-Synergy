@@ -30,7 +30,7 @@ function MembersTable({
   const [currentPage, setCurrentPage] = useState(1);
   const [statusFilter, setStatusFilter] = useState("all");
   const [openDropdown, setOpenDropdown] = useState(null);
-  const [attrFilters, setAttrFilters] = useState({ gender: null, planDuration: null, discount: null });
+  const [attrFilters, setAttrFilters] = useState({ gender: null, planId: null, discount: null });
 
   useEffect(() => {
     if (externalStatusFilter) {
@@ -51,7 +51,7 @@ function MembersTable({
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [filteredMembers.length, searchQuery, statusFilter, attrFilters.gender, attrFilters.planDuration, attrFilters.discount]);
+  }, [filteredMembers.length, searchQuery, statusFilter, attrFilters.gender, attrFilters.planId, attrFilters.discount]);
 
   // Filter counts for tabs
   const counts = {
@@ -85,24 +85,23 @@ function MembersTable({
   const attrCounts = {
     male: displayMembers.filter((m) => (m.gender || "").toLowerCase() === "male").length,
     female: displayMembers.filter((m) => (m.gender || "").toLowerCase() === "female").length,
-    threeMonths: displayMembers.filter((m) => {
-      const plan = plans.find((p) => String(p.plan_id) === String(m.plan_id));
-      const days = plan ? parseInt(plan.duration_days) : 0;
-      return days >= 80 && days <= 100;
-    }).length,
     discounted: displayMembers.filter(
       (m) => m.discount_type && m.discount_type !== "None",
     ).length,
   };
 
+  // Plans available for the filter dropdown — every membership plan we offer
+  // (excludes the Walk-in / Daily plan, which isn't assigned to members).
+  const filterablePlans = plans
+    .filter((p) => String(p.plan_id) !== "1")
+    .sort((a, b) => parseInt(a.duration_days || 0) - parseInt(b.duration_days || 0));
+
   // Apply attribute filters on top of status filter
   const attrFiltered = displayMembers.filter((m) => {
     if (attrFilters.gender && (m.gender || "").toLowerCase() !== attrFilters.gender.toLowerCase())
       return false;
-    if (attrFilters.planDuration === "3months") {
-      const plan = plans.find((p) => String(p.plan_id) === String(m.plan_id));
-      const days = plan ? parseInt(plan.duration_days) : 0;
-      if (days < 80 || days > 100) return false;
+    if (attrFilters.planId && String(m.plan_id) !== String(attrFilters.planId)) {
+      return false;
     }
     if (attrFilters.discount === "discounted") {
       if (!m.discount_type || m.discount_type === "None") return false;
@@ -254,12 +253,15 @@ function MembersTable({
 
           <div style={{ width: "1px", height: "14px", backgroundColor: theme.border, margin: "0 2px", flexShrink: 0 }} />
 
-          {/* 3-Month Plan chip */}
+          {/* Plan filter — lists every membership plan we offer */}
           {(() => {
-            const active = attrFilters.planDuration === "3months";
+            const active = !!attrFilters.planId;
             return (
-              <button
-                onClick={() => toggleAttr("planDuration", "3months")}
+              <select
+                value={attrFilters.planId || ""}
+                onChange={(e) =>
+                  setAttrFilters((f) => ({ ...f, planId: e.target.value || null }))
+                }
                 style={{
                   padding: "3px 10px",
                   borderRadius: "20px",
@@ -269,12 +271,17 @@ function MembersTable({
                   cursor: "pointer",
                   fontSize: "11px",
                   fontWeight: active ? "bold" : "normal",
-                  transition: "all 0.15s ease",
+                  outline: "none",
+                  maxWidth: "190px",
                 }}
               >
-                3-Month Plan{" "}
-                <span style={{ opacity: 0.75 }}>{attrCounts.threeMonths}</span>
-              </button>
+                <option value="">All Plans</option>
+                {filterablePlans.map((p) => (
+                  <option key={p.plan_id} value={p.plan_id}>
+                    {p.plan_name}
+                  </option>
+                ))}
+              </select>
             );
           })()}
 
@@ -307,7 +314,7 @@ function MembersTable({
           {/* Clear attr filters */}
           {hasAttrFilter && (
             <button
-              onClick={() => setAttrFilters({ gender: null, planDuration: null, discount: null })}
+              onClick={() => setAttrFilters({ gender: null, planId: null, discount: null })}
               style={{
                 marginLeft: "auto",
                 padding: "3px 10px",

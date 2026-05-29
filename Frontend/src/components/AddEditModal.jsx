@@ -24,6 +24,33 @@ function AddEditModal({
   const update = (field, value) =>
     setMemberForm((f) => ({ ...f, [field]: value }));
 
+  // Date of birth is the single source of truth; age is derived from it so the
+  // two can never disagree. Birth date is capped at today (no future dates).
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const computeAge = (dob) => {
+    if (!dob) return null;
+    const birth = new Date(dob + "T00:00:00");
+    if (isNaN(birth.getTime())) return null;
+    const now = new Date();
+    let age = now.getFullYear() - birth.getFullYear();
+    const mo = now.getMonth() - birth.getMonth();
+    if (mo < 0 || (mo === 0 && now.getDate() < birth.getDate())) age--;
+    return age;
+  };
+  const handleDobChange = (dob) => {
+    const a = computeAge(dob);
+    const validAge = typeof a === "number" && a >= 0 && a <= 120 ? String(a) : "";
+    setMemberForm((f) => ({ ...f, dob, age: validAge }));
+  };
+  const dobError = (() => {
+    if (!memberForm.dob) return "";
+    const a = computeAge(memberForm.dob);
+    if (a === null) return "Enter a valid date.";
+    if (a < 0) return "Birth date cannot be in the future.";
+    if (a > 120) return "Please double-check the birth date — age exceeds 120.";
+    return "";
+  })();
+
   const onSubmit = async (e) => {
     setSubmitting(true);
     const force = forceRef.current;
@@ -236,42 +263,66 @@ function AddEditModal({
             />
           </div>
 
+          <div>
+            <label style={labelStyle}>Contact Number <Req /></label>
+            <input
+              type="tel"
+              inputMode="numeric"
+              pattern={PHONE_PATTERN_STR}
+              maxLength={11}
+              required={!editingId}
+              title="Must be exactly 11 digits starting with 09"
+              value={memberForm.contactNumber}
+              onChange={(e) =>
+                update("contactNumber", sanitizePhoneInput(e.target.value))
+              }
+              placeholder="09171234567"
+              style={inputStyle}
+            />
+            {memberForm.contactNumber &&
+              !isValidPhilippinePhone(memberForm.contactNumber) && (
+                <div style={{ fontSize: 11, color: theme.danger, marginTop: 4 }}>
+                  Must be 11 digits starting with 09
+                </div>
+              )}
+          </div>
+
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px" }}>
             <div>
-              <label style={labelStyle}>Contact Number <Req /></label>
+              <label style={labelStyle}>Date of Birth <Req /></label>
               <input
-                type="tel"
-                inputMode="numeric"
-                pattern={PHONE_PATTERN_STR}
-                maxLength={11}
+                type="date"
+                max={todayStr}
                 required={!editingId}
-                title="Must be exactly 11 digits starting with 09"
-                value={memberForm.contactNumber}
-                onChange={(e) =>
-                  update("contactNumber", sanitizePhoneInput(e.target.value))
-                }
-                placeholder="09171234567"
+                value={memberForm.dob}
+                onChange={(e) => handleDobChange(e.target.value)}
                 style={inputStyle}
               />
-              {memberForm.contactNumber &&
-                !isValidPhilippinePhone(memberForm.contactNumber) && (
-                  <div style={{ fontSize: 11, color: theme.danger, marginTop: 4 }}>
-                    Must be 11 digits starting with 09
-                  </div>
-                )}
+              {dobError && (
+                <div style={{ fontSize: 11, color: theme.danger, marginTop: 4 }}>
+                  {dobError}
+                </div>
+              )}
             </div>
             <div>
-              <label style={labelStyle}>Age <Req /></label>
+              <label style={labelStyle}>Age</label>
               <input
                 type="number"
-                min="1"
-                max="120"
-                required={!editingId}
                 value={memberForm.age}
-                onChange={(e) => update("age", e.target.value)}
-                placeholder="e.g., 25"
-                style={inputStyle}
+                readOnly
+                tabIndex={-1}
+                placeholder="—"
+                title="Automatically calculated from date of birth"
+                style={{
+                  ...inputStyle,
+                  opacity: 0.75,
+                  cursor: "not-allowed",
+                  backgroundColor: theme.surface,
+                }}
               />
+              <div style={{ fontSize: 10, color: theme.textMuted, marginTop: 4 }}>
+                Auto-calculated from birth date
+              </div>
             </div>
           </div>
 
@@ -452,16 +503,6 @@ function AddEditModal({
 
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px" }}>
                 <div>
-                  <label style={labelStyle}>Date of Birth <Req /></label>
-                  <input
-                    type="date"
-                    value={memberForm.dob}
-                    onChange={(e) => update("dob", e.target.value)}
-                    required={isLongTermPlan}
-                    style={inputStyle}
-                  />
-                </div>
-                <div>
                   <label style={labelStyle}>Gender <Req /></label>
                   <select
                     value={memberForm.gender}
@@ -475,17 +516,16 @@ function AddEditModal({
                     <option value="Other">Other</option>
                   </select>
                 </div>
-              </div>
-
-              <div>
-                <label style={labelStyle}>Occupation</label>
-                <input
-                  type="text"
-                  value={memberForm.occupation}
-                  onChange={(e) => update("occupation", e.target.value)}
-                  placeholder="Profession"
-                  style={inputStyle}
-                />
+                <div>
+                  <label style={labelStyle}>Occupation</label>
+                  <input
+                    type="text"
+                    value={memberForm.occupation}
+                    onChange={(e) => update("occupation", e.target.value)}
+                    placeholder="Profession"
+                    style={inputStyle}
+                  />
+                </div>
               </div>
 
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px" }}>

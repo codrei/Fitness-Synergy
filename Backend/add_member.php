@@ -59,6 +59,14 @@ if ($age === null || $age < 1 || $age > 120) {
     ]);
     exit;
 }
+if ($dob !== null && strtotime($dob) > strtotime(date('Y-m-d'))) {
+    http_response_code(422);
+    echo json_encode([
+        "success" => false,
+        "error"   => "Date of birth cannot be in the future.",
+    ]);
+    exit;
+}
 
 try {
     // ── 3. Duplicate-member check ──

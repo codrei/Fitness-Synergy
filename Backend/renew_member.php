@@ -15,8 +15,11 @@ if (empty($data->member_id) || empty($data->plan_id)) {
 
 try {
     $plan_id      = (int)$data->plan_id;
-    $bonus_days   = !empty($data->bonus_days)   ? (int)$data->bonus_days   : 0;
-    $custom_price = !empty($data->custom_price) ? (float)$data->custom_price : null;
+    $bonus_days   = !empty($data->bonus_days) ? (int)$data->bonus_days : 0;
+    // Use isset/!=='' (NOT !empty) so a FREE price of 0 is honored. With !empty,
+    // a ₱0 free trial / free promo was treated as "not provided" and the member
+    // was wrongly charged the full plan price.
+    $custom_price = isset($data->custom_price) && $data->custom_price !== '' ? (float)$data->custom_price : null;
 
     $payment_method    = !empty($data->payment_method)    ? $data->payment_method                                        : 'Cash';
     $payment_amount    = isset($data->payment_amount) && $data->payment_amount !== '' ? (float)$data->payment_amount : null;

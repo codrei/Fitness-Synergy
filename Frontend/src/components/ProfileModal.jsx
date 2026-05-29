@@ -161,13 +161,27 @@ function ProfileModal({
                   backgroundColor: theme.bg,
                   border: `3px dashed ${theme.border}`,
                   display: "flex",
+                  flexDirection: "column",
                   alignItems: "center",
                   justifyContent: "center",
-                  fontSize: "28px",
+                  gap: "2px",
                   cursor: "pointer",
+                  textAlign: "center",
+                  lineHeight: 1.1,
                 }}
               >
-                No Photo
+                <span style={{ fontSize: "20px" }}>📷</span>
+                <span
+                  style={{
+                    fontSize: "8px",
+                    fontWeight: "bold",
+                    letterSpacing: "0.5px",
+                    textTransform: "uppercase",
+                    color: theme.textMuted,
+                  }}
+                >
+                  No Photo
+                </span>
               </div>
             )}
             {/* Camera badge — always triggers upload */}
@@ -189,12 +203,15 @@ function ProfileModal({
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                fontSize: "11px",
+                fontSize: "16px",
+                fontWeight: "bold",
+                lineHeight: 1,
+                color: theme.primaryText,
                 cursor: "pointer",
                 padding: 0,
               }}
             >
-              Upload
+              +
             </button>
           </div>
 
