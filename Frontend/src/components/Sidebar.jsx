@@ -1,4 +1,5 @@
-import React, { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import logo from "../assets/logo.jpg";
 
 function Sidebar({
@@ -9,16 +10,18 @@ function Sidebar({
   openAddModal,
   openWalkInModal,
   setShowTdeeModal,
-  currentView,
-  setCurrentView,
   openAdminModal,
 }) {
-  const [revenueOpen, setRevenueOpen] = useState(
-    currentView.startsWith("revenue") || currentView === "attendance-report",
-  );
-  const [plansOpen, setPlansOpen] = useState(
-    currentView === "plans" || currentView === "promos",
-  );
+  const navigate = useNavigate();
+  const pathname = useLocation().pathname;
+
+  // Reports section covers /revenue/* + /reports/attendance + /reports/branch.
+  const isReportsActive =
+    pathname.startsWith("/revenue") || pathname.startsWith("/reports");
+  const isPlansActive = pathname === "/plans" || pathname === "/promos";
+
+  const [revenueOpen, setRevenueOpen] = useState(isReportsActive);
+  const [plansOpen, setPlansOpen] = useState(isPlansActive);
   const [adminMenuOpen, setAdminMenuOpen] = useState(false);
   const menuRef = useRef(null);
 
@@ -32,29 +35,32 @@ function Sidebar({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const navBtn = (view) => ({
+  const isActive = (path) => pathname === path;
+  const go = (path) => () => navigate(path);
+
+  const navBtn = (path) => ({
     textAlign: "left",
     padding: "12px",
-    backgroundColor: currentView === view ? "rgba(255,255,255,0.1)" : "transparent",
+    backgroundColor: isActive(path) ? "rgba(255,255,255,0.1)" : "transparent",
     color: "white",
     border: "none",
     borderRadius: "8px",
     cursor: "pointer",
-    fontWeight: currentView === view ? "bold" : "normal",
+    fontWeight: isActive(path) ? "bold" : "normal",
     width: "100%",
     fontSize: "14px",
   });
 
-  const subBtn = (view) => ({
+  const subBtn = (path) => ({
     textAlign: "left",
     padding: "9px 12px 9px 28px",
-    backgroundColor: currentView === view ? "rgba(0,191,255,0.15)" : "transparent",
-    color: currentView === view ? theme.primary : "#aaa",
+    backgroundColor: isActive(path) ? "rgba(0,191,255,0.15)" : "transparent",
+    color: isActive(path) ? theme.primary : "#aaa",
     border: "none",
-    borderLeft: currentView === view ? `2px solid ${theme.primary}` : "2px solid transparent",
+    borderLeft: isActive(path) ? `2px solid ${theme.primary}` : "2px solid transparent",
     borderRadius: "0 8px 8px 0",
     cursor: "pointer",
-    fontWeight: currentView === view ? "bold" : "normal",
+    fontWeight: isActive(path) ? "bold" : "normal",
     width: "100%",
     fontSize: "13px",
   });
@@ -70,9 +76,6 @@ function Sidebar({
     fontSize: "14px",
     width: "100%",
   };
-
-  const isPlansActive = currentView === "plans" || currentView === "promos";
-  const isReportsActive = currentView.startsWith("revenue") || currentView === "attendance-report" || currentView === "branch-report";
 
   return (
     <div
@@ -192,7 +195,7 @@ function Sidebar({
           marginBottom: "16px",
         }}
       >
-        <button onClick={() => setCurrentView("dashboard")} style={navBtn("dashboard")}>
+        <button onClick={go("/")} style={navBtn("/")}>
           Dashboard
         </button>
 
@@ -201,10 +204,17 @@ function Sidebar({
           onClick={() => {
             const opening = !revenueOpen;
             setRevenueOpen(opening);
-            if (opening && !isReportsActive) setCurrentView("revenue-overview");
+            if (opening && !isReportsActive) navigate("/revenue/overview");
           }}
           style={{
-            ...navBtn("reports"),
+            textAlign: "left",
+            padding: "12px",
+            color: "white",
+            border: "none",
+            borderRadius: "8px",
+            cursor: "pointer",
+            width: "100%",
+            fontSize: "14px",
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
@@ -229,19 +239,19 @@ function Sidebar({
             >
               Revenue
             </div>
-            <button onClick={() => setCurrentView("revenue-overview")} style={subBtn("revenue-overview")}>
+            <button onClick={go("/revenue/overview")} style={subBtn("/revenue/overview")}>
               Overview
             </button>
-            <button onClick={() => setCurrentView("revenue-daily")} style={subBtn("revenue-daily")}>
+            <button onClick={go("/revenue/daily")} style={subBtn("/revenue/daily")}>
               Daily Earnings
             </button>
-            <button onClick={() => setCurrentView("revenue-monthly")} style={subBtn("revenue-monthly")}>
+            <button onClick={go("/revenue/monthly")} style={subBtn("/revenue/monthly")}>
               Monthly Earnings
             </button>
-            <button onClick={() => setCurrentView("revenue-yearly")} style={subBtn("revenue-yearly")}>
+            <button onClick={go("/revenue/yearly")} style={subBtn("/revenue/yearly")}>
               Yearly Earnings
             </button>
-            <button onClick={() => setCurrentView("revenue-logs")} style={subBtn("revenue-logs")}>
+            <button onClick={go("/revenue/logs")} style={subBtn("/revenue/logs")}>
               Payment Logs
             </button>
             <div
@@ -256,7 +266,7 @@ function Sidebar({
             >
               Attendance
             </div>
-            <button onClick={() => setCurrentView("attendance-report")} style={subBtn("attendance-report")}>
+            <button onClick={go("/reports/attendance")} style={subBtn("/reports/attendance")}>
               Attendance Report
             </button>
             <div
@@ -271,7 +281,7 @@ function Sidebar({
             >
               Branch Reports
             </div>
-            <button onClick={() => setCurrentView("branch-report")} style={subBtn("branch-report")}>
+            <button onClick={go("/reports/branch")} style={subBtn("/reports/branch")}>
               Branch Sales Report
             </button>
           </div>
@@ -282,10 +292,17 @@ function Sidebar({
           onClick={() => {
             const opening = !plansOpen;
             setPlansOpen(opening);
-            if (opening && !isPlansActive) setCurrentView("plans");
+            if (opening && !isPlansActive) navigate("/plans");
           }}
           style={{
-            ...navBtn("plans"),
+            textAlign: "left",
+            padding: "12px",
+            color: "white",
+            border: "none",
+            borderRadius: "8px",
+            cursor: "pointer",
+            width: "100%",
+            fontSize: "14px",
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
@@ -299,20 +316,20 @@ function Sidebar({
 
         {plansOpen && (
           <div style={{ display: "flex", flexDirection: "column", gap: "2px", marginBottom: "4px" }}>
-            <button onClick={() => setCurrentView("plans")} style={subBtn("plans")}>
+            <button onClick={go("/plans")} style={subBtn("/plans")}>
               Regular Plans
             </button>
-            <button onClick={() => setCurrentView("promos")} style={subBtn("promos")}>
+            <button onClick={go("/promos")} style={subBtn("/promos")}>
               Promos
             </button>
           </div>
         )}
 
-        <button onClick={() => setCurrentView("expenses")} style={navBtn("expenses")}>
+        <button onClick={go("/expenses")} style={navBtn("/expenses")}>
           Expenses
         </button>
 
-        <button onClick={() => setCurrentView("activity-log")} style={navBtn("activity-log")}>
+        <button onClick={go("/activity-log")} style={navBtn("/activity-log")}>
           Activity Log
         </button>
       </div>
@@ -340,7 +357,6 @@ function Sidebar({
               zIndex: 100,
             }}
           >
-            {/* Group 1: Account & Preferences */}
             <button
               onClick={() => { setAdminMenuOpen(false); openAdminModal(); }}
               style={menuItemStyle}
@@ -358,10 +374,8 @@ function Sidebar({
               {isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
             </button>
 
-            {/* Divider */}
             <div style={{ height: "1px", backgroundColor: theme.border || "rgba(255,255,255,0.1)", margin: "4px 0" }} />
 
-            {/* Group 2: Tools */}
             <button
               onClick={() => { setAdminMenuOpen(false); setShowTdeeModal(true); }}
               style={menuItemStyle}
@@ -371,10 +385,8 @@ function Sidebar({
               TDEE Calculator
             </button>
 
-            {/* Divider */}
             <div style={{ height: "1px", backgroundColor: theme.border || "rgba(255,255,255,0.1)", margin: "4px 0" }} />
 
-            {/* Group 3: Danger */}
             <button
               onClick={handleLogout}
               style={{

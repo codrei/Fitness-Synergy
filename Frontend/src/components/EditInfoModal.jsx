@@ -47,7 +47,7 @@ function EditInfoModal({ theme, infoForm, setInfoForm, onSubmit, onClose }) {
           backgroundColor: theme.surface,
           padding: "30px",
           borderRadius: "12px",
-          width: "500px",
+          width: "min(95vw, 500px)",
           maxHeight: "90vh",
           overflowY: "auto",
           border: `1px solid ${theme.border}`,

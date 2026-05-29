@@ -17,7 +17,7 @@ function WalkInRecommendModal({ theme, name, visits, onConvert, onDismiss }) {
           backgroundColor: theme.surface,
           borderRadius: "16px",
           padding: "36px",
-          width: "420px",
+          width: "min(95vw, 420px)",
           textAlign: "center",
           border: `1px solid ${theme.border}`,
           boxShadow: "0 20px 60px rgba(0,0,0,0.5)",

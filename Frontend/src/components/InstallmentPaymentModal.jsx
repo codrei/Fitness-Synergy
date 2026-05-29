@@ -101,7 +101,7 @@ function InstallmentPaymentModal({
           backgroundColor: theme.surface,
           padding: "30px",
           borderRadius: "12px",
-          width: "460px",
+          width: "min(95vw, 460px)",
           maxHeight: "90vh",
           overflowY: "auto",
           border: `1px solid ${theme.border}`,

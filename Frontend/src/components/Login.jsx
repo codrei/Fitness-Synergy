@@ -77,7 +77,7 @@ function Login({ theme, loginUser, setLoginUser, loginPass, setLoginPass, loginE
           padding: "40px",
           borderRadius: "12px",
           boxShadow: "0 8px 30px rgba(0,0,0,0.5)",
-          width: "350px",
+          width: "min(95vw, 350px)",
           textAlign: "center",
           border: `1px solid ${theme.border}`,
           position: "relative",

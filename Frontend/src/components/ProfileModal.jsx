@@ -113,7 +113,7 @@ function ProfileModal({
           backgroundColor: theme.surface,
           padding: "30px",
           borderRadius: "12px",
-          width: "560px",
+          width: "min(95vw, 560px)",
           maxHeight: "92vh",
           overflowY: "auto",
           border: `1px solid ${theme.border}`,

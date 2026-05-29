@@ -684,7 +684,7 @@ export default function BranchSalesReport({ theme }) {
       {showDepositModal && (
         <div style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.7)", display: "flex", justifyContent: "center", alignItems: "center", zIndex: 1200, backdropFilter: "blur(4px)" }}
           onClick={() => setShowDepositModal(false)}>
-          <div style={{ backgroundColor: theme.surface, borderRadius: "16px", padding: "32px", width: "440px", border: `1px solid ${theme.border}`, boxShadow: "0 20px 60px rgba(0,0,0,0.5)" }}
+          <div style={{ backgroundColor: theme.surface, borderRadius: "16px", padding: "32px", width: "min(95vw, 440px)", border: `1px solid ${theme.border}`, boxShadow: "0 20px 60px rgba(0,0,0,0.5)" }}
             onClick={e => e.stopPropagation()}>
             <h2 style={{ margin: "0 0 24px", fontSize: "18px", color: theme.text }}>
               {editingDepositId ? "Edit Deposit" : "Add Bank Deposit"}
@@ -733,7 +733,7 @@ export default function BranchSalesReport({ theme }) {
       {/* Delete confirm */}
       {deleteDepositId && (
         <div style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.7)", display: "flex", justifyContent: "center", alignItems: "center", zIndex: 1300, backdropFilter: "blur(4px)" }}>
-          <div style={{ backgroundColor: theme.surface, borderRadius: "16px", padding: "32px", width: "360px", textAlign: "center", border: `1px solid ${theme.border}` }}>
+          <div style={{ backgroundColor: theme.surface, borderRadius: "16px", padding: "32px", width: "min(95vw, 360px)", textAlign: "center", border: `1px solid ${theme.border}` }}>
             <h3 style={{ margin: "0 0 12px", color: theme.text }}>Delete Deposit?</h3>
             <p style={{ color: theme.textMuted, margin: "0 0 24px", fontSize: "14px" }}>This cannot be undone.</p>
             <div style={{ display: "flex", gap: "12px" }}>

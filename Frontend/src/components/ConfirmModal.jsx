@@ -27,7 +27,7 @@ function ConfirmModal({
           backgroundColor: theme.surface,
           padding: "36px",
           borderRadius: "16px",
-          width: "420px",
+          width: "min(95vw, 420px)",
           border: `1px solid ${theme.border}`,
           boxShadow: "0 16px 48px rgba(0,0,0,0.55)",
           textAlign: "center",

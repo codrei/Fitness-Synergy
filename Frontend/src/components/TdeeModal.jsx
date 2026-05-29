@@ -29,7 +29,7 @@ function TdeeModal({
           backgroundColor: theme.surface,
           padding: "30px",
           borderRadius: "12px",
-          width: "450px",
+          width: "min(95vw, 450px)",
           border: `1px solid ${theme.border}`,
           boxShadow: "0 10px 40px rgba(0,0,0,0.5)",
         }}

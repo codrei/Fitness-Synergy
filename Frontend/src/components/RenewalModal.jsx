@@ -76,7 +76,7 @@ function RenewalModal({
           backgroundColor: theme.surface,
           padding: "30px",
           borderRadius: "12px",
-          width: "520px",
+          width: "min(95vw, 520px)",
           maxHeight: "90vh",
           overflowY: "auto",
           border: `1px solid ${theme.border}`,

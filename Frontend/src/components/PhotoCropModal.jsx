@@ -105,7 +105,7 @@ function PhotoCropModal({ theme, memberId, onSuccess, onClose }) {
           backgroundColor: theme.surface,
           padding: "28px",
           borderRadius: "14px",
-          width: "480px",
+          width: "min(95vw, 480px)",
           maxHeight: "92vh",
           overflowY: "auto",
           border: `1px solid ${theme.border}`,

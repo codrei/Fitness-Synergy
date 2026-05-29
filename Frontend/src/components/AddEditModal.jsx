@@ -117,7 +117,7 @@ function AddEditModal({
           backgroundColor: theme.surface,
           padding: "30px",
           borderRadius: "12px",
-          width: "550px",
+          width: "min(95vw, 550px)",
           minHeight: "400px",
           maxHeight: "90vh",
           overflowY: "auto",

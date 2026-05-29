@@ -53,7 +53,7 @@ function TimeInConfirmModal({
         style={{
           backgroundColor: theme.surface,
           borderRadius: "16px",
-          width: "380px",
+          width: "min(95vw, 380px)",
           border: `1px solid ${theme.border}`,
           boxShadow: "0 20px 60px rgba(0,0,0,0.7)",
           overflow: "hidden",

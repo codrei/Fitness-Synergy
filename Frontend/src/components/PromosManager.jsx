@@ -352,7 +352,7 @@ function PromosManager({ theme }) {
               backgroundColor: theme.surface,
               padding: "30px",
               borderRadius: "12px",
-              width: "420px",
+              width: "min(95vw, 420px)",
               border: `1px solid ${theme.border}`,
               boxShadow: "0 10px 40px rgba(0,0,0,0.5)",
             }}

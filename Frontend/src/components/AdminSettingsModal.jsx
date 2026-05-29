@@ -132,7 +132,7 @@ function AdminSettingsModal({ theme, onClose, onLogout }) {
 
   return (
     <div style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.75)", display: "flex", justifyContent: "center", alignItems: "center", zIndex: 2000, backdropFilter: "blur(4px)" }}>
-      <div style={{ backgroundColor: theme.surface, padding: "25px", borderRadius: "12px", width: "420px", border: `1px solid ${theme.border}`, boxShadow: "0 10px 30px rgba(0,0,0,0.5)", position: "relative", overflow: "hidden" }}>
+      <div style={{ backgroundColor: theme.surface, padding: "25px", borderRadius: "12px", width: "min(95vw, 420px)", border: `1px solid ${theme.border}`, boxShadow: "0 10px 30px rgba(0,0,0,0.5)", position: "relative", overflow: "hidden" }}>
 
         {/* CONFIRMATION OVERLAY */}
         {showConfirmStep && (

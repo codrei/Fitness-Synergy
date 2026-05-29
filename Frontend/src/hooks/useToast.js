@@ -1,21 +1,39 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 
 const TOAST_DURATION_MS = 3500;
-const EMPTY_TOAST = { show: false, message: "", type: "success" };
 
+// Toast queue: showToast() appends; each entry auto-removes after TOAST_DURATION_MS.
+// Multiple concurrent toasts stack visually instead of overwriting each other.
 export function useToast() {
-  const [toast, setToast] = useState(EMPTY_TOAST);
-  const timeoutRef = useRef(null);
+  const [toasts, setToasts] = useState([]);
+  const timeoutsRef = useRef(new Map());
 
-  const showToast = useCallback((message, type = "success") => {
-    setToast({ show: true, message, type });
-    if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    timeoutRef.current = setTimeout(() => setToast(EMPTY_TOAST), TOAST_DURATION_MS);
+  const dismiss = useCallback((id) => {
+    setToasts((prev) => prev.filter((t) => t.id !== id));
+    const handle = timeoutsRef.current.get(id);
+    if (handle) {
+      clearTimeout(handle);
+      timeoutsRef.current.delete(id);
+    }
   }, []);
 
-  useEffect(() => () => {
-    if (timeoutRef.current) clearTimeout(timeoutRef.current);
-  }, []);
+  const showToast = useCallback(
+    (message, type = "success") => {
+      const id = Date.now() + Math.random();
+      setToasts((prev) => [...prev, { id, message, type }]);
+      const handle = setTimeout(() => dismiss(id), TOAST_DURATION_MS);
+      timeoutsRef.current.set(id, handle);
+    },
+    [dismiss],
+  );
 
-  return { toast, showToast };
+  useEffect(
+    () => () => {
+      for (const handle of timeoutsRef.current.values()) clearTimeout(handle);
+      timeoutsRef.current.clear();
+    },
+    [],
+  );
+
+  return { toasts, showToast, dismiss };
 }

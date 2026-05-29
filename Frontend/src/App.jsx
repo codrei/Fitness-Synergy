@@ -1,18 +1,22 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, lazy, Suspense } from "react";
+import { Routes, Route, Navigate, useParams } from "react-router-dom";
 import { apiFetch } from "./api";
 import bgTexture from "./assets/geomblue.png";
 
-// View-level components
-import RevenueReport from "./components/RevenueReport";
-import AttendanceReport from "./components/AttendanceReport";
-import BranchSalesReport from "./components/BranchSalesReport";
-import PlansManager from "./components/PlansManager";
-import PromosManager from "./components/PromosManager";
-import ExpensesManager from "./components/ExpensesManager";
+// Eagerly loaded — needed immediately at login + dashboard
 import Login from "./components/Login";
 import Sidebar from "./components/Sidebar";
 import DashboardView from "./views/DashboardView";
-import ActivityLogView from "./views/ActivityLogView";
+
+// Code-split — only loaded when the corresponding view is opened.
+// Reports + managers pull in heavy deps (charts, xlsx, large tables).
+const RevenueReport      = lazy(() => import("./components/RevenueReport"));
+const AttendanceReport   = lazy(() => import("./components/AttendanceReport"));
+const BranchSalesReport  = lazy(() => import("./components/BranchSalesReport"));
+const PlansManager       = lazy(() => import("./components/PlansManager"));
+const PromosManager      = lazy(() => import("./components/PromosManager"));
+const ExpensesManager    = lazy(() => import("./components/ExpensesManager"));
+const ActivityLogView    = lazy(() => import("./views/ActivityLogView"));
 
 // Modals
 import AddEditModal from "./components/AddEditModal";
@@ -52,11 +56,12 @@ function App() {
 
   // ── UI shell hooks ──
   const { isDarkMode, theme, toggleTheme } = useTheme();
-  const { toast, showToast } = useToast();
+  const { toasts, showToast, dismiss: dismissToast } = useToast();
   const currentTime = useCurrentTime();
 
   // ── Navigation / filters ──
-  const [currentView, setCurrentView] = useState("dashboard");
+  // currentView is no longer state — react-router-dom owns the URL. We keep
+  // memberStatusFilter as a transient client-only filter for the stats cards.
   const [memberStatusFilter, setMemberStatusFilter] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -533,8 +538,6 @@ function App() {
         }}
         setShowTdeeModal={setShowTdeeModal}
         openAdminModal={() => setShowAdminSettingsModal(true)}
-        currentView={currentView}
-        setCurrentView={setCurrentView}
       />
 
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
@@ -583,45 +586,73 @@ function App() {
           </div>
         )}
 
-        {currentView.startsWith("revenue") ? (
-          <RevenueReport theme={theme} activeTab={currentView} />
-        ) : currentView === "attendance-report" ? (
-          <AttendanceReport theme={theme} isDarkMode={isDarkMode} />
-        ) : currentView === "branch-report" ? (
-          <BranchSalesReport theme={theme} />
-        ) : currentView === "plans" ? (
-          <PlansManager theme={theme} />
-        ) : currentView === "promos" ? (
-          <PromosManager theme={theme} />
-        ) : currentView === "expenses" ? (
-          <ExpensesManager theme={theme} />
-        ) : currentView === "activity-log" ? (
-          <ActivityLogView theme={theme} />
-        ) : (
-          <DashboardView
-            theme={theme}
-            isDarkMode={isDarkMode}
-            currentTime={currentTime}
-            stats={stats}
-            members={members}
-            plans={plans}
-            attendanceLogs={attendanceLogs}
-            searchQuery={searchQuery}
-            setSearchQuery={setSearchQuery}
-            memberStatusFilter={memberStatusFilter}
-            setMemberStatusFilter={setMemberStatusFilter}
-            getDaysRemaining={getDaysRemaining}
-            confirmTimeIn={(member) => setTimeInConfirmMember(member)}
-            viewProfile={viewProfile}
-            startRenewal={startRenewal}
-            walkInAgain={walkInAgain}
-            convertWalkIn={convertWalkIn}
-            showToast={showToast}
-            handleDelete={(id, name) =>
-              setDeleteConfirm({ show: true, id, name, error: "", pending: false })
-            }
-          />
-        )}
+        <Suspense
+          fallback={
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 16,
+                padding: 60,
+                color: theme.textMuted,
+              }}
+            >
+              <div
+                style={{
+                  width: 42,
+                  height: 42,
+                  borderRadius: "50%",
+                  border: `4px solid ${theme.border}`,
+                  borderTop: `4px solid ${theme.primary}`,
+                  animation: "spin 0.75s linear infinite",
+                }}
+              />
+              <span style={{ fontSize: 13 }}>Loading view…</span>
+            </div>
+          }
+        >
+          <Routes>
+            <Route
+              path="/"
+              element={
+                <DashboardView
+                  theme={theme}
+                  isDarkMode={isDarkMode}
+                  currentTime={currentTime}
+                  stats={stats}
+                  members={members}
+                  plans={plans}
+                  attendanceLogs={attendanceLogs}
+                  searchQuery={searchQuery}
+                  setSearchQuery={setSearchQuery}
+                  memberStatusFilter={memberStatusFilter}
+                  setMemberStatusFilter={setMemberStatusFilter}
+                  getDaysRemaining={getDaysRemaining}
+                  confirmTimeIn={(member) => setTimeInConfirmMember(member)}
+                  viewProfile={viewProfile}
+                  startRenewal={startRenewal}
+                  walkInAgain={walkInAgain}
+                  convertWalkIn={convertWalkIn}
+                  showToast={showToast}
+                  handleDelete={(id, name) =>
+                    setDeleteConfirm({ show: true, id, name, error: "", pending: false })
+                  }
+                />
+              }
+            />
+            <Route path="/revenue" element={<Navigate to="/revenue/overview" replace />} />
+            <Route path="/revenue/:tab" element={<RevenueRoute theme={theme} />} />
+            <Route path="/reports/attendance" element={<AttendanceReport theme={theme} isDarkMode={isDarkMode} />} />
+            <Route path="/reports/branch" element={<BranchSalesReport theme={theme} />} />
+            <Route path="/plans" element={<PlansManager theme={theme} />} />
+            <Route path="/promos" element={<PromosManager theme={theme} />} />
+            <Route path="/expenses" element={<ExpensesManager theme={theme} />} />
+            <Route path="/activity-log" element={<ActivityLogView theme={theme} />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </Suspense>
       </main>
 
       {/* ── Modals ── */}
@@ -789,7 +820,7 @@ function App() {
         />
       )}
 
-      <Toast toast={toast} />
+      <Toast toasts={toasts} onDismiss={dismissToast} />
 
       {postRegPhotoPrompt && !postRegPhotoUpload && (
         <PostRegPhotoModal
@@ -841,6 +872,13 @@ function App() {
       )}
     </div>
   );
+}
+
+// Small wrapper: maps the URL :tab segment to RevenueReport's activeTab prop.
+// Falls back to "overview" so /revenue alone resolves cleanly.
+function RevenueRoute({ theme }) {
+  const { tab } = useParams();
+  return <RevenueReport theme={theme} activeTab={`revenue-${tab || "overview"}`} />;
 }
 
 export default App;

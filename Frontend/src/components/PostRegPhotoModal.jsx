@@ -12,7 +12,7 @@ function PostRegPhotoModal({ theme, memberName, onUpload, onSkip }) {
         onClick={(e) => e.stopPropagation()}
         style={{
           backgroundColor: theme.surface, borderRadius: "16px",
-          padding: "36px 32px", width: "380px", textAlign: "center",
+          padding: "36px 32px", width: "min(95vw, 380px)", textAlign: "center",
           border: `1px solid ${theme.border}`,
           boxShadow: "0 20px 60px rgba(0,0,0,0.7)",
         }}
