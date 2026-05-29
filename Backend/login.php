@@ -41,11 +41,15 @@ try {
         "INSERT INTO login_attempts (ip_address, success) VALUES (:ip, :ok)"
     );
 
-    // Timing-attack mitigation: run password_verify against a dummy bcrypt hash
-    // when no matching admin is found, so response time is the same as a real
+    // Timing-attack mitigation: run password_verify against a real, valid bcrypt
+    // hash when no matching admin is found, so response time matches a genuine
     // wrong-password verification (~100ms bcrypt cost). Without this, attackers
     // can enumerate valid usernames by measuring response time.
-    $DUMMY_HASH = '$2y$10$abcdefghijklmnopqrstuuJ8nM8.5gXhqKZSrM3RoEugb1nXTbsCMy';
+    //
+    // NOTE: the hash MUST be a structurally valid 60-char bcrypt string, else
+    // password_verify() rejects it instantly and does no work — defeating the
+    // mitigation. This is the documented valid bcrypt hash of "password".
+    $DUMMY_HASH = '$2y$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy';
     $passwordValid = $admin
         ? password_verify($passIn, $admin['password'])
         : (password_verify($passIn, $DUMMY_HASH) && false);

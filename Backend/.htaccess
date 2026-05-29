@@ -7,6 +7,14 @@ RewriteEngine On
     Deny from all
 </Files>
 
+# Block direct download of sensitive non-PHP files (SQL dumps, settings store,
+# lock files, docs). Without this, GET /Backend/database_patch.sql would leak
+# the full schema, and GET /Backend/settings.json would expose business config.
+<FilesMatch "\.(sql|json|lock|md|log|ini|sh|bak|old)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
 # Pass Authorization header to PHP (LiteSpeed / InfinityFree strips it by default)
 RewriteCond %{HTTP:Authorization} .+
 RewriteRule ^ - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
