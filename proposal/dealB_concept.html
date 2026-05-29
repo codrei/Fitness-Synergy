@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Centralized System — Concept &amp; Phased Proposal</title>
+<style>
+  @page { size: A4; margin: 14mm 15mm; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body { font-family: "Segoe UI", Arial, sans-serif; color: #1a2b2b; font-size: 10.5pt; line-height: 1.48; }
+
+  .brandbar { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #009999; padding-bottom: 14px; margin-bottom: 20px; }
+  .brand-left { display: flex; align-items: center; gap: 14px; }
+  .monogram { width: 52px; height: 52px; border-radius: 12px; background: linear-gradient(135deg, #009999, #006d6d); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 16pt; font-weight: 700; box-shadow: 0 4px 10px rgba(0,153,153,0.3); }
+  .brand h1 { margin: 0; font-size: 20pt; letter-spacing: 0.5px; color: #007a7a; }
+  .brand .tag { font-size: 8pt; letter-spacing: 3px; color: #999; text-transform: uppercase; }
+  .doctype { text-align: right; font-size: 8.5pt; color: #fff; background: #0b2424; padding: 8px 14px; border-radius: 6px; text-transform: uppercase; letter-spacing: 1.2px; line-height: 1.4; }
+
+  h2.title { font-size: 15pt; margin: 0 0 3px; color: #0b2424; }
+  .subtitle { color: #557; font-size: 10pt; margin-bottom: 16px; }
+
+  table.meta { width: 100%; border-collapse: collapse; margin-bottom: 18px; }
+  table.meta td { padding: 3px 0; vertical-align: top; font-size: 9.5pt; }
+  table.meta td.label { color: #999; width: 145px; text-transform: uppercase; font-size: 8pt; letter-spacing: 0.5px; padding-top: 5px; }
+
+  h3 { font-size: 11pt; color: #007a7a; border-bottom: 1px solid #d6ecec; padding-bottom: 4px; margin: 18px 0 9px; }
+  h3 .num { display: inline-block; width: 20px; height: 20px; line-height: 20px; text-align: center; background: #009999; color: #fff; border-radius: 50%; font-size: 9pt; margin-right: 8px; }
+  ul { margin: 5px 0; padding-left: 18px; }
+  li { margin-bottom: 3px; }
+
+  .vision { background: linear-gradient(135deg, #ecf8f7, #ffffff); border: 1px solid #bfe5e3; border-radius: 12px; padding: 14px 18px; margin: 8px 0 14px; font-size: 10pt; }
+
+  .phase { border: 1px solid #d6ecec; border-radius: 10px; padding: 12px 16px; margin-bottom: 10px; }
+  .phase .ph-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 5px; }
+  .phase .ph-name { font-weight: 700; color: #0b2424; font-size: 10.5pt; }
+  .phase .ph-name .badge { background: #009999; color: #fff; font-size: 7.5pt; padding: 2px 8px; border-radius: 10px; margin-right: 8px; text-transform: uppercase; letter-spacing: 0.5px; vertical-align: middle; }
+  .phase .ph-price { color: #007a7a; font-weight: 700; font-size: 10.5pt; white-space: nowrap; }
+  .phase ul { margin: 4px 0 0; }
+  .phase li { font-size: 9.3pt; color: #444; }
+
+  .recurring { background: #0b2424; color: #eafafa; border-radius: 10px; padding: 13px 18px; margin: 12px 0; font-size: 9.8pt; }
+  .recurring b { color: #4fd6d6; }
+  .recurring .big { font-size: 13pt; font-weight: 700; color: #fff; }
+
+  .pilot { background: #fff8ec; border: 1px solid #f0d9a8; border-radius: 10px; padding: 12px 16px; margin: 10px 0; font-size: 9.7pt; }
+  .pilot b { color: #a87b1a; }
+
+  .note { font-style: italic; color: #777; font-size: 9pt; margin-top: 6px; }
+  .foot { margin-top: 22px; padding-top: 10px; border-top: 1px solid #e4eeee; font-size: 8pt; color: #aaa; text-align: center; }
+</style>
+</head>
+<body>
+
+  <div class="brandbar">
+    <div class="brand-left">
+      <div class="monogram">M</div>
+      <div class="brand"><h1>M.G.A.B. Co.</h1><div class="tag">Software Development Team</div></div>
+    </div>
+    <div class="doctype">Concept &amp;<br>Phased Proposal</div>
+  </div>
+
+  <h2 class="title">Centralized Multi-Branch Gym Management System</h2>
+  <div class="subtitle">A unified platform connecting all branches under one head-office view.</div>
+
+  <table class="meta">
+    <tr><td class="label">Prepared for</td><td>The Management / Owner, Fitness Synergy<br><span style="color:#777;font-size:8.5pt;">Attention: Ms. Ellen Geronimo, Operations Manager</span></td></tr>
+    <tr><td class="label">Prepared by</td><td>M.G.A.B. Co. — Marco Andrei R. Belen (Lead Developer) and team</td></tr>
+    <tr><td class="label">Date</td><td>June 2, 2026</td></tr>
+    <tr><td class="label">Contact</td><td>marcoandreibelen43@gmail.com</td></tr>
+  </table>
+
+  <h3><span class="num">1</span>The Vision</h3>
+  <div class="vision">
+    Each branch operates its own day-to-day system — registering members, logging walk-ins, and
+    recording payments. Meanwhile, the <b>head office sees everything in one place</b>: consolidated
+    sales, attendance, and membership across all branches, with the ability to verify and oversee
+    each branch's records from a single dashboard. One source of truth for the whole company.
+  </div>
+
+  <h3><span class="num">2</span>What It Delivers</h3>
+  <ul>
+    <li><b>Per-branch operations</b> — each branch runs independently with its own staff accounts</li>
+    <li><b>Head-office oversight</b> — one consolidated dashboard across all branches</li>
+    <li><b>Role-based access</b> — branch staff see only their branch; management sees everything</li>
+    <li><b>Consolidated reporting</b> — company-wide sales &amp; attendance, plus per-branch drill-down</li>
+    <li><b>Verification workflow</b> — head office can review and confirm branch records</li>
+    <li><b>Full accountability</b> — every action logged per user, per branch</li>
+  </ul>
+
+  <h3><span class="num">3</span>A Phased, Low-Risk Approach</h3>
+  <p style="margin:4px 0 10px;font-size:9.7pt;">
+    Rather than building everything at once, we recommend a phased rollout so you see results — and
+    value — at each step before committing further.</p>
+
+  <div class="phase">
+    <div class="ph-head"><div class="ph-name"><span class="badge">Phase 1</span>Foundation</div><div class="ph-price">₱70,000 – ₱110,000</div></div>
+    <ul>
+      <li>Multi-branch architecture with secure data separation</li>
+      <li>Staff accounts &amp; role-based access (branch staff / manager / head office)</li>
+      <li>Existing Lipa branch migrated into the new system</li>
+    </ul>
+  </div>
+
+  <div class="phase">
+    <div class="ph-head"><div class="ph-name"><span class="badge">Phase 2</span>Head-Office Dashboard</div><div class="ph-price">₱50,000 – ₱80,000</div></div>
+    <ul>
+      <li>Consolidated company-wide reporting with per-branch drill-down</li>
+      <li>Branch record verification workflow for management</li>
+    </ul>
+  </div>
+
+  <div class="phase">
+    <div class="ph-head"><div class="ph-name"><span class="badge">Phase 3</span>Branch Rollout</div><div class="ph-price">₱12,000 – ₱18,000 / branch</div></div>
+    <ul>
+      <li>Onboarding and setup for each additional branch</li>
+      <li>Staff training per branch</li>
+    </ul>
+  </div>
+
+  <div class="recurring">
+    <b>Ongoing Platform Service</b> — <span class="big">₱1,500 – ₱2,500 / branch / month</span><br>
+    Covers business-grade hosting, security updates, backups, and priority support for every active branch.
+  </div>
+
+  <h3><span class="num">4</span>Recommended Starting Point</h3>
+  <div class="pilot">
+    <b>Start with a 2-branch pilot.</b> Prove the system works across branches before rolling out
+    company-wide. It's the safest, most cost-effective way to begin — low commitment, real results.
+  </div>
+
+  <h3><span class="num">5</span>Next Step</h3>
+  <p style="font-size:9.7pt;">
+    A short <b>discovery session</b> lets us map your exact branches, staff roles, and verification
+    rules so we can finalize a precise quotation. We'd be glad to schedule one at your convenience.</p>
+
+  <div class="note">Figures above are indicative ranges for planning purposes and are finalized after
+  the discovery session. This document is a concept &amp; roadmap, not a fixed quotation.</div>
+
+  <div class="foot">
+    M.G.A.B. Co. &nbsp;•&nbsp; marcoandreibelen43@gmail.com &nbsp;•&nbsp; Centralized System Concept &nbsp;•&nbsp; June 2, 2026
+  </div>
+
+</body>
+</html>
