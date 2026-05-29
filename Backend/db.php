@@ -38,16 +38,24 @@ if (empty($host) || empty($dbname) || empty($username)) {
 }
 
 try {
+    // DSN charset=utf8mb4 sets the connection character set correctly.
+    // The previous init command "SET NAMES utf8mb4, time_zone = '+08:00'"
+    // was INVALID syntax — `SET NAMES` is a special form that can't be chained
+    // with regular var assignments in the same statement. PDO swallowed the
+    // syntax error silently, leaving multibyte chars (— ₱ etc.) corrupted on write.
     $conn = new PDO(
         "mysql:host=$host;dbname=$dbname;charset=utf8mb4",
         $username,
         $password,
         [
-        PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
-        PDO::ATTR_TIMEOUT            => 5,   
-        PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8mb4, time_zone = '+08:00'"
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_TIMEOUT => 5,
+            PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8mb4",
         ]
     );
+    // Run timezone as a separate statement so a hosting quirk on one
+    // doesn't break the other.
+    $conn->exec("SET time_zone = '+08:00'");
 } catch (PDOException $e) {
     error_log('[db connect] ' . $e->getMessage());
     header("Content-Type: application/json; charset=UTF-8");
