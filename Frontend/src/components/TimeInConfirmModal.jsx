@@ -16,6 +16,17 @@ function TimeInConfirmModal({
   const daysLeft = getDaysRemaining(member.expiration_date);
   const isExpired = member.status === "Expired" || daysLeft === "Expired";
 
+  // Initials fallback when there's no photo (e.g. "Monkey D. Luffy" -> "ML")
+  const initials = (member.full_name || "?")
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((w) => w[0])
+    .filter((c) => /[a-z0-9]/i.test(c))
+    .slice(0, 2)
+    .join("")
+    .toUpperCase() || "?";
+
   const statusBg = isExpired
     ? "rgba(255,82,82,0.15)"
     : daysLeft === "Expires Today"
@@ -125,15 +136,19 @@ function TimeInConfirmModal({
                   width: "160px",
                   height: "160px",
                   borderRadius: "50%",
-                  backgroundColor: theme.bg,
-                  border: `3px dashed ${theme.border}`,
+                  background: `linear-gradient(135deg, ${theme.primary}33, ${theme.primary}14)`,
+                  border: `3px solid ${theme.primary}55`,
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  fontSize: "64px",
+                  fontSize: "62px",
+                  fontWeight: "bold",
+                  color: theme.primary,
+                  letterSpacing: "1px",
+                  userSelect: "none",
                 }}
               >
-                No Photo
+                {initials}
               </div>
               <div
                 style={{
