@@ -1,0 +1,47 @@
+export const WALKIN_FORM_DEFAULT = {
+  guestName: "",
+  guestAge: "",
+  guestContact: "",
+  guestAddress: "",
+  customPrice: "",
+  paymentMethod: "Cash",
+  referenceNumber: "",
+};
+
+export const RENEWAL_FORM_DEFAULT = {
+  planId: "",
+  promoId: "",
+  customPrice: "",
+  bonusDays: 0,
+  isInstallment: false,
+  installmentTotal: "",
+  paymentMethod: "Cash",
+  paymentAmount: "",
+  referenceNumber: "",
+};
+
+export const MEMBER_FORM_DEFAULT = {
+  name: "",
+  plan: "",
+  promoId: "",
+  bonusDays: 0,
+  customPrice: "",
+  isInstallment: false,
+  installmentTotal: "",
+  address: "",
+  contactNumber: "",
+  facebook: "",
+  dob: "",
+  age: "",
+  gender: "",
+  occupation: "",
+  emergencyContactName: "",
+  emergencyContactNumber: "",
+  discountType: "None",
+  discountId: "",
+  discountIdType: "",
+  discountSchoolName: "",
+  paymentMethod: "Cash",
+  paymentAmount: "",
+  referenceNumber: "",
+};

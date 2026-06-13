@@ -1,0 +1,74 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  height: 100%;
+}
+
+/* Modern slim scrollbar — works in both dark and light mode */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(128, 128, 128, 0.35);
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(128, 128, 128, 0.6);
+}
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(128, 128, 128, 0.35) transparent;
+}
+
+/* ── Responsive: hide live feed panel on split-screen / narrow windows ── */
+@media (max-width: 1100px) {
+  .live-feed-panel {
+    display: none;
+  }
+}
+
+/* ── Stats grid: 3 → 2 columns when space is tight ── */
+@media (max-width: 960px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+/* ── Sidebar: slightly narrower on medium screens ── */
+@media (max-width: 960px) {
+  .app-sidebar {
+    width: 210px !important;
+    min-width: 210px !important;
+    padding: 14px !important;
+  }
+}
+
+/* ── Very narrow: 2-col stats, compact sidebar ── */
+@media (max-width: 700px) {
+  .app-sidebar {
+    width: 180px !important;
+    min-width: 180px !important;
+    padding: 10px !important;
+  }
+  .stats-grid {
+    grid-template-columns: 1fr 1fr !important;
+  }
+}

@@ -1,0 +1,753 @@
+import React, { useState, useRef } from "react";
+import {
+  PHONE_PATTERN_STR,
+  sanitizePhoneInput,
+  isValidPhilippinePhone,
+} from "../utils/phone";
+
+function AddEditModal({
+  theme,
+  editingId,
+  cancelEdit,
+  setShowMemberModal,
+  handleSubmit,
+  plans,
+  promos = [],
+  memberForm,
+  setMemberForm,
+}) {
+  const [submitting, setSubmitting] = useState(false);
+  const [duplicateWarning, setDuplicateWarning] = useState(null);
+  const forceRef = useRef(false);
+  const formRef = useRef(null);
+
+  const update = (field, value) =>
+    setMemberForm((f) => ({ ...f, [field]: value }));
+
+  // Date of birth is the single source of truth; age is derived from it so the
+  // two can never disagree. Birth date is capped at today (no future dates).
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const computeAge = (dob) => {
+    if (!dob) return null;
+    const birth = new Date(dob + "T00:00:00");
+    if (isNaN(birth.getTime())) return null;
+    const now = new Date();
+    let age = now.getFullYear() - birth.getFullYear();
+    const mo = now.getMonth() - birth.getMonth();
+    if (mo < 0 || (mo === 0 && now.getDate() < birth.getDate())) age--;
+    return age;
+  };
+  const handleDobChange = (dob) => {
+    const a = computeAge(dob);
+    const validAge = typeof a === "number" && a >= 0 && a <= 120 ? String(a) : "";
+    setMemberForm((f) => ({ ...f, dob, age: validAge }));
+  };
+  const dobError = (() => {
+    if (!memberForm.dob) return "";
+    const a = computeAge(memberForm.dob);
+    if (a === null) return "Enter a valid date.";
+    if (a < 0) return "Birth date cannot be in the future.";
+    if (a > 120) return "Please double-check the birth date — age exceeds 120.";
+    return "";
+  })();
+
+  const onSubmit = async (e) => {
+    setSubmitting(true);
+    const force = forceRef.current;
+    forceRef.current = false;
+    try {
+      const result = await handleSubmit(e, force);
+      if (result?.duplicate_warning) {
+        setDuplicateWarning(result);
+      }
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const registerAnyway = () => {
+    forceRef.current = true;
+    setDuplicateWarning(null);
+    formRef.current.requestSubmit();
+  };
+
+  const selectedPlanObj = plans.find(
+    (p) => String(p.plan_id) === String(memberForm.plan),
+  );
+  const isLongTermPlan = selectedPlanObj
+    ? parseInt(selectedPlanObj.duration_days, 10) > 1
+    : false;
+  const isFreeTrial =
+    selectedPlanObj &&
+    parseFloat(selectedPlanObj.price) === 0 &&
+    parseFloat(memberForm.customPrice || 0) === 0;
+
+  const labelStyle = {
+    fontSize: "12px",
+    color: theme.textMuted,
+    textTransform: "uppercase",
+    fontWeight: "bold",
+    display: "block",
+    marginBottom: "5px",
+  };
+
+  const inputStyle = {
+    width: "100%",
+    padding: "10px",
+    borderRadius: "6px",
+    border: `1px solid ${theme.border}`,
+    backgroundColor: theme.bg,
+    color: theme.text,
+    outline: "none",
+    boxSizing: "border-box",
+    transition: "border-color 0.2s ease",
+  };
+
+  const SectionDivider = ({ title }) => (
+    <div style={{ display: "flex", alignItems: "center", gap: 10, margin: "8px 0 2px" }}>
+      <span
+        style={{
+          fontSize: "10px",
+          color: theme.textMuted,
+          textTransform: "uppercase",
+          letterSpacing: "1.5px",
+          fontWeight: "bold",
+          whiteSpace: "nowrap",
+        }}
+      >
+        {title}
+      </span>
+      <div style={{ flex: 1, height: "1px", backgroundColor: theme.border }} />
+    </div>
+  );
+
+  const Req = () => <span style={{ color: theme.danger, marginLeft: 2 }}>*</span>;
+
+  return (
+    <div
+      style={{
+        position: "fixed",
+        top: 0,
+        left: 0,
+        width: "100vw",
+        height: "100vh",
+        backgroundColor: "rgba(0,0,0,0.7)",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        zIndex: 1000,
+        backdropFilter: "blur(3px)",
+      }}
+    >
+      <div
+        style={{
+          backgroundColor: theme.surface,
+          padding: "30px",
+          borderRadius: "12px",
+          width: "min(95vw, 550px)",
+          minHeight: "400px",
+          maxHeight: "90vh",
+          overflowY: "auto",
+          border: `1px solid ${theme.border}`,
+          boxShadow: "0 10px 40px rgba(0,0,0,0.5)",
+          display: "flex",
+          flexDirection: "column",
+        }}
+      >
+        {/* Header */}
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "flex-start",
+            marginBottom: "20px",
+          }}
+        >
+          <div>
+            <h2 style={{ margin: 0, fontSize: "20px", color: theme.text }}>
+              {editingId ? "Edit Profile & Status" : "Register Member"}
+            </h2>
+            <span style={{ fontSize: "11px", color: theme.textMuted }}>
+              Fields marked <span style={{ color: theme.danger }}>*</span> are required
+            </span>
+          </div>
+          <button
+            onClick={() => { setShowMemberModal(false); cancelEdit(); }}
+            style={{
+              background: "none",
+              border: "none",
+              fontSize: "22px",
+              cursor: "pointer",
+              color: theme.text,
+              lineHeight: 1,
+              padding: "2px 6px",
+            }}
+          >
+            ×
+          </button>
+        </div>
+
+        <form
+          ref={formRef}
+          onSubmit={onSubmit}
+          style={{ display: "flex", flexDirection: "column", gap: "14px", flex: 1 }}
+        >
+          {/* Duplicate warning — always stays at top */}
+          {duplicateWarning && (
+            <div
+              style={{
+                backgroundColor: "#f59e0b22",
+                border: "1px solid #f59e0b",
+                borderRadius: "8px",
+                padding: "14px 16px",
+              }}
+            >
+              <div style={{ fontWeight: "bold", color: "#f59e0b", marginBottom: 6 }}>
+                Possible Duplicate Member
+              </div>
+              <div style={{ fontSize: 13, color: theme.text, marginBottom: 12 }}>
+                A member named <strong>{duplicateWarning.existing_name}</strong>{" "}
+                ({duplicateWarning.existing_contract}) already has this same name
+                and contact number.
+              </div>
+              <div style={{ display: "flex", gap: 8 }}>
+                <button
+                  type="button"
+                  onClick={registerAnyway}
+                  style={{
+                    padding: "7px 14px",
+                    backgroundColor: theme.danger,
+                    color: "#fff",
+                    border: "none",
+                    borderRadius: "6px",
+                    cursor: "pointer",
+                    fontWeight: "bold",
+                    fontSize: 12,
+                  }}
+                >
+                  Register Anyway
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setDuplicateWarning(null)}
+                  style={{
+                    padding: "7px 14px",
+                    backgroundColor: theme.border,
+                    color: theme.text,
+                    border: "none",
+                    borderRadius: "6px",
+                    cursor: "pointer",
+                    fontWeight: "bold",
+                    fontSize: 12,
+                  }}
+                >
+                  Go Back
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* ── SECTION 1: BASIC INFORMATION ── */}
+          <SectionDivider title="Basic Information" />
+
+          <div>
+            <label style={labelStyle}>Full Name <Req /></label>
+            <input
+              type="text"
+              value={memberForm.name}
+              onChange={(e) => update("name", e.target.value)}
+              placeholder="First and Last Name"
+              required
+              autoFocus
+              style={inputStyle}
+            />
+          </div>
+
+          <div>
+            <label style={labelStyle}>Contact Number <Req /></label>
+            <input
+              type="tel"
+              inputMode="numeric"
+              pattern={PHONE_PATTERN_STR}
+              maxLength={11}
+              required={!editingId}
+              title="Must be exactly 11 digits starting with 09"
+              value={memberForm.contactNumber}
+              onChange={(e) =>
+                update("contactNumber", sanitizePhoneInput(e.target.value))
+              }
+              placeholder="09171234567"
+              style={inputStyle}
+            />
+            {memberForm.contactNumber &&
+              !isValidPhilippinePhone(memberForm.contactNumber) && (
+                <div style={{ fontSize: 11, color: theme.danger, marginTop: 4 }}>
+                  Must be 11 digits starting with 09
+                </div>
+              )}
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px" }}>
+            <div>
+              <label style={labelStyle}>Date of Birth <Req /></label>
+              <input
+                type="date"
+                max={todayStr}
+                required={!editingId}
+                value={memberForm.dob}
+                onChange={(e) => handleDobChange(e.target.value)}
+                style={inputStyle}
+              />
+              {dobError && (
+                <div style={{ fontSize: 11, color: theme.danger, marginTop: 4 }}>
+                  {dobError}
+                </div>
+              )}
+            </div>
+            <div>
+              <label style={labelStyle}>Age</label>
+              <input
+                type="number"
+                value={memberForm.age}
+                readOnly
+                tabIndex={-1}
+                placeholder="—"
+                title="Automatically calculated from date of birth"
+                style={{
+                  ...inputStyle,
+                  opacity: 0.75,
+                  cursor: "not-allowed",
+                  backgroundColor: theme.surface,
+                }}
+              />
+              <div style={{ fontSize: 10, color: theme.textMuted, marginTop: 4 }}>
+                Auto-calculated from birth date
+              </div>
+            </div>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px" }}>
+            <div>
+              <label style={labelStyle}>Gender <Req /></label>
+              <select
+                value={memberForm.gender}
+                onChange={(e) => update("gender", e.target.value)}
+                required={!editingId}
+                style={inputStyle}
+              >
+                <option value="">Select Gender...</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div>
+              <label style={labelStyle}>Occupation</label>
+              <input
+                type="text"
+                value={memberForm.occupation}
+                onChange={(e) => update("occupation", e.target.value)}
+                placeholder="Profession"
+                style={inputStyle}
+              />
+            </div>
+          </div>
+
+          <div>
+            <label style={labelStyle}>Complete Address <Req /></label>
+            <input
+              type="text"
+              value={memberForm.address}
+              onChange={(e) => update("address", e.target.value)}
+              placeholder="House No., Street, Barangay, City"
+              required={!editingId}
+              style={inputStyle}
+            />
+          </div>
+
+          <div>
+            <label style={labelStyle}>
+              Facebook / Social Media{" "}
+              <span style={{ color: theme.textMuted, fontWeight: "normal", textTransform: "none", fontSize: "11px" }}>
+                (Optional)
+              </span>
+            </label>
+            <input
+              type="text"
+              value={memberForm.facebook}
+              onChange={(e) => update("facebook", e.target.value)}
+              placeholder="facebook.com/username or @handle"
+              style={inputStyle}
+            />
+          </div>
+
+          {/* ── SECTION 2: MEMBERSHIP PLAN ── */}
+          <SectionDivider title="Membership Plan" />
+
+          <div>
+            <label style={labelStyle}>Plan <Req /></label>
+            <select
+              value={memberForm.plan}
+              onChange={(e) => {
+                const selectedId = e.target.value;
+                const matchedPlan = plans.find(
+                  (p) => String(p.plan_id) === String(selectedId),
+                );
+                setMemberForm((f) => ({
+                  ...f,
+                  plan: selectedId,
+                  customPrice: matchedPlan ? matchedPlan.price : f.customPrice,
+                  promoId: "",
+                  bonusDays: 0,
+                }));
+              }}
+              required
+              style={inputStyle}
+            >
+              <option value="" disabled>Select a Plan...</option>
+              {plans
+                .filter((p) => String(p.plan_id) !== "1")
+                .map((plan) => (
+                  <option key={plan.plan_id} value={plan.plan_id}>
+                    {parseFloat(plan.price) === 0
+                      ? `${plan.plan_name} — FREE`
+                      : `${plan.plan_name} — ₱${plan.price}`}
+                  </option>
+                ))}
+            </select>
+          </div>
+
+          {isFreeTrial && (
+            <div
+              style={{
+                backgroundColor: "#00e67622",
+                border: "1px solid #00e676",
+                borderRadius: "8px",
+                padding: "10px 16px",
+                color: "#00e676",
+                fontWeight: "bold",
+                fontSize: 13,
+                textAlign: "center",
+                letterSpacing: "0.5px",
+              }}
+            >
+              FREE TRIAL — No payment required for this plan
+            </div>
+          )}
+
+          {promos.length > 0 && (
+            <div>
+              <label style={labelStyle}>
+                Apply Promo{" "}
+                <span style={{ color: theme.textMuted, fontWeight: "normal", textTransform: "none", fontSize: "11px" }}>
+                  (Optional)
+                </span>
+              </label>
+              <select
+                value={memberForm.promoId || ""}
+                onChange={(e) => {
+                  const id = e.target.value;
+                  const p = promos.find((pr) => String(pr.promo_id) === id);
+                  if (!p) {
+                    const basePlan = plans.find(
+                      (pl) => String(pl.plan_id) === String(memberForm.plan),
+                    );
+                    setMemberForm((f) => ({
+                      ...f,
+                      promoId: "",
+                      bonusDays: 0,
+                      customPrice: basePlan ? basePlan.price : f.customPrice,
+                    }));
+                    return;
+                  }
+                  const basePlan = plans.find(
+                    (pl) => String(pl.plan_id) === String(memberForm.plan),
+                  );
+                  const basePrice = parseFloat(basePlan?.price || 0);
+                  const discount = parseFloat(p.discount_amount || 0);
+                  setMemberForm((f) => ({
+                    ...f,
+                    promoId: id,
+                    bonusDays: p.bonus_days,
+                    customPrice:
+                      p.is_free == 1
+                        ? "0"
+                        : discount > 0
+                          ? String(Math.max(0, basePrice - discount))
+                          : basePlan
+                            ? basePlan.price
+                            : f.customPrice,
+                  }));
+                }}
+                style={inputStyle}
+              >
+                <option value="">— No Promo —</option>
+                {promos.map((p) => (
+                  <option key={p.promo_id} value={p.promo_id}>
+                    {p.is_free == 1
+                      ? `${p.promo_name} (FREE)`
+                      : parseInt(p.bonus_days) > 0 && parseFloat(p.discount_amount) > 0
+                        ? `${p.promo_name} (+${p.bonus_days} days, ₱${p.discount_amount} off)`
+                        : parseInt(p.bonus_days) > 0
+                          ? `${p.promo_name} (+${p.bonus_days} days)`
+                          : `${p.promo_name} (₱${p.discount_amount} off)`}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px" }}>
+            <div>
+              <label style={labelStyle}>Custom Price (₱)</label>
+              <input
+                type="number"
+                step="0.01"
+                value={memberForm.customPrice}
+                onChange={(e) => update("customPrice", e.target.value)}
+                placeholder="Override base price..."
+                style={inputStyle}
+              />
+            </div>
+            <div>
+              <label style={labelStyle}>Bonus Days</label>
+              <input
+                type="number"
+                value={memberForm.bonusDays}
+                onChange={(e) => update("bonusDays", e.target.value)}
+                placeholder="e.g., 3"
+                min="0"
+                readOnly={!!memberForm.promoId}
+                style={{ ...inputStyle, opacity: memberForm.promoId ? 0.6 : 1 }}
+              />
+            </div>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: memberForm.discountType !== "None" ? "1fr 1fr" : "1fr", gap: "15px" }}>
+            <div>
+              <label style={labelStyle}>Discount Group</label>
+              <select
+                value={memberForm.discountType}
+                onChange={(e) =>
+                  setMemberForm((f) => ({
+                    ...f,
+                    discountType: e.target.value,
+                    discountId: e.target.value === "None" ? "" : f.discountId,
+                    discountIdType: e.target.value === "None" ? "" : f.discountIdType,
+                    discountSchoolName: e.target.value !== "Student" ? "" : f.discountSchoolName,
+                  }))
+                }
+                style={inputStyle}
+              >
+                <option value="None">Regular (No Discount)</option>
+                <option value="Student">Student Promo</option>
+                <option value="Senior">Senior Citizen Promo</option>
+              </select>
+            </div>
+
+            {memberForm.discountType !== "None" && (
+              <div>
+                <label style={labelStyle}>ID Type</label>
+                <select
+                  value={memberForm.discountIdType}
+                  onChange={(e) => update("discountIdType", e.target.value)}
+                  style={inputStyle}
+                >
+                  <option value="">Select ID Type...</option>
+                  <option value="School ID">School ID</option>
+                  <option value="Senior Citizen ID">Senior Citizen ID</option>
+                  <option value="PWD ID">PWD ID</option>
+                  <option value="Government ID">Government ID</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+            )}
+          </div>
+
+          {memberForm.discountType !== "None" && (
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: memberForm.discountType === "Student" ? "1fr 1fr" : "1fr",
+                gap: "15px",
+              }}
+            >
+              <div>
+                <label style={labelStyle}>
+                  {memberForm.discountType === "Student"
+                    ? "Student ID Number"
+                    : "Senior Citizen ID Number"}
+                  {" "}<Req />
+                </label>
+                <input
+                  type="text"
+                  value={memberForm.discountId}
+                  onChange={(e) => update("discountId", e.target.value)}
+                  placeholder="Enter ID number"
+                  required={memberForm.discountType !== "None"}
+                  style={inputStyle}
+                />
+              </div>
+              {memberForm.discountType === "Student" && (
+                <div>
+                  <label style={labelStyle}>School Name</label>
+                  <input
+                    type="text"
+                    value={memberForm.discountSchoolName}
+                    onChange={(e) => update("discountSchoolName", e.target.value)}
+                    placeholder="e.g., University of Santo Tomas"
+                    style={inputStyle}
+                  />
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ── SECTION 3: CONTRACT DETAILS (long-term plans only) ── */}
+          {isLongTermPlan && (
+            <>
+              <SectionDivider title="Contract Details" />
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px" }}>
+                <div>
+                  <label style={labelStyle}>Emergency Contact Name</label>
+                  <input
+                    type="text"
+                    value={memberForm.emergencyContactName}
+                    onChange={(e) => update("emergencyContactName", e.target.value)}
+                    placeholder="Full Name"
+                    style={inputStyle}
+                  />
+                </div>
+                <div>
+                  <label style={labelStyle}>Emergency Contact #</label>
+                  <input
+                    type="text"
+                    value={memberForm.emergencyContactNumber}
+                    onChange={(e) => update("emergencyContactNumber", e.target.value)}
+                    placeholder="Phone number"
+                    style={inputStyle}
+                  />
+                </div>
+              </div>
+
+              <div style={{ borderTop: `1px dashed ${theme.border}`, paddingTop: "14px" }}>
+                <label
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
+                    cursor: "pointer",
+                    fontSize: "13px",
+                    fontWeight: "bold",
+                    color: theme.text,
+                  }}
+                >
+                  <input
+                    type="checkbox"
+                    checked={memberForm.isInstallment || false}
+                    onChange={(e) => update("isInstallment", e.target.checked)}
+                    style={{ width: "16px", height: "16px" }}
+                  />
+                  Installment Plan
+                </label>
+                {memberForm.isInstallment && (
+                  <div style={{ marginTop: "12px" }}>
+                    <label style={labelStyle}>Total Contract Amount (₱) <Req /></label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      required
+                      value={memberForm.installmentTotal || ""}
+                      onChange={(e) => update("installmentTotal", e.target.value)}
+                      placeholder="e.g., 5000.00"
+                      style={inputStyle}
+                    />
+                  </div>
+                )}
+              </div>
+            </>
+          )}
+
+          {/* ── SECTION 4: PAYMENT DETAILS (new registrations only) ── */}
+          {!editingId && (
+            <>
+              <SectionDivider title="Payment Details" />
+
+              <div>
+                <label style={labelStyle}>Payment Method</label>
+                <select
+                  value={memberForm.paymentMethod}
+                  onChange={(e) => update("paymentMethod", e.target.value)}
+                  style={inputStyle}
+                >
+                  <option value="Cash">Cash</option>
+                  <option value="GCash">GCash</option>
+                  <option value="Maya">Maya</option>
+                  <option value="Bank Transfer">Bank Transfer</option>
+                  <option value="Debit Card">Debit Card</option>
+                  <option value="Credit Card">Credit Card</option>
+                </select>
+              </div>
+
+              {memberForm.isInstallment && (
+                <div>
+                  <label style={labelStyle}>Downpayment Amount (₱) <Req /></label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    required
+                    value={memberForm.paymentAmount}
+                    onChange={(e) => update("paymentAmount", e.target.value)}
+                    placeholder="Amount paid today..."
+                    style={inputStyle}
+                  />
+                </div>
+              )}
+
+              <div>
+                <label style={labelStyle}>Reference Number</label>
+                <input
+                  type="text"
+                  value={memberForm.referenceNumber}
+                  onChange={(e) => update("referenceNumber", e.target.value)}
+                  placeholder="e.g., GCash ref #"
+                  style={inputStyle}
+                />
+              </div>
+            </>
+          )}
+
+          {/* Submit */}
+          <button
+            type="submit"
+            disabled={submitting}
+            style={{
+              padding: "16px",
+              backgroundColor: theme.primary,
+              color: theme.primaryText,
+              border: "none",
+              borderRadius: "8px",
+              cursor: submitting ? "default" : "pointer",
+              fontWeight: "bold",
+              marginTop: "auto",
+              fontSize: "14px",
+              letterSpacing: "0.5px",
+              opacity: submitting ? 0.7 : 1,
+            }}
+          >
+            {submitting
+              ? "Saving…"
+              : editingId
+                ? "Save Changes & Update"
+                : "Complete Registration"}
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+export default AddEditModal;
