@@ -57,4 +57,4 @@ Set the API base URL in `src/config.js` to point at your backend.
 ## 👤 Author
 **Marco Andrei R. Belen** — Computer Science student & Full Stack Web Developer
 
-[Portfolio](https://marcobelen.netlify.app/) · [GitHub](https://github.com/codrei) · [LinkedIn](https://www.linkedin.com/in/marco-andrei-belen-80a3b8332/)
+[Portfolio](https://marcobelen.vercel.app/) · [GitHub](https://github.com/codrei) · [LinkedIn](https://www.linkedin.com/in/marco-andrei-belen/)
