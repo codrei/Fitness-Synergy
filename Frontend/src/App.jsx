@@ -799,13 +799,18 @@ function App() {
           name={deleteConfirm.name}
           errorMessage={deleteConfirm.error}
           pending={deleteConfirm.pending}
+          isWalkIn={String(deleteConfirm.id).startsWith("wi_")}
           onCancel={() =>
             setDeleteConfirm({ show: false, id: null, name: "", error: "", pending: false })
           }
           onConfirm={async () => {
             setDeleteConfirm((prev) => ({ ...prev, pending: true, error: "" }));
             try {
-              const res = await apiFetch("delete_member.php", {
+              // Walk-in guests carry a synthetic "wi_<id>" id and aren't rows in
+              // `members`, so they need the dedicated walk-in delete endpoint.
+              const isWalkIn = String(deleteConfirm.id).startsWith("wi_");
+              const endpoint = isWalkIn ? "delete_walkin.php" : "delete_member.php";
+              const res = await apiFetch(endpoint, {
                 method: "POST",
                 body: JSON.stringify({ member_id: deleteConfirm.id }),
               }).then((r) => r.json());
@@ -813,7 +818,7 @@ function App() {
               if (res.success) {
                 setDeleteConfirm({ show: false, id: null, name: "", error: "", pending: false });
                 fetchData();
-                showToast("Member deleted.");
+                showToast(isWalkIn ? "Walk-in guest deleted." : "Member deleted.");
               } else {
                 // Keep the modal open and surface the server's reason inline.
                 setDeleteConfirm((prev) => ({

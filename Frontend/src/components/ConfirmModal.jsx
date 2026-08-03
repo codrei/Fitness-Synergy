@@ -3,6 +3,7 @@ function ConfirmModal({
   name,
   errorMessage = "",
   pending = false,
+  isWalkIn = false,
   onConfirm,
   onCancel,
 }) {
@@ -34,7 +35,7 @@ function ConfirmModal({
         }}
       >
         <h3 style={{ margin: "0 0 10px", fontSize: "20px", color: theme.text }}>
-          Delete Member?
+          {isWalkIn ? "Delete Walk-in Guest?" : "Delete Member?"}
         </h3>
         <p
           style={{
@@ -46,7 +47,8 @@ function ConfirmModal({
         >
           This will permanently delete{" "}
           <strong style={{ color: theme.text }}>{name}</strong> along with all
-          their attendance and payment history. This cannot be undone.
+          their {isWalkIn ? "walk-in visit and payment history" : "attendance and payment history"}.
+          This cannot be undone.
         </p>
 
         {errorMessage && (

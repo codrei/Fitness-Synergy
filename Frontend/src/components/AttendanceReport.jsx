@@ -10,7 +10,20 @@ const fmtHour = (h) => {
   return `${hour - 12} PM`;
 };
 
-function BarChart({ data, labelKey, valueKey, color, theme, height = 160 }) {
+const DAY_ABBR = {
+  Monday: "Mon", Tuesday: "Tue", Wednesday: "Wed", Thursday: "Thur",
+  Friday: "Fri", Saturday: "Sat", Sunday: "Sun",
+};
+
+const fmtDay = (name) => DAY_ABBR[name] || String(name).slice(0, 3);
+
+// Pull the day-of-month out of a "YYYY-MM-DD" date string (drops leading zero)
+const fmtDateDay = (date) => {
+  const parts = String(date).split("-");
+  return parts.length === 3 ? String(parseInt(parts[2], 10)) : String(date);
+};
+
+function BarChart({ data, labelKey, valueKey, color, theme, height = 160, formatLabel }) {
   if (!data || data.length === 0)
     return <p style={{ color: theme.textMuted, textAlign: "center", padding: 20 }}>No data available.</p>;
   const max = Math.max(...data.map((d) => parseFloat(d[valueKey] || 0)), 1);
@@ -29,7 +42,7 @@ function BarChart({ data, labelKey, valueKey, color, theme, height = 160 }) {
             <g key={i}>
               <rect x={x} y={y} width={barW} height={barH} rx={4} fill={color} opacity={0.85} />
               <text x={x + barW / 2} y={height + 16} textAnchor="middle" fill={theme.textMuted} fontSize={9}>
-                {String(d[labelKey]).slice(0, 5)}
+                {formatLabel ? formatLabel(d[labelKey]) : String(d[labelKey]).slice(0, 5)}
               </text>
               {val > 0 && (
                 <text x={x + barW / 2} y={y - 4} textAnchor="middle" fill={theme.text} fontSize={9}>
@@ -142,6 +155,7 @@ export default function AttendanceReport({ theme, isDarkMode }) {
               valueKey="total"
               color="#6366f1"
               theme={theme}
+              formatLabel={fmtDateDay}
             />
             {/* Members vs Walk-ins legend */}
             <div style={{ display: "flex", gap: 16, marginTop: 12 }}>
@@ -181,6 +195,7 @@ export default function AttendanceReport({ theme, isDarkMode }) {
                 color="#22c55e"
                 theme={theme}
                 height={130}
+                formatLabel={fmtDay}
               />
             </div>
           </div>
