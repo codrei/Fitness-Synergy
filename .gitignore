@@ -2,8 +2,13 @@
 .env
 **/.env
 
+# Database backups — contain real member data and password hashes.
+# Keep these locally (OneDrive backs them up); never in the repo.
+database/
+
 # Claude Code internals
 .claude/
 
-# Dependencies
+# Dependencies and build output
 node_modules/
+dist/
