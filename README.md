@@ -7,7 +7,7 @@ React front-end and a PHP/MySQL REST back-end.
 > Architected and built by Marco Andrei R. Belen — system design, relational
 > database, REST API, and React UI.
 
-## 🧭 Overview
+## Overview
 Fitness Synergy replaces the disconnected spreadsheets and manual logs most
 gyms rely on with a single, login-secured dashboard. Staff can register and
 renew members, track attendance, manage plans/promos, record installment
