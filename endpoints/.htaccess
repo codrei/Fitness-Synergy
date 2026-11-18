@@ -1,0 +1,57 @@
+Options -Indexes
+RewriteEngine On
+
+# Block direct web access to .env files
+<Files ".env">
+    Order allow,deny
+    Deny from all
+</Files>
+
+# Block direct download of sensitive non-PHP files (SQL dumps, settings store,
+# lock files, docs). Without this, GET /Backend/database_patch.sql would leak
+# the full schema, and GET /Backend/settings.json would expose business config.
+<FilesMatch "\.(sql|json|lock|md|log|ini|sh|bak|old)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# Pass Authorization header to PHP (LiteSpeed / InfinityFree strips it by default)
+RewriteCond %{HTTP:Authorization} .+
+RewriteRule ^ - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+# ── CORS preflight handling ──────────────────────────────────────────────────
+# Capture the exact origin for allowed origins on OPTIONS requests.
+# CORS_PREFLIGHT is set only when method=OPTIONS AND origin is in the allowed list.
+RewriteCond %{REQUEST_METHOD} OPTIONS
+RewriteCond %{HTTP:Origin} ^https://fitness-synergy\.infinityfreeapp\.com$
+RewriteRule ^ - [E=CORS_PREFLIGHT:https://fitness-synergy.infinityfreeapp.com]
+
+RewriteCond %{REQUEST_METHOD} OPTIONS
+RewriteCond %{HTTP:Origin} ^http://localhost:5173$
+RewriteRule ^ - [E=CORS_PREFLIGHT:http://localhost:5173]
+
+RewriteCond %{REQUEST_METHOD} OPTIONS
+RewriteCond %{HTTP:Origin} ^http://localhost:3000$
+RewriteRule ^ - [E=CORS_PREFLIGHT:http://localhost:3000]
+
+# Return 200 immediately for all OPTIONS requests (no PHP needed)
+RewriteCond %{REQUEST_METHOD} OPTIONS
+RewriteRule .* - [R=200,L]
+
+# Set CORS headers on OPTIONS responses (only when CORS_PREFLIGHT env is set)
+<IfModule mod_headers.c>
+    Header always set Access-Control-Allow-Origin      "%{CORS_PREFLIGHT}e"                                          env=CORS_PREFLIGHT
+    Header always set Access-Control-Allow-Credentials "true"                                                        env=CORS_PREFLIGHT
+    Header always set Access-Control-Allow-Methods     "GET, POST, OPTIONS"                                          env=CORS_PREFLIGHT
+    Header always set Access-Control-Allow-Headers     "Content-Type, Authorization, X-Requested-With, X-Auth-Token" env=CORS_PREFLIGHT
+    Header always set Access-Control-Max-Age           "3600"                                                        env=CORS_PREFLIGHT
+
+    # ── Security headers (applied to all responses) ──
+    Header always set X-Content-Type-Options    "nosniff"
+    Header always set X-Frame-Options           "DENY"
+    Header always set Referrer-Policy           "strict-origin-when-cross-origin"
+    Header always set Permissions-Policy        "geolocation=(), microphone=(), camera=()"
+    # HSTS — enforce HTTPS-only for one year, including subdomains. Safe to set
+    # because InfinityFree serves this app over HTTPS exclusively.
+    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+</IfModule>

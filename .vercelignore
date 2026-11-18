@@ -2,7 +2,7 @@
 database/
 .env
 **/.env
-api/uploads/
+endpoints/uploads/
 presentation/
 proposal/
 .env.local

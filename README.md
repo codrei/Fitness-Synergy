@@ -21,7 +21,7 @@ normalized relational database with a full audit trail.
 ```
 
 - **Frontend** — React SPA (Vite) calling the API via `fetch` (`src/api.js`).
-- **API** — PHP REST API in `api/` (one file per action) with shared helpers in `lib/`; token auth stored in the database
+- **API** — PHP REST API in `endpoints/` (one file per action, all served through `api/index.php`) with shared helpers in `lib/`; token auth stored in the database
   (`login.php` / `auth_check.php`), CORS handling, and an audit log.
 - **Database** — relational MySQL schema (`sql/schema.sql`; sample data in `sql/demo_seed.sql`).
 
