@@ -197,6 +197,12 @@ function Login({ theme, loginUser, setLoginUser, loginPass, setLoginPass, loginE
             ACCESS SYSTEM
           </button>
         </form>
+        {/* Public demo only: VITE_DEMO_LOGIN is set on the Vercel demo, e.g. "demo / demo1234". */}
+        {import.meta.env.VITE_DEMO_LOGIN && (
+          <p style={{ marginTop: "16px", fontSize: "13px", textAlign: "center", opacity: 0.8 }}>
+            Demo with sample data. Log in with <strong>{import.meta.env.VITE_DEMO_LOGIN}</strong>
+          </p>
+        )}
       </div>
     </div>
   );

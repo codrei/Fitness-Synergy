@@ -1,0 +1,13 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "installCommand": "cd Frontend && npm ci",
+  "buildCommand": "cd Frontend && npm run build",
+  "outputDirectory": "Frontend/dist",
+  "functions": {
+    "api/*.php": {
+      "runtime": "vercel-php@0.9.0",
+      "excludeFiles": "{Frontend/**,sql/**,database/**,presentation/**,proposal/**,api/uploads/**}"
+    }
+  },
+  "rewrites": [{ "source": "/((?!api/).*)", "destination": "/index.html" }]
+}

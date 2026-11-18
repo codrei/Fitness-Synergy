@@ -1,0 +1,7 @@
+# Never upload local backups (real member data) or secrets
+database/
+.env
+**/.env
+api/uploads/
+presentation/
+proposal/
