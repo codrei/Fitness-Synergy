@@ -5,3 +5,7 @@ database/
 api/uploads/
 presentation/
 proposal/
+.env.local
+.env*
+.local/
+.vercel/

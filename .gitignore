@@ -15,3 +15,5 @@ dist/
 
 # Local-only files (CA bundle for TiDB from Windows)
 .local/
+.vercel
+.env*
