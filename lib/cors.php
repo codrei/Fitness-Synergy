@@ -2,7 +2,7 @@
 // cors.php — single source of truth for CORS handling.
 
 $allowed_origins = [
-    'https://fitness-synergy.vercel.app',
+    'https://fitness-synergy-amber.vercel.app',
     'http://localhost:5173',
     'http://localhost:3000',
 ];
@@ -10,7 +10,7 @@ $allowed_origins = [
 $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
 $allowed_origin = in_array($origin, $allowed_origins, true)
     ? $origin
-    : 'https://fitness-synergy.vercel.app';
+    : 'https://fitness-synergy-amber.vercel.app';
 
 header("Access-Control-Allow-Origin: $allowed_origin");
 header("Access-Control-Allow-Credentials: true");
