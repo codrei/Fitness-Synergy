@@ -88,8 +88,8 @@ try {
     $totalWalkins = array_sum(array_column($dailyData, 'walkins'));
     $totalVisits  = $totalMembers + $totalWalkins;
     $avgPerDay    = count($dailyData) > 0 ? round($totalVisits / count($dailyData), 1) : 0;
-    $peakHour     = count($hourData) > 0 ? array_reduce($hourData, fn($a, $b) => $a['total'] > $b['total'] ? $a : $b) : null;
-    $peakDay      = count($weekdayData) > 0 ? array_reduce($weekdayData, fn($a, $b) => $a['total'] > $b['total'] ? $a : $b) : null;
+    $peakHour     = count($hourData) > 0 ? array_reduce($hourData, fn($a, $b) => $a !== null && $a['total'] > $b['total'] ? $a : $b) : null;
+    $peakDay      = count($weekdayData) > 0 ? array_reduce($weekdayData, fn($a, $b) => $a !== null && $a['total'] > $b['total'] ? $a : $b) : null;
 
     echo json_encode([
         'success'     => true,

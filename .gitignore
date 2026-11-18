@@ -12,3 +12,6 @@ database/
 # Dependencies and build output
 node_modules/
 dist/
+
+# Local-only files (CA bundle for TiDB from Windows)
+.local/

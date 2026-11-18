@@ -7,7 +7,7 @@ require_once __DIR__ . '/../lib/audit.php';
 $session = requireAuth();
 
 // Public demo: the host's disk doesn't keep files, so photo changes are switched off.
-if (getenv('DEMO_MODE') === '1') {
+if ($setting('DEMO_MODE') === '1') {
     http_response_code(403);
     echo json_encode(["success" => false, "error" => "Photo uploads are turned off in this demo."]);
     exit;

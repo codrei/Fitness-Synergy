@@ -2,6 +2,8 @@
 // db.php
 
 date_default_timezone_set('Asia/Manila');
+// Warnings go to the log, never into JSON responses.
+ini_set('display_errors', '0');
 
 // Settings come from the host's environment variables (Vercel), or from a .env
 // file at the repo root for local development (XAMPP).
@@ -35,15 +37,19 @@ if (empty($host) || empty($dbname) || empty($username)) {
     exit;
 }
 
+// PHP 8.5 renamed the MySQL PDO constants; the old names print deprecation warnings into responses.
+$mysqlAttr = fn(string $name) => constant(class_exists('Pdo\Mysql') ? "Pdo\Mysql::ATTR_$name" : "PDO::MYSQL_ATTR_$name");
+
 $options = [
     PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
     PDO::ATTR_TIMEOUT => 5,
-    PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8mb4",
+    $mysqlAttr('INIT_COMMAND') => "SET NAMES utf8mb4",
 ];
 if ($useTls) {
     // Cloud MySQL (e.g. TiDB) requires TLS; verify against the system CA bundle.
-    foreach (['/etc/pki/tls/certs/ca-bundle.crt', '/etc/ssl/certs/ca-certificates.crt'] as $ca) {
-        if (file_exists($ca)) { $options[PDO::MYSQL_ATTR_SSL_CA] = $ca; break; }
+    // DB_SSL_CA lets local Windows PHP point at a CA file; Linux hosts use the system bundle.
+    foreach ([$setting('DB_SSL_CA'), '/etc/pki/tls/certs/ca-bundle.crt', '/etc/ssl/certs/ca-certificates.crt'] as $ca) {
+        if (file_exists($ca)) { $options[$mysqlAttr('SSL_CA')] = $ca; break; }
     }
 }
 
@@ -57,6 +63,8 @@ try {
     // Run timezone as a separate statement so a hosting quirk on one
     // doesn't break the other.
     $conn->exec("SET time_zone = '+08:00'");
+    // The original MariaDB host allowed GROUP BY with extra columns; TiDB/MySQL 8 reject it by default.
+    $conn->exec("SET SESSION sql_mode = REPLACE(@@sql_mode, 'ONLY_FULL_GROUP_BY', '')");
 } catch (PDOException $e) {
     error_log('[db connect] ' . $e->getMessage());
     header("Content-Type: application/json; charset=UTF-8");
